@@ -17,13 +17,14 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
-abstract class AbstractNoSQLCollection<T extends Element> implements NoSQLCollection<T> {
+@SuppressWarnings("javadoc")
+public abstract class AbstractNoSQLCollection<T extends Element> implements NoSQLCollection<T> {
 
 	protected final MongoCollection<Document> collection;
 	protected final Gson jsonManager;
 	private final Class<T> type;
 
-	AbstractNoSQLCollection(final Gson jsonManager, final MongoCollection<Document> collection, final Class<T> type) {
+	protected AbstractNoSQLCollection(final Gson jsonManager, final MongoCollection<Document> collection, final Class<T> type) {
 		this.collection = collection;
 		this.jsonManager = jsonManager;
 		this.type = type;
