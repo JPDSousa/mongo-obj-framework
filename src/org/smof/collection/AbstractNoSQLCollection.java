@@ -31,11 +31,12 @@ public abstract class AbstractNoSQLCollection<T extends Element> implements NoSQ
 	}
 
 	@Override
-	public void add(final T element) {
+	public boolean add(final T element) {
 		final Document jsonObject;
 		final ObjectId id;
 		final Document result = collection.find(getUniqueCondition(element)).first();
-
+		final boolean exists = result != null;
+		
 		try {
 			if(result == null) {
 				jsonObject = Document.parse(jsonManager.toJson(element, type));
@@ -50,6 +51,7 @@ public abstract class AbstractNoSQLCollection<T extends Element> implements NoSQ
 		} catch(InvalidIdException e) {
 			e.printStackTrace();
 		}
+		return exists;
 	}
 	
 	@Override

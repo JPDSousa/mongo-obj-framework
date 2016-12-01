@@ -9,7 +9,7 @@ import org.smof.element.Element;
 @SuppressWarnings("javadoc")
 public interface NoSQLCollection<T extends Element> {
 	
-	void add(T element);
+	boolean add(T element);
 
 	T lookup(String id);
 
