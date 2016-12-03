@@ -35,7 +35,7 @@ public abstract class AbstractNoSQLCollection<T extends Element> implements NoSQ
 		final Document jsonObject;
 		final ObjectId id;
 		final Document result = collection.find(getUniqueCondition(element)).first();
-		final boolean exists = result != null;
+		final boolean added = result == null;
 		
 		try {
 			if(result == null) {
@@ -51,7 +51,7 @@ public abstract class AbstractNoSQLCollection<T extends Element> implements NoSQ
 		} catch(InvalidIdException e) {
 			e.printStackTrace();
 		}
-		return exists;
+		return added;
 	}
 	
 	@Override
@@ -74,9 +74,7 @@ public abstract class AbstractNoSQLCollection<T extends Element> implements NoSQ
 	@Override
 	public T lookup(final String id) {
 		final Document result = collection.find(Filters.eq(Element.ID, new ObjectId(id))).first();
-		
-		System.out.println(result.toJson());
-		
+				
 		return jsonManager.fromJson(result.toJson(), type);
 	}
 
