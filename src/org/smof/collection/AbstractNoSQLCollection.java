@@ -91,8 +91,9 @@ public abstract class AbstractNoSQLCollection<T extends Element> implements NoSQ
 	@Override
 	public void update(final T element) {
 		final Bson query = Filters.eq(Element.ID, new ObjectId(element.getID()));
+		final Document doc = Document.parse(jsonManager.toJson(element, type));
 		
-		collection.findOneAndReplace(query, Document.parse(jsonManager.toJson(element, type)));
+		collection.findOneAndReplace(query, doc);
 	}
 	
 	@Override
