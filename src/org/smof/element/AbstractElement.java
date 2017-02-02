@@ -1,27 +1,34 @@
 package org.smof.element;
 
+import org.bson.types.ObjectId;
+
 @SuppressWarnings("javadoc")
 public abstract class AbstractElement implements Element {
 
-	private String id;
+	private ObjectId id;
 
 	protected AbstractElement() {
 		this.id = null;
 	}
 
-	protected AbstractElement(final String initialID) {
+	protected AbstractElement(final ObjectId initialID) {
 		id = initialID;
 	}
 
 	@Override
-	public String getID() {
+	public ObjectId getId() {
 		return id;
 	}
 
 	@Override
-	public void setID(final String id) throws InvalidIdException {
-		Element.validateStringID(String.class.cast(id));
+	public void setId(final ObjectId id) throws InvalidIdException {
+		Element.validateStringId(String.class.cast(id));
 
 		this.id = id;
+	}
+
+	@Override
+	public String getIdAsString() {
+		return id.toHexString();
 	}
 }
