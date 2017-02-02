@@ -17,21 +17,20 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
-@SuppressWarnings("javadoc")
-public abstract class AbstractNoSQLCollection<T extends Element> implements NoSQLCollection<T> {
+class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	protected final MongoCollection<Document> collection;
 	protected final Gson jsonManager;
 	private final Class<T> type;
 
-	protected AbstractNoSQLCollection(final Gson jsonManager, final MongoCollection<Document> collection, final Class<T> type) {
+	protected SmofCollectionImpl(final Gson jsonManager, final MongoCollection<Document> collection, final Class<T> type) {
 		this.collection = collection;
 		this.jsonManager = jsonManager;
 		this.type = type;
 	}
 
 	@Override
-	public boolean add(final T element) {
+	public boolean insert(final T element) {
 		final Document jsonObject;
 		final ObjectId id;
 		final Document result = collection.find(getUniqueCondition(element)).first();
@@ -43,10 +42,10 @@ public abstract class AbstractNoSQLCollection<T extends Element> implements NoSQ
 				id = new ObjectId();
 				jsonObject.append(Element.ID, id);
 				collection.insertOne(jsonObject);
-				element.setID(id.toString());
+				element.setId(id);
 			}
 			else {
-				element.setID(result.getObjectId(Element.ID).toString());
+				element.setId(result.getObjectId(Element.ID));
 			}
 		} catch(InvalidIdException e) {
 			e.printStackTrace();
@@ -72,8 +71,8 @@ public abstract class AbstractNoSQLCollection<T extends Element> implements NoSQ
 	}
 
 	@Override
-	public T lookup(final String id) {
-		final Document result = collection.find(Filters.eq(Element.ID, new ObjectId(id))).first();
+	public T lookup(final ObjectId id) {
+		final Document result = collection.find(Filters.eq(Element.ID, id)).first();
 				
 		return jsonManager.fromJson(result.toJson(), type);
 	}
@@ -81,16 +80,18 @@ public abstract class AbstractNoSQLCollection<T extends Element> implements NoSQ
 	@Override
 	public Set<T> lookupAll(final Iterable<T> ids) {
 		final Set<T> elements = new LinkedHashSet<>();
-		ids.forEach(i -> elements.add(lookup(i.getID())));
+		ids.forEach(i -> elements.add(lookup(i.getId())));
 		
 		return elements;
 	}
 
-	protected abstract Bson getUniqueCondition(T element);
+	protected Bson getUniqueCondition(T element) {
+		return null;
+	}
 	
 	@Override
 	public void update(final T element) {
-		final Bson query = Filters.eq(Element.ID, new ObjectId(element.getID()));
+		final Bson query = Filters.eq(Element.ID, element.getId());
 		final Document doc = Document.parse(jsonManager.toJson(element, type));
 		
 		collection.findOneAndReplace(query, doc);

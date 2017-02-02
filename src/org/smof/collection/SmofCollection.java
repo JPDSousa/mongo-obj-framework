@@ -3,15 +3,16 @@ package org.smof.collection;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.bson.types.ObjectId;
 import org.smof.element.Element;
 
 
 @SuppressWarnings("javadoc")
-public interface NoSQLCollection<T extends Element> {
+public interface SmofCollection<T extends Element> {
 	
-	boolean add(T element);
+	boolean insert(T element);
 
-	T lookup(String id);
+	T lookup(ObjectId id);
 
 	Set<T> lookupAll(Iterable<T> ids);
 
