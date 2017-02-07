@@ -29,14 +29,14 @@ public class Smof {
 	}
 	
 	private final MongoDatabase database;
-	private final Map<Class<? extends Element>, SmofCollection<? extends Element>> collections;
+	private final SmofCollectionsPool collections;
 	private final Gson gson;
 	private final ElementParser elementParser;
 	
 	private Smof(MongoDatabase database) {
 		final GsonBuilder jsonBuilder = new GsonBuilder();
 		this.database = database;
-		this.collections = new LinkedHashMap<>();
+		this.collections = new SmofCollectionsPool();
 		this.elementParser = ElementParser.getDefault();
 		jsonBuilder.registerTypeAdapterFactory(ElementTypeFactory.getDefault());
 		gson = jsonBuilder.create();
@@ -68,7 +68,7 @@ public class Smof {
 	
 	public boolean dropCollection(String collectionName) {
 		boolean success = false;
-		for(SmofCollection<?> collection : collections.values()) {
+		for(SmofCollection<?> collection : collections) {
 			if(collectionName.equals(collection.getCollectionName())) {
 				collection.getMongoCollection().drop();
 				success = true;
@@ -81,7 +81,7 @@ public class Smof {
 	public <T extends Element> void insert(T element) {
 		Set<Field> fields = elementParser.getExternalFields(element.getClass());
 		
-		if(collections.containsKey(element.getClass())) {
+		if(collections.contains(element.getClass())) {
 			for(Field field : fields) {
 				try {
 					insert(Element.class.cast(field.get(element)));
@@ -89,13 +89,13 @@ public class Smof {
 					e.printStackTrace();
 				}
 			}
-			((SmofCollection<T>) collections.get(element.getClass())).insert(element);	
+			((SmofCollection<T>) collections.getCollection(element.getClass())).insert(element);	
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("cast")
 	public <T extends Element> Stream<T> find(SmofQuery<T> query) {
-		return ((SmofCollection<T>) collections.get(query.getElementClass())).getAll();
+		return ((SmofCollection<T>) collections.getCollection(query.getElementClass())).getAll();
 	}
 
 }
