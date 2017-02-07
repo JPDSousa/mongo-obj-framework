@@ -4,11 +4,13 @@ import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.smof.element.Element;
 import org.smof.element.ElementParser;
 import org.smof.element.ElementTypeFactory;
 import org.smof.element.field.SmofObjectId;
+import org.smof.query.SmofQuery;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -89,6 +91,11 @@ public class Smof {
 			}
 			((SmofCollection<T>) collections.get(element.getClass())).insert(element);	
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends Element> Stream<T> find(SmofQuery<T> query) {
+		return ((SmofCollection<T>) collections.get(query.getElementClass())).getAll();
 	}
 
 }
