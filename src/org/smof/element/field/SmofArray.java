@@ -1,4 +1,4 @@
-package org.smof.element;
+package org.smof.element.field;
 
 import static java.lang.annotation.ElementType.FIELD;
 
@@ -9,11 +9,9 @@ import java.lang.annotation.Target;
 @SuppressWarnings("javadoc")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(FIELD)
-public @interface Field {
-	String name();
-	Type type();
-	String ref() default "";
-	Type arrayType() default Type.NONE;
-	boolean required() default false;
-	String[] valid();//needs to be an iterable
+public @interface SmofArray {
+	public String name();
+	public boolean required() default false;
+	public String[] defaultValue() default {};
+	public String[] validValues() default {};
 }

@@ -10,7 +10,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import org.smof.element.Element;
-import org.smof.element.InvalidIdException;
+import org.smof.exception.InvalidIdException;
 
 import com.google.gson.Gson;
 import com.mongodb.client.FindIterable;
@@ -23,7 +23,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	protected final Gson jsonManager;
 	private final Class<T> type;
 
-	protected SmofCollectionImpl(final Gson jsonManager, final MongoCollection<Document> collection, final Class<T> type) {
+	SmofCollectionImpl(final Gson jsonManager, final MongoCollection<Document> collection, final Class<T> type) {
 		this.collection = collection;
 		this.jsonManager = jsonManager;
 		this.type = type;
@@ -105,6 +105,18 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 			return null;
 		}
 		return jsonManager.fromJson(result.toJson(), type);
+	}
+
+	@Override
+	public String getCollectionName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MongoCollection<Document> getMongoCollection() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

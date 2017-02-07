@@ -1,4 +1,4 @@
-package org.smof.element;
+package org.smof.exception;
 
 import exceptthis.core.AbsCustomException;
 
