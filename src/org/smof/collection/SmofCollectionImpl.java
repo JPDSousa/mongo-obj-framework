@@ -1,7 +1,5 @@
 package org.smof.collection;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -11,8 +9,11 @@ import org.bson.types.ObjectId;
 
 import org.smof.element.Element;
 import org.smof.exception.InvalidIdException;
+import org.smof.query.SmofQuery;
+import org.smof.query.SmofResults;
 
 import com.google.gson.Gson;
+
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -54,8 +55,8 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 	
 	@Override
-	public Stream<T> getAll() {
-		return find(null);
+	public SmofResults<T> find(SmofQuery<T> query) {
+		return query.results(collection.find(query.toBson()), jsonManager);
 	}
 	
 	protected final Stream<T> find(Bson condition) {
@@ -70,20 +71,20 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 				.map(d -> jsonManager.fromJson(d.toJson(), type));
 	}
 
-	@Override
-	public T lookup(final ObjectId id) {
-		final Document result = collection.find(Filters.eq(Element.ID, id)).first();
-				
-		return jsonManager.fromJson(result.toJson(), type);
-	}
+//	@Override
+//	public T lookup(final ObjectId id) {
+//		final Document result = collection.find(Filters.eq(Element.ID, id)).first();
+//				
+//		return jsonManager.fromJson(result.toJson(), type);
+//	}
 
-	@Override
-	public Set<T> lookupAll(final Iterable<T> ids) {
-		final Set<T> elements = new LinkedHashSet<>();
-		ids.forEach(i -> elements.add(lookup(i.getId())));
-		
-		return elements;
-	}
+//	@Override
+//	public Set<T> lookupAll(final Iterable<T> ids) {
+//		final Set<T> elements = new LinkedHashSet<>();
+//		ids.forEach(i -> elements.add(lookup(i.getId())));
+//		
+//		return elements;
+//	}
 
 	protected Bson getUniqueCondition(T element) {
 		return null;
@@ -97,15 +98,15 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		collection.findOneAndReplace(query, doc);
 	}
 	
-	@Override
-	public T get(final T element) {
-		final Document result = collection.find(getUniqueCondition(element)).first();
-		
-		if(result == null) {
-			return null;
-		}
-		return jsonManager.fromJson(result.toJson(), type);
-	}
+//	@Override
+//	public T get(final T element) {
+//		final Document result = collection.find(getUniqueCondition(element)).first();
+//		
+//		if(result == null) {
+//			return null;
+//		}
+//		return jsonManager.fromJson(result.toJson(), type);
+//	}
 
 	@Override
 	public String getCollectionName() {

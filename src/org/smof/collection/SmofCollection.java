@@ -1,11 +1,10 @@
 package org.smof.collection;
 
-import java.util.Set;
-import java.util.stream.Stream;
-
 import org.bson.Document;
-import org.bson.types.ObjectId;
+
 import org.smof.element.Element;
+import org.smof.query.SmofQuery;
+import org.smof.query.SmofResults;
 
 import com.mongodb.client.MongoCollection;
 
@@ -18,14 +17,8 @@ public interface SmofCollection<T extends Element> {
 	
 	boolean insert(T element);
 
-	T lookup(ObjectId id);
-
-	Set<T> lookupAll(Iterable<T> ids);
-
 	void update(T element);
 
-	T get(T element);
-
-	Stream<T> getAll();
+	SmofResults<T> find(SmofQuery<T> query);
 	
 }

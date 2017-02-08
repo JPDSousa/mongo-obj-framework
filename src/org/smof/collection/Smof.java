@@ -1,16 +1,13 @@
 package org.smof.collection;
 
 import java.lang.reflect.Field;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.smof.element.Element;
 import org.smof.element.ElementParser;
 import org.smof.element.ElementTypeFactory;
-import org.smof.element.field.SmofObjectId;
 import org.smof.query.SmofQuery;
+import org.smof.query.SmofResults;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -94,8 +91,8 @@ public class Smof {
 	}
 	
 	@SuppressWarnings("cast")
-	public <T extends Element> Stream<T> find(SmofQuery<T> query) {
-		return ((SmofCollection<T>) collections.getCollection(query.getElementClass())).getAll();
+	public <T extends Element> SmofResults<T> find(SmofQuery<T> query) {
+		return ((SmofCollection<T>) collections.getCollection(query.getElementClass())).find(query);
 	}
 
 }

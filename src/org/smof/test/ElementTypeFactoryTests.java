@@ -3,6 +3,7 @@ package org.smof.test;
 import static org.junit.Assert.*;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 import org.bson.types.ObjectId;
 import org.junit.BeforeClass;
@@ -62,7 +63,7 @@ public class ElementTypeFactoryTests {
 		private final int[] arr1;
 		
 		@SmofArray(name = "arr2", type = SmofField.DATE)
-		private final Instant[] arr2;
+		private final LocalDate[] arr2;
 		
 		private ElementTest() {
 			this.str1 = "test";
@@ -71,7 +72,7 @@ public class ElementTypeFactoryTests {
 			this.date = Instant.now();
 			this.el1 = new ElementTestA(str1, int1, objId, date);
 			this.arr1 = new int[]{2, 3, -1};
-			this.arr2 = new Instant[]{Instant.now(), Instant.now()};
+			this.arr2 = new LocalDate[]{LocalDate.now(), LocalDate.now()};
 		}
 		
 	}
