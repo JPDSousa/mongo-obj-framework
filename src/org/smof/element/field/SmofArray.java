@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
 @Target(FIELD)
 public @interface SmofArray {
 	public String name();
+	public SmofField type();
 	public boolean required() default false;
 	public String[] defaultValue() default {};
 	public String[] validValues() default {};
