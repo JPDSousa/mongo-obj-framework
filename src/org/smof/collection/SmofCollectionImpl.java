@@ -23,11 +23,13 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	protected final MongoCollection<Document> collection;
 	protected final Gson jsonManager;
 	private final Class<T> type;
+	private final String name;
 
-	SmofCollectionImpl(final Gson jsonManager, final MongoCollection<Document> collection, final Class<T> type) {
+	SmofCollectionImpl(String name, Gson jsonManager, MongoCollection<Document> collection, Class<T> type) {
 		this.collection = collection;
 		this.jsonManager = jsonManager;
 		this.type = type;
+		this.name = name;
 	}
 
 	@Override
@@ -110,14 +112,12 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public String getCollectionName() {
-		// TODO Auto-generated method stub
-		return null;
+		return name;
 	}
 
 	@Override
 	public MongoCollection<Document> getMongoCollection() {
-		// TODO Auto-generated method stub
-		return null;
+		return collection;
 	}
 
 }

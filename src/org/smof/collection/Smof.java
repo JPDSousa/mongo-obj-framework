@@ -55,7 +55,7 @@ public class Smof {
 //	}
 	
 	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass) {
-		collections.put(elClass, new SmofCollectionImpl<T>(gson, database.getCollection(collectionName), elClass));
+		collections.put(elClass, new SmofCollectionImpl<T>(collectionName, gson, database.getCollection(collectionName), elClass));
 	}
 	
 	public <T extends Element> void createCollection(String collectionName, Class<T> elClass) {
