@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.smof.element.field.Fields;
+import org.smof.element.field.SmofField;
 import org.smof.element.field.SmofObjectId;
 
 @SuppressWarnings("javadoc")
@@ -21,10 +21,10 @@ public class ElementParser {
 		return singleton;
 	}
 	
-	public Map<Fields, Field> getSmofFields(Class<?> elClass) {
+	public Map<SmofField, Field> getSmofFields(Class<?> elClass) {
 		return Arrays.stream(elClass.getDeclaredFields())
-				.filter(f -> Arrays.stream(Fields.values()).anyMatch(ff -> f.isAnnotationPresent(ff.getAnnotClass())))
-				.collect(Collectors.toMap(f -> Fields.getFieldType(f.getAnnotations()), f -> f));
+				.filter(f -> Arrays.stream(SmofField.values()).anyMatch(ff -> f.isAnnotationPresent(ff.getAnnotClass())))
+				.collect(Collectors.toMap(f -> SmofField.getFieldType(f.getAnnotations()), f -> f));
 	}
 
 	public Set<Field> getExternalFields(Class<? extends Element> elClass) {

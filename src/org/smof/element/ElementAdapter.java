@@ -6,8 +6,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.smof.element.field.SmofArray;
@@ -54,16 +57,14 @@ class ElementAdapter extends TypeAdapter<Element> {
 		case ARRAY:
 			throw new SmofException(new NotSupportedException("Arrays of arrays are not supported yet."));
 		case DATE:
-			if(fieldValue instanceof Instant[]) {
-				for(Instant instant : Instant[].class.cast(fieldValue)) {
-					//writer.jsonValue(value)
-				}
-			}
-			else {
-				throw new SmofException(new InvalidTypeException(fieldValue.getClass(), SmofField.ARRAY));
+			for(Instant instant : parseDateArray(parseArray(fieldValue))) {
+				writeDateValue(writer, instant);
 			}
 			break;
 		case NUMBER:
+			for(Number number : parseNumberArray(parseArray(fieldValue))) {
+				writer.value(number);
+			}
 			break;
 		case OBJECT:
 			break;
@@ -76,6 +77,39 @@ class ElementAdapter extends TypeAdapter<Element> {
 		
 		}
 		writer.endArray();
+	}
+	
+	private Object[] parseArray(Object fieldValue) throws SmofException {
+		if(fieldValue instanceof Collection) {
+			final Collection<?> col = Collection.class.cast(fieldValue);
+			return col.toArray(new Object[col.size()]);
+		}
+		throw new SmofException(new InvalidTypeException(fieldValue.getClass(), SmofField.ARRAY));
+		
+	}
+
+	private Number[] parseNumberArray(Object[] array) throws SmofException {
+		if(array instanceof Number[]) {
+			return Number[].class.cast(array);
+		}
+		throw new SmofException(new InvalidTypeException(array.getClass(), SmofField.ARRAY));
+	}
+
+	private List<Instant> parseDateArray(Object[] rawArray) throws SmofException {
+		if(rawArray instanceof Instant[]) {
+			return Arrays.asList(Instant[].class.cast(rawArray));
+		}
+		else if (rawArray instanceof LocalDateTime[]) {
+			return Arrays.stream(LocalDateTime[].class.cast(rawArray))
+					.map(d -> d.atZone(ZoneId.systemDefault()).toInstant())
+					.collect(Collectors.toList());
+		}
+		else if (rawArray instanceof LocalDate[]) {
+			return Arrays.stream(LocalDate[].class.cast(rawArray))
+					.map(d -> d.atStartOfDay(ZoneId.systemDefault()).toInstant())
+					.collect(Collectors.toList());
+		}
+		throw new SmofException(new InvalidTypeException(rawArray.getClass(), SmofField.ARRAY));
 	}
 
 	private void handleDate(JsonWriter writer, Object fieldValue, SmofDate annotation) throws IOException, SmofException {
