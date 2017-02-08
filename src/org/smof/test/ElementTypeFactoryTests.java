@@ -9,7 +9,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.smof.element.AbstractElement;
 import org.smof.element.ElementTypeFactory;
+import org.smof.element.field.SmofArray;
 import org.smof.element.field.SmofDate;
+import org.smof.element.field.SmofField;
 import org.smof.element.field.SmofInnerObject;
 import org.smof.element.field.SmofNumber;
 import org.smof.element.field.SmofObjectId;
@@ -37,8 +39,9 @@ public class ElementTypeFactoryTests {
 		final int testInt = 31;
 		final ObjectId objId = new ObjectId();
 		final Instant date = Instant.now();
+		final int[] arr1 = {2, 3, -1};
 		final ElementTestA el1 = new ElementTestA(testStr, testInt, objId, date);
-		final ElementTest guineaPig = new ElementTest(testStr, testInt, objId, date, el1);
+		final ElementTest guineaPig = new ElementTest(testStr, testInt, objId, date, el1, arr1);
 		
 		System.out.println(gson.toJson(guineaPig));
 	}
@@ -61,12 +64,16 @@ public class ElementTypeFactoryTests {
 		@SmofInnerObject(name = "el1", required = true)
 		private final ElementTestA el1;
 		
-		private ElementTest(String str1, int int1, ObjectId objId, Instant date, ElementTestA el1) {
+		@SmofArray(name = "arr1", type = SmofField.NUMBER)
+		private final int[] arr1;
+		
+		private ElementTest(String str1, int int1, ObjectId objId, Instant date, ElementTestA el1, int[] arr1) {
 			this.str1 = str1;
 			this.int1 = int1;
 			this.objId = objId;
 			this.date = date;
 			this.el1 = el1;
+			this.arr1 = arr1;
 		}
 		
 	}

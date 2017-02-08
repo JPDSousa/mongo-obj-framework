@@ -1,11 +1,13 @@
 package org.smof.element;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -52,6 +54,7 @@ class ElementAdapter extends TypeAdapter<Element> {
 		if(annotation.required() && fieldValue == null) {
 			throw new SmofException(new MissingRequiredFieldException(annotation.name()));
 		}
+		writer.name(annotation.name());
 		writer.beginArray();
 		switch(annotation.type()) {
 		case ARRAY:
@@ -84,14 +87,40 @@ class ElementAdapter extends TypeAdapter<Element> {
 			final Collection<?> col = Collection.class.cast(fieldValue);
 			return col.toArray(new Object[col.size()]);
 		}
+		else if(fieldValue instanceof Object[]) {
+			return Object[].class.cast(fieldValue);
+		}
+		else if(fieldValue.getClass().isArray() && fieldValue.getClass().getComponentType().isPrimitive()) {
+			Object[] array = new Object[Array.getLength(fieldValue)];
+			for(int i = 0; i < array.length; i++) {
+				array[i] = Array.get(fieldValue, i);
+			}
+			return array;
+		}
 		throw new SmofException(new InvalidTypeException(fieldValue.getClass(), SmofField.ARRAY));
 		
 	}
 
 	private Number[] parseNumberArray(Object[] array) throws SmofException {
+		boolean valid = true;
+		List<Number> numbers;
+		
 		if(array instanceof Number[]) {
 			return Number[].class.cast(array);
 		}
+		numbers = new ArrayList<>();
+		for(int i = 0; valid && i < array.length; i++) {
+			if(array[i] instanceof Number) {
+				numbers.add(Number.class.cast(array[i]));
+			}
+			else {
+				valid = false;
+			}
+		}
+		if(valid) {
+			return numbers.toArray(new Number[numbers.size()]);
+		}
+		
 		throw new SmofException(new InvalidTypeException(array.getClass(), SmofField.ARRAY));
 	}
 
