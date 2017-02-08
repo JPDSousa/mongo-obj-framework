@@ -5,12 +5,42 @@ import java.lang.annotation.Annotation;
 @SuppressWarnings("javadoc")
 public enum SmofField {
 	
-	STRING(SmofString.class),
-	NUMBER(SmofNumber.class),
-	DATE(SmofDate.class),
-	OBJECT(SmofInnerObject.class),
-	OBJECT_ID(SmofObjectId.class),
-	ARRAY(SmofArray.class);
+	STRING(SmofString.class) {
+		@Override
+		protected String getName(Annotation annotation) {
+			return SmofString.class.cast(annotation).name();
+		}
+	},
+	NUMBER(SmofNumber.class) {
+		@Override
+		protected String getName(Annotation annotation) {
+			return SmofNumber.class.cast(annotation).name();
+		}
+	},
+	DATE(SmofDate.class) {
+		@Override
+		protected String getName(Annotation annotation) {
+			return SmofDate.class.cast(annotation).name();
+		}
+	},
+	OBJECT(SmofInnerObject.class) {
+		@Override
+		protected String getName(Annotation annotation) {
+			return SmofInnerObject.class.cast(annotation).name();
+		}
+	},
+	OBJECT_ID(SmofObjectId.class) {
+		@Override
+		protected String getName(Annotation annotation) {
+			return SmofObjectId.class.cast(annotation).name();
+		}
+	},
+	ARRAY(SmofArray.class) {
+		@Override
+		protected String getName(Annotation annotation) {
+			return SmofArray.class.cast(annotation).name();
+		}
+	};
 	
 	private final Class<? extends Annotation> annotClass;
 	
@@ -22,14 +52,34 @@ public enum SmofField {
 		return annotClass;
 	}
 
-	public static SmofField getFieldType(Annotation[] annotations) {
+	public static Wrapper getFieldType(Annotation[] annotations) {
 		for(Annotation annotation : annotations) {
 			for(SmofField f : values()) {
 				if(annotation.annotationType().equals(f.getAnnotClass())) {
-					return f;
+					return new Wrapper(f.getName(annotation), f);
 				}
 			}
 		}
 		return null;
+	}
+	
+	protected abstract String getName(Annotation annotation);
+
+	public static class Wrapper {
+		private final SmofField type;
+		private final String name;
+		
+		private Wrapper(String name, SmofField type) {
+			this.name = name;
+			this.type = type;
+		}
+
+		public SmofField getType() {
+			return type;
+		}
+
+		public String getName() {
+			return name;
+		}
 	}
 }

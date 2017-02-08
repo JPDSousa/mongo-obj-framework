@@ -176,17 +176,17 @@ class ElementAdapter extends TypeAdapter<Element> {
 					throw new SmofException(new MissingRequiredFieldException(annotation.name()));
 				writer.name(annotation.name());
 			}
-			final Map<SmofField, Field> fields = parser.getSmofFields(obj.getClass());
+			final Map<SmofField.Wrapper, Field> fields = parser.getSmofFields(obj.getClass());
 			Field field;
 			Object fieldValue;
 
 			writer.beginObject();
-			for(SmofField fieldType : fields.keySet()) {
+			for(SmofField.Wrapper fieldType : fields.keySet()) {
 				field = fields.get(fieldType);
 				field.setAccessible(true);
 				fieldValue = field.get(obj);
 
-				switch(fieldType) {
+				switch(fieldType.getType()) {
 				case ARRAY:
 					handleArray(writer, fieldValue, field.getAnnotation(SmofArray.class));
 					break;

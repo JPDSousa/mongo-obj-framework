@@ -34,14 +34,8 @@ public class ElementTypeFactoryTests {
 	}
 
 	@Test
-	public void test() {
-		final String testStr = "test";
-		final int testInt = 31;
-		final ObjectId objId = new ObjectId();
-		final Instant date = Instant.now();
-		final int[] arr1 = {2, 3, -1};
-		final ElementTestA el1 = new ElementTestA(testStr, testInt, objId, date);
-		final ElementTest guineaPig = new ElementTest(testStr, testInt, objId, date, el1, arr1);
+	public void test() { 
+		final ElementTest guineaPig = new ElementTest();
 		
 		System.out.println(gson.toJson(guineaPig));
 	}
@@ -67,13 +61,17 @@ public class ElementTypeFactoryTests {
 		@SmofArray(name = "arr1", type = SmofField.NUMBER)
 		private final int[] arr1;
 		
-		private ElementTest(String str1, int int1, ObjectId objId, Instant date, ElementTestA el1, int[] arr1) {
-			this.str1 = str1;
-			this.int1 = int1;
-			this.objId = objId;
-			this.date = date;
-			this.el1 = el1;
-			this.arr1 = arr1;
+		@SmofArray(name = "arr2", type = SmofField.DATE)
+		private final Instant[] arr2;
+		
+		private ElementTest() {
+			this.str1 = "test";
+			this.int1 = 31;
+			this.objId = new ObjectId();
+			this.date = Instant.now();
+			this.el1 = new ElementTestA(str1, int1, objId, date);
+			this.arr1 = new int[]{2, 3, -1};
+			this.arr2 = new Instant[]{Instant.now(), Instant.now()};
 		}
 		
 	}

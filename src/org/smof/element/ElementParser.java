@@ -21,7 +21,7 @@ public class ElementParser {
 		return singleton;
 	}
 	
-	public Map<SmofField, Field> getSmofFields(Class<?> elClass) {
+	public Map<SmofField.Wrapper, Field> getSmofFields(Class<?> elClass) {
 		return Arrays.stream(elClass.getDeclaredFields())
 				.filter(f -> Arrays.stream(SmofField.values()).anyMatch(ff -> f.isAnnotationPresent(ff.getAnnotClass())))
 				.collect(Collectors.toMap(f -> SmofField.getFieldType(f.getAnnotations()), f -> f));
