@@ -3,7 +3,7 @@ package org.smof.element.field;
 import java.lang.annotation.Annotation;
 
 @SuppressWarnings("javadoc")
-public enum Fields {
+public enum SmofField {
 	
 	STRING(SmofString.class),
 	NUMBER(SmofNumber.class),
@@ -14,7 +14,7 @@ public enum Fields {
 	
 	private final Class<? extends Annotation> annotClass;
 	
-	private Fields(Class<? extends Annotation> annotClass) {
+	private SmofField(Class<? extends Annotation> annotClass) {
 		this.annotClass = annotClass;
 	}
 
@@ -22,9 +22,9 @@ public enum Fields {
 		return annotClass;
 	}
 
-	public static Fields getFieldType(Annotation[] annotations) {
+	public static SmofField getFieldType(Annotation[] annotations) {
 		for(Annotation annotation : annotations) {
-			for(Fields f : values()) {
+			for(SmofField f : values()) {
 				if(annotation.annotationType().equals(f.getAnnotClass())) {
 					return f;
 				}
