@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @SuppressWarnings("javadoc")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(FIELD)
-public @interface SmofInnerObject {
+public @interface SmofObject {
 	public String name();
 	public boolean required() default false;
 }

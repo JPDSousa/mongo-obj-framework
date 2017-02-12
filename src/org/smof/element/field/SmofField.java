@@ -23,10 +23,10 @@ public enum SmofField {
 			return SmofDate.class.cast(annotation).name();
 		}
 	},
-	OBJECT(SmofInnerObject.class) {
+	OBJECT(SmofObject.class) {
 		@Override
 		protected String getName(Annotation annotation) {
-			return SmofInnerObject.class.cast(annotation).name();
+			return SmofObject.class.cast(annotation).name();
 		}
 	},
 	OBJECT_ID(SmofObjectId.class) {

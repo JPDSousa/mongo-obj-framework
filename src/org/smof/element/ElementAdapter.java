@@ -18,7 +18,7 @@ import org.bson.types.ObjectId;
 import org.smof.element.field.SmofArray;
 import org.smof.element.field.SmofDate;
 import org.smof.element.field.SmofField;
-import org.smof.element.field.SmofInnerObject;
+import org.smof.element.field.SmofObject;
 import org.smof.element.field.SmofNumber;
 import org.smof.element.field.SmofObjectId;
 import org.smof.element.field.SmofString;
@@ -47,7 +47,7 @@ class ElementAdapter extends TypeAdapter<Element> {
 
 	@Override
 	public void write(JsonWriter writer, Element element) throws IOException {
-		handleObject(writer, element);
+		handleObject(writer, element, true);
 	}
 
 	private void handleArray(JsonWriter writer, Object fieldValue, SmofArray annotation) throws SmofException, IOException {
@@ -169,7 +169,7 @@ class ElementAdapter extends TypeAdapter<Element> {
 		writer.jsonValue(dateBuilder.toString());
 	}
 
-	private void handleObject(JsonWriter writer, Object obj, SmofInnerObject annotation) throws IOException, SmofException {
+	private void handleObject(JsonWriter writer, Object obj, SmofObject annotation) throws IOException, SmofException {
 		if(annotation.required() && obj == null)
 			throw new SmofException(new MissingRequiredFieldException(annotation.name()));
 		writer.name(annotation.name());
@@ -178,16 +178,25 @@ class ElementAdapter extends TypeAdapter<Element> {
 			writer.beginObject();
 			for(Object key : map.keySet()) {
 				writer.name(key.toString());
-				handleObject(writer, map.get(key));
+				handleObject(writer, map.get(key), false);
 			}
 			writer.endObject();
 		}
 		else {
-			handleObject(writer, obj);	
+			handleObject(writer, obj, false);	
 		}
 	}
 
-	private void handleObject(JsonWriter writer, Object obj) throws IOException {
+	private void handleObject(JsonWriter writer, Object obj, boolean primary) throws IOException {
+		if(!primary && obj instanceof Element) {
+			writeObjectId(writer, Element.class.cast(obj).getId());
+		}
+		else {
+			writeObject(writer, obj);
+		}
+	}
+	
+	private void writeObject(JsonWriter writer, Object obj) throws IOException {
 		try {
 			final Map<SmofField.Wrapper, Field> fields = parser.getSmofFields(obj.getClass());
 			Field field;
@@ -210,7 +219,7 @@ class ElementAdapter extends TypeAdapter<Element> {
 					handleNumber(writer, fieldValue, field.getAnnotation(SmofNumber.class));
 					break;
 				case OBJECT:
-					handleObject(writer, fieldValue, field.getAnnotation(SmofInnerObject.class));
+					handleObject(writer, fieldValue, field.getAnnotation(SmofObject.class));
 					break;
 				case OBJECT_ID:
 					handleObjectId(writer, fieldValue, field.getAnnotation(SmofObjectId.class));
@@ -232,9 +241,13 @@ class ElementAdapter extends TypeAdapter<Element> {
 	private void handleObjectId(JsonWriter writer, Object fieldValue, SmofObjectId annotation) throws IOException, SmofException {
 		if(annotation.required() && fieldValue == null)
 			throw new SmofException(new MissingRequiredFieldException(annotation.name()));
-		final StringBuilder objectIdBuilder = new StringBuilder("ObjectId(\"");
-		objectIdBuilder.append(ObjectId.class.cast(fieldValue).toHexString()).append("\")");
 		writer.name(annotation.name());
+		writeObjectId(writer, ObjectId.class.cast(fieldValue));
+	}
+	
+	private void writeObjectId(JsonWriter writer, ObjectId objId) throws IOException {
+		final StringBuilder objectIdBuilder = new StringBuilder("ObjectId(\"");
+		objectIdBuilder.append(objId.toHexString()).append("\")");
 		writer.jsonValue(objectIdBuilder.toString());
 	}
 
@@ -243,7 +256,7 @@ class ElementAdapter extends TypeAdapter<Element> {
 		writer.value(Number.class.cast(fieldValue));
 	}
 
-	private void handleString(JsonWriter writer, Object fieldValue, SmofString annotation) throws IOException, SmofException {
+	private void handleString(JsonWriter writer, Object fieldValue, SmofString annotation) throws IOException {
 		writer.name(annotation.name());
 		
 		if(fieldValue instanceof Enum<?>) {
