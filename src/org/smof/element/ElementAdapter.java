@@ -47,7 +47,7 @@ class ElementAdapter extends TypeAdapter<Element> {
 
 	@Override
 	public void write(JsonWriter writer, Element element) throws IOException {
-		handleObject(writer, element, null);
+		handleObject(writer, element);
 	}
 
 	private void handleArray(JsonWriter writer, Object fieldValue, SmofArray annotation) throws SmofException, IOException {
@@ -77,11 +77,11 @@ class ElementAdapter extends TypeAdapter<Element> {
 			break;
 		default:
 			break;
-		
+
 		}
 		writer.endArray();
 	}
-	
+
 	private Object[] parseArray(Object fieldValue) throws SmofException {
 		if(fieldValue instanceof Collection) {
 			final Collection<?> col = Collection.class.cast(fieldValue);
@@ -98,13 +98,13 @@ class ElementAdapter extends TypeAdapter<Element> {
 			return array;
 		}
 		throw new SmofException(new InvalidTypeException(fieldValue.getClass(), SmofField.ARRAY));
-		
+
 	}
 
 	private Number[] parseNumberArray(Object[] array) throws SmofException {
 		boolean valid = true;
 		List<Number> numbers;
-		
+
 		if(array instanceof Number[]) {
 			return Number[].class.cast(array);
 		}
@@ -120,7 +120,7 @@ class ElementAdapter extends TypeAdapter<Element> {
 		if(valid) {
 			return numbers.toArray(new Number[numbers.size()]);
 		}
-		
+
 		throw new SmofException(new InvalidTypeException(array.getClass(), SmofField.ARRAY));
 	}
 
@@ -148,7 +148,7 @@ class ElementAdapter extends TypeAdapter<Element> {
 		writer.name(annotation.name());
 		writeDateValue(writer, parseDate(fieldValue));
 	}
-	
+
 	private Instant parseDate(Object fieldValue) throws SmofException {
 		if(fieldValue instanceof Instant) {
 			return Instant.class.cast(fieldValue);
@@ -169,13 +169,26 @@ class ElementAdapter extends TypeAdapter<Element> {
 		writer.jsonValue(dateBuilder.toString());
 	}
 
-	private void handleObject(JsonWriter writer, Object obj, SmofInnerObject annotation) throws IOException {
-		try {
-			if(annotation != null) {
-				if(annotation.required() && obj == null)
-					throw new SmofException(new MissingRequiredFieldException(annotation.name()));
-				writer.name(annotation.name());
+	private void handleObject(JsonWriter writer, Object obj, SmofInnerObject annotation) throws IOException, SmofException {
+		if(annotation.required() && obj == null)
+			throw new SmofException(new MissingRequiredFieldException(annotation.name()));
+		writer.name(annotation.name());
+		if(obj instanceof Map) {
+			Map<?, ?> map = Map.class.cast(obj);
+			writer.beginObject();
+			for(Object key : map.keySet()) {
+				writer.name(key.toString());
+				handleObject(writer, map.get(key));
 			}
+			writer.endObject();
+		}
+		else {
+			handleObject(writer, obj);	
+		}
+	}
+
+	private void handleObject(JsonWriter writer, Object obj) throws IOException {
+		try {
 			final Map<SmofField.Wrapper, Field> fields = parser.getSmofFields(obj.getClass());
 			Field field;
 			Object fieldValue;
@@ -230,9 +243,14 @@ class ElementAdapter extends TypeAdapter<Element> {
 		writer.value(Number.class.cast(fieldValue));
 	}
 
-	private void handleString(JsonWriter writer, Object fieldValue, SmofString annotation) throws IOException {
+	private void handleString(JsonWriter writer, Object fieldValue, SmofString annotation) throws IOException, SmofException {
 		writer.name(annotation.name());
-		writer.value(String.class.cast(fieldValue));
+		
+		if(fieldValue instanceof Enum<?>) {
+			writer.value(Enum.class.cast(fieldValue).name());
+		} else {
+			writer.value(fieldValue.toString());
+		}
 	}
 
 }
