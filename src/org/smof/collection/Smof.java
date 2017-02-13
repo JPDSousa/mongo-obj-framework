@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.util.Set;
 
 import org.smof.element.Element;
+import org.smof.element.ElementFactory;
+import org.smof.element.ElementFactoryPool;
 import org.smof.element.ElementParser;
 import org.smof.element.ElementTypeFactory;
 import org.smof.query.SmofQuery;
@@ -29,12 +31,15 @@ public class Smof {
 	private final SmofCollectionsPool collections;
 	private final Gson gson;
 	private final ElementParser elementParser;
+	private final ElementFactoryPool factories;
 	
 	private Smof(MongoDatabase database) {
 		final GsonBuilder jsonBuilder = new GsonBuilder();
 		this.database = database;
 		this.collections = new SmofCollectionsPool();
 		this.elementParser = ElementParser.getDefault();
+		this.factories = new ElementFactoryPool();
+		ElementTypeFactory.init(factories);
 		jsonBuilder.registerTypeAdapterFactory(ElementTypeFactory.getDefault());
 		gson = jsonBuilder.create();
 	}
@@ -54,13 +59,14 @@ public class Smof {
 //		}).start();;
 //	}
 	
-	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass) {
+	public <T extends Element> void loadCollection(String collectionName, ElementFactory<T> factory, Class<T> elClass) {
+		factories.put(elClass, factory);
 		collections.put(elClass, new SmofCollectionImpl<T>(collectionName, gson, database.getCollection(collectionName), elClass));
 	}
 	
-	public <T extends Element> void createCollection(String collectionName, Class<T> elClass) {
+	public <T extends Element> void createCollection(String collectionName, ElementFactory<T> factory, Class<T> elClass) {
 		database.createCollection(collectionName);
-		loadCollection(collectionName, elClass);
+		loadCollection(collectionName, factory, elClass);
 	}
 	
 	public boolean dropCollection(String collectionName) {

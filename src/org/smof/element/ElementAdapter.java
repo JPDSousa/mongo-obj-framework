@@ -31,18 +31,22 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-class ElementAdapter extends TypeAdapter<Element> {
+class ElementAdapter<T extends Element> extends TypeAdapter<Element> {
 
 	private final ElementParser parser;
+	private final ElementFactory<T> factory;
 
-	ElementAdapter() {
+	ElementAdapter(ElementFactory<T> factory) {
 		parser = ElementParser.getDefault();
+		this.factory = factory;
 	}
 
 	@Override
 	public Element read(JsonReader reader) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		final ElementFieldMap fieldMap = new ElementFieldMap();
+		
+		
+		return factory.createElement(fieldMap);
 	}
 
 	@Override

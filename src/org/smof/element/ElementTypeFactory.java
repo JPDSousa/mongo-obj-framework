@@ -11,14 +11,20 @@ public class ElementTypeFactory implements TypeAdapterFactory {
 	private static ElementTypeFactory singleton;
 
 	public static ElementTypeFactory getDefault() {
-		if(singleton == null) {
-			singleton = new ElementTypeFactory();
-		}
-
 		return singleton;
 	}
+	
+	public static void init(ElementFactoryPool factories) {
+		if(singleton == null) {
+			singleton = new ElementTypeFactory(factories);
+		}
+	}
+	
+	private final ElementFactoryPool factories;
 
-	private ElementTypeFactory() {}
+	private ElementTypeFactory(ElementFactoryPool factories) {
+		this.factories = factories;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -26,7 +32,13 @@ public class ElementTypeFactory implements TypeAdapterFactory {
 		if(!Element.class.isAssignableFrom(arg1.getRawType())) {
 			return null;
 		}
-		return (TypeAdapter<T>) new ElementAdapter();
+		return (TypeAdapter<T>) createAdapter(arg1.getRawType());
+	}
+	
+	@SuppressWarnings("unchecked")
+	private ElementAdapter<? extends Element> createAdapter(Class<?> rawType) {
+		final Class<? extends Element> type = ((Class<? extends Element>) rawType);
+		return new ElementAdapter<>(factories.get(type)); 
 	}
 
 }
