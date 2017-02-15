@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -116,9 +117,27 @@ public class SmofAdapter<T> {
 		return null;
 	}
 
-	private Object getDate(SmofField field, BsonValue value) {
-		// TODO Auto-generated method stub
-		return null;
+	private Object getDate(SmofField field, BsonValue value) throws UnsupportedException {
+		final Class<?> fieldClass = field.getField().getType();
+		final BsonDateTime date;
+		if(value.isDateTime()) {
+			date = value.asDateTime();
+			if(fieldClass.equals(Instant.class)) {
+				return Instant.ofEpochMilli(date.getValue());
+			}
+			else if(fieldClass.equals(LocalDateTime.class)) {
+				return LocalDateTime.ofInstant(
+						Instant.ofEpochMilli(date.getValue()), 
+						ZoneId.systemDefault());
+			}
+			else if(fieldClass.equals(LocalDate.class)) {
+				return LocalDateTime.ofInstant(
+						Instant.ofEpochMilli(date.getValue()), 
+						ZoneId.systemDefault())
+						.toLocalDate();
+			}
+		}
+		throw new UnsupportedException();
 	}
 
 	private Object getArray(SmofField field, BsonValue value) {
