@@ -1,10 +1,10 @@
 package org.smof.query;
 
-import org.bson.Document;
+import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 import org.smof.element.Element;
+import org.smof.element.SmofAdapter;
 
-import com.google.gson.Gson;
 import com.mongodb.client.FindIterable;
 
 @SuppressWarnings("javadoc")
@@ -26,7 +26,7 @@ public class SmofQuery<T extends Element> {
 		return conditions;
 	}
 
-	public SmofResults<T> results(FindIterable<Document> find, Gson jsonManager) {
-		return new SmofResults<T>(find, jsonManager, elementClass);
+	public SmofResults<T> results(FindIterable<BsonDocument> find, SmofAdapter<T> parser) {
+		return new SmofResults<T>(find, parser);
 	}
 }

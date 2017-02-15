@@ -1,85 +1,124 @@
 package org.smof.element.field;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+
+import javax.lang.model.element.Element;
+
+import org.smof.exception.InvalidSmofTypeException;
 
 @SuppressWarnings("javadoc")
-public enum SmofField {
-	
-	STRING(SmofString.class) {
-		@Override
-		protected String getName(Annotation annotation) {
-			return SmofString.class.cast(annotation).name();
+public class SmofField implements Comparable<SmofField>{
+
+	public static enum FieldType {
+
+		STRING(SmofString.class),
+		NUMBER(SmofNumber.class),
+		DATE(SmofDate.class),
+		OBJECT(SmofObject.class),
+		OBJECT_ID(SmofObjectId.class),
+		ARRAY(SmofArray.class);
+
+		private final Class<? extends Annotation> annotClass;
+
+		private FieldType(Class<? extends Annotation> annotClass) {
+			this.annotClass = annotClass;
 		}
-	},
-	NUMBER(SmofNumber.class) {
-		@Override
-		protected String getName(Annotation annotation) {
-			return SmofNumber.class.cast(annotation).name();
+
+		public Class<? extends Annotation> getAnnotClass() {
+			return annotClass;
 		}
-	},
-	DATE(SmofDate.class) {
-		@Override
-		protected String getName(Annotation annotation) {
-			return SmofDate.class.cast(annotation).name();
-		}
-	},
-	OBJECT(SmofObject.class) {
-		@Override
-		protected String getName(Annotation annotation) {
-			return SmofObject.class.cast(annotation).name();
-		}
-	},
-	OBJECT_ID(SmofObjectId.class) {
-		@Override
-		protected String getName(Annotation annotation) {
-			return SmofObjectId.class.cast(annotation).name();
-		}
-	},
-	ARRAY(SmofArray.class) {
-		@Override
-		protected String getName(Annotation annotation) {
-			return SmofArray.class.cast(annotation).name();
-		}
-	};
-	
-	private final Class<? extends Annotation> annotClass;
-	
-	private SmofField(Class<? extends Annotation> annotClass) {
-		this.annotClass = annotClass;
 	}
 
-	public Class<? extends Annotation> getAnnotClass() {
-		return annotClass;
+	private final FieldType type;
+	private final String name;
+	private final boolean required;
+	private final Annotation annotation;
+	private final Field field;
+	private final boolean external;
+
+	public SmofField(Field field, FieldType type) throws InvalidSmofTypeException {
+		final SmofArray smofArray;
+		final SmofDate smofDate;
+		final SmofNumber smofNumber;
+		final SmofObject smofObject;
+		final SmofObjectId smofObjectId;
+		final SmofString smofString;
+		boolean external = false;
+
+		switch(type) {
+		case ARRAY:
+			smofArray = field.getAnnotation(SmofArray.class);
+			name = smofArray.name();
+			required = smofArray.required();
+			annotation = smofArray;
+			break;
+		case DATE:
+			smofDate = field.getAnnotation(SmofDate.class);
+			name = smofDate.name();
+			required = smofDate.required();
+			annotation = smofDate;
+			break;
+		case NUMBER:
+			smofNumber = field.getAnnotation(SmofNumber.class);
+			name = smofNumber.name();
+			required = smofNumber.required();
+			annotation = smofNumber;
+			break;
+		case OBJECT:
+			smofObject = field.getAnnotation(SmofObject.class);
+			name = smofObject.name();
+			required = smofObject.required();
+			annotation = smofObject;
+			break;
+		case OBJECT_ID:
+			smofObjectId = field.getAnnotation(SmofObjectId.class);
+			name = smofObjectId.name();
+			required = smofObjectId.required();
+			annotation = smofObjectId;
+			external = field.getType().equals(Element.class);
+			break;
+		case STRING:
+			smofString = field.getAnnotation(SmofString.class);
+			name = smofString.name();
+			required = smofString.required();
+			annotation = smofString;
+			break;
+		default:
+			throw new InvalidSmofTypeException();
+		}
+		this.field = field;
+		this.type = type;
+		this.external = external;
 	}
 
-	public static Wrapper getFieldType(Annotation[] annotations) {
-		for(Annotation annotation : annotations) {
-			for(SmofField f : values()) {
-				if(annotation.annotationType().equals(f.getAnnotClass())) {
-					return new Wrapper(f.getName(annotation), f);
-				}
-			}
-		}
-		return null;
+	public FieldType getType() {
+		return type;
 	}
-	
-	protected abstract String getName(Annotation annotation);
 
-	public static class Wrapper {
-		private final SmofField type;
-		private final String name;
-		
-		private Wrapper(String name, SmofField type) {
-			this.name = name;
-			this.type = type;
-		}
+	public String getName() {
+		return name;
+	}
 
-		public SmofField getType() {
-			return type;
-		}
+	public boolean isRequired() {
+		return required;
+	}
 
-		public String getName() {
-			return name;
-		}
+	public <T extends Annotation> T getSmofAnnotationAs(Class<T> annotationType) {
+		return annotationType.cast(annotation);
+	}
+
+	public Field getField() {
+		return field;
+	}
+
+	@Override
+	public int compareTo(SmofField o) {
+		final int boolCompare = Boolean.compare(this.isRequired(), o.isRequired());
+		return boolCompare == 0 ? String.CASE_INSENSITIVE_ORDER.compare(this.name, o.name) : boolCompare;
+	}
+
+	public boolean isExternal() {
+		return external;
 	}
 }

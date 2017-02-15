@@ -1,18 +1,17 @@
 package org.smof.collection;
 
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
+import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import org.smof.element.Element;
+import org.smof.element.SmofAdapter;
 import org.smof.exception.InvalidIdException;
 import org.smof.query.SmofQuery;
 import org.smof.query.SmofResults;
-
-import com.google.gson.Gson;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -20,35 +19,35 @@ import com.mongodb.client.model.Filters;
 
 class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
-	protected final MongoCollection<Document> collection;
-	protected final Gson jsonManager;
+	protected final MongoCollection<BsonDocument> collection;
 	private final Class<T> type;
 	private final String name;
+	private final SmofAdapter<T> parser;
 
-	SmofCollectionImpl(String name, Gson jsonManager, MongoCollection<Document> collection, Class<T> type) {
+	SmofCollectionImpl(String name, MongoCollection<BsonDocument> collection, SmofAdapter<T> parser) {
 		this.collection = collection;
-		this.jsonManager = jsonManager;
-		this.type = type;
+		this.type = parser.getType();
 		this.name = name;
+		this.parser = parser;
 	}
 
 	@Override
 	public boolean insert(final T element) {
 		final Document jsonObject;
 		final ObjectId id;
-		final Document result = collection.find(getUniqueCondition(element)).first();
+		final BsonDocument result = collection.find(getUniqueCondition(element)).first();
 		final boolean added = result == null;
 		
 		try {
 			if(result == null) {
-				jsonObject = Document.parse(jsonManager.toJson(element, type));
+//				jsonObject = Document.parse(jsonManager.toJson(element, type));
 				id = new ObjectId();
-				jsonObject.append(Element.ID, id);
-				collection.insertOne(jsonObject);
+//				jsonObject.append(Element.ID, id);
+//				collection.insertOne(jsonObject);
 				element.setId(id);
 			}
 			else {
-				element.setId(result.getObjectId(Element.ID));
+//				element.setId(result.getObjectId(Element.ID));
 			}
 		} catch(InvalidIdException e) {
 			e.printStackTrace();
@@ -58,19 +57,20 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	
 	@Override
 	public SmofResults<T> find(SmofQuery<T> query) {
-		return query.results(collection.find(query.toBson()), jsonManager);
+		return query.results(collection.find(query.toBson()), parser);
 	}
 	
 	protected final Stream<T> find(Bson condition) {
-		final FindIterable<Document> result;
+		final FindIterable<BsonDocument> result;
 		if(condition == null) {
 			result = collection.find();
 		} else {
 			result = collection.find(condition);
 		}
 		
-		return StreamSupport.stream(result.spliterator(), false)
-				.map(d -> jsonManager.fromJson(d.toJson(), type));
+//		return StreamSupport.stream(result.spliterator(), false)
+//				.map(d -> jsonManager.fromJson(d.toJson(), type));
+		return null;
 	}
 
 //	@Override
@@ -95,9 +95,9 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	@Override
 	public void update(final T element) {
 		final Bson query = Filters.eq(Element.ID, element.getId());
-		final Document doc = Document.parse(jsonManager.toJson(element, type));
-		
-		collection.findOneAndReplace(query, doc);
+//		final Document doc = Document.parse(jsonManager.toJson(element, type));
+//		
+//		collection.findOneAndReplace(query, doc);
 	}
 	
 //	@Override
@@ -116,8 +116,13 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	@Override
-	public MongoCollection<Document> getMongoCollection() {
+	public MongoCollection<BsonDocument> getMongoCollection() {
 		return collection;
+	}
+
+	@Override
+	public SmofAdapter<T> getParser() {
+		return parser;
 	}
 
 }

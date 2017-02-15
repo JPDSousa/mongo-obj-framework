@@ -5,70 +5,91 @@ import static org.junit.Assert.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
+import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.smof.element.AbstractElement;
-import org.smof.element.Element;
-import org.smof.element.ElementFactory;
-import org.smof.element.ElementFactoryPool;
-import org.smof.element.ElementFieldMap;
-import org.smof.element.ElementTypeFactory;
+import org.smof.element.SmofFactory;
+import org.smof.element.SmofAnnotationParser;
+import org.smof.element.SmofAdapterPool;
+import org.smof.element.SmofAdapter;
 import org.smof.element.field.SmofArray;
 import org.smof.element.field.SmofDate;
-import org.smof.element.field.SmofField;
 import org.smof.element.field.SmofObject;
 import org.smof.element.field.SmofNumber;
 import org.smof.element.field.SmofObjectId;
 import org.smof.element.field.SmofString;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import org.smof.exception.InvalidSmofTypeException;
+import org.smof.exception.NoSuchAdapterException;
+import org.smof.exception.SmofException;
+import org.smof.element.field.SmofField.FieldType;
 
 @SuppressWarnings("javadoc")
 public class ElementTypeFactoryTests {
 	
-	private static Gson gson;
-
+	private static SmofAdapterPool adapters;
+	
 	@BeforeClass
-	public static void setUpBeforeClass() {
-		final GsonBuilder builder = new GsonBuilder();
-		final ElementFactoryPool factories;
-		factories = new ElementFactoryPool();
-		factories.put(ElStrTest.class, new ElStrTest());
-		factories.put(ElObjIdTest.class, new ElObjIdTest());
-		factories.put(ElNumTest.class, new ElNumTest());
-		factories.put(ElDateTest.class, new ElDateTest());
-		factories.put(ElObjTest.class, new ElObjTest());
-		factories.put(ElObjTest.ElObjTestB.class, new ElObjTest.ElObjTestB());
-		factories.put(ElArrTest.class, new ElArrTest());
+	public static void setUpBeforeClass() throws InvalidSmofTypeException {
+		adapters = new SmofAdapterPool();
 		
-		ElementTypeFactory.init(factories);
-		builder.registerTypeAdapterFactory(ElementTypeFactory.getDefault());
+		adapters.put(buildAdapter(ElStrTest.class, new ElStrTest()));
+		adapters.put(buildAdapter(ElObjIdTest.class, new ElObjIdTest()));
+		adapters.put(buildAdapter(ElNumTest.class, new ElNumTest()));
+		adapters.put(buildAdapter(ElDateTest.class, new ElDateTest()));
+		adapters.put(buildAdapter(ElObjTest.class, new ElObjTest()));
+		adapters.put(buildAdapter(ElObjTest.ElObjTestB.class, new ElObjTest.ElObjTestB()));
+		adapters.put(buildAdapter(ElObjTest.ElObjTestA.class, new ElObjTest.ElObjTestA()));
+		adapters.put(buildAdapter(ElArrTest.class, new ElArrTest()));
 		
-		gson = builder.create();
+		adapters.put(new SmofAdapter<>(new ElArrTest(), new SmofAnnotationParser<>(ElArrTest.class), adapters));
+	}
+	
+	private static <T> SmofAdapter<T> buildAdapter(Class<T> clazz, SmofFactory<T> factory) throws InvalidSmofTypeException {
+		return new SmofAdapter<T>(factory, new SmofAnnotationParser<>(clazz), adapters);
 	}
 
 	@Test
-	public void test() {
-		final List<Object> pigs = new ArrayList<>();
-		pigs.add(new ElStrTest());
-		pigs.add(new ElNumTest());
-		pigs.add(new ElDateTest());
-		pigs.add(new ElObjTest());
-		pigs.add(new ElArrTest());
-		pigs.add(new ElObjIdTest());
-		
-		pigs.forEach(p -> System.out.println(gson.toJson(p)));
+	public void testString() throws SmofException, NoSuchAdapterException {
+		final SmofAdapter<ElStrTest> parser = adapters.get(ElStrTest.class); 
+		System.out.println(parser.write(new ElStrTest()).toJson());
 	}
 	
-	private static class ElStrTest extends AbstractElement implements ElementFactory<ElStrTest> {
+	@Test
+	public void testObjectId() throws SmofException, NoSuchAdapterException {
+		final SmofAdapter<ElObjIdTest> parser = adapters.get(ElObjIdTest.class); 
+		System.out.println(parser.write(new ElObjIdTest()).toJson());
+	}
+	
+	@Test
+	public void testNumber() throws SmofException, NoSuchAdapterException {
+		final SmofAdapter<ElNumTest> parser = adapters.get(ElNumTest.class); 
+		System.out.println(parser.write(new ElNumTest()).toJson());
+	}
+	
+	@Test
+	public void testDate() throws SmofException, NoSuchAdapterException {
+		final SmofAdapter<ElDateTest> parser = adapters.get(ElDateTest.class); 
+		System.out.println(parser.write(new ElDateTest()).toJson());
+	}
+	
+	@Test
+	public void testObject() throws SmofException, NoSuchAdapterException {
+		final SmofAdapter<ElObjTest> parser = adapters.get(ElObjTest.class); 
+		System.out.println(parser.write(new ElObjTest()).toJson());
+	}
+	
+	@Test
+	public void testArray() throws SmofException, NoSuchAdapterException {
+		final SmofAdapter<ElArrTest> parser = adapters.get(ElArrTest.class); 
+		System.out.println(parser.write(new ElArrTest()).toJson());
+	}
+	
+	private static class ElStrTest extends AbstractElement implements SmofFactory<ElStrTest> {
 		
 		@SmofString(name = "str1")
 		private final String str1;
@@ -96,12 +117,12 @@ public class ElementTypeFactoryTests {
 		}
 
 		@Override
-		public ElStrTest createElement(ElementFieldMap map) {
+		public ElStrTest createSmofObject(BsonDocument map) {
 			return new ElStrTest();
 		}
 	}
 	
-	private static class ElObjIdTest extends AbstractElement implements ElementFactory<ElObjIdTest>{
+	private static class ElObjIdTest extends AbstractElement implements SmofFactory<ElObjIdTest>{
 
 		@SmofObjectId(name = "objId", ref = "coll1")
 		private final ObjectId objId;
@@ -111,12 +132,12 @@ public class ElementTypeFactoryTests {
 		}
 
 		@Override
-		public ElObjIdTest createElement(ElementFieldMap map) {
+		public ElObjIdTest createSmofObject(BsonDocument map) {
 			return new ElObjIdTest();
 		}
 	}
 	
-	private static class ElNumTest extends AbstractElement implements ElementFactory<ElNumTest> {
+	private static class ElNumTest extends AbstractElement implements SmofFactory<ElNumTest> {
 		
 		@SmofNumber(name = "int")
 		private final int int1;
@@ -134,12 +155,12 @@ public class ElementTypeFactoryTests {
 		}
 
 		@Override
-		public ElNumTest createElement(ElementFieldMap map) {
+		public ElNumTest createSmofObject(BsonDocument map) {
 			return new ElNumTest();
 		}
 	}
 	
-	private static class ElDateTest extends AbstractElement implements ElementFactory<ElDateTest> {
+	private static class ElDateTest extends AbstractElement implements SmofFactory<ElDateTest> {
 		
 		@SmofDate(name="date")
 		private final Instant date;
@@ -157,12 +178,12 @@ public class ElementTypeFactoryTests {
 		}
 
 		@Override
-		public ElDateTest createElement(ElementFieldMap map) {
+		public ElDateTest createSmofObject(BsonDocument map) {
 			return new ElDateTest();
 		}
 	}
 	
-	private static class ElObjTest extends AbstractElement implements ElementFactory<ElObjTest> {
+	private static class ElObjTest extends AbstractElement implements SmofFactory<ElObjTest> {
 		
 		@SmofObject(name = "el1")
 		private final ElObjTestA el1;
@@ -176,11 +197,11 @@ public class ElementTypeFactoryTests {
 		}
 		
 		@Override
-		public ElObjTest createElement(ElementFieldMap map) {
+		public ElObjTest createSmofObject(BsonDocument map) {
 			return new ElObjTest();
 		}
 
-		private static class ElObjTestA {
+		private static class ElObjTestA implements SmofFactory<ElObjTestA> {
 			
 			@SmofNumber(name = "int1")
 			private final int int1;
@@ -192,9 +213,14 @@ public class ElementTypeFactoryTests {
 				int1 = 20;
 				str1 = "gauss";
 			}
+
+			@Override
+			public ElObjTestA createSmofObject(BsonDocument map) throws SmofException {
+				return new ElObjTestA();
+			}
 		}
 		
-		private static class ElObjTestB extends AbstractElement implements ElementFactory<ElObjTestB>{
+		private static class ElObjTestB extends AbstractElement implements SmofFactory<ElObjTestB>{
 
 			@SmofNumber(name = "int1")
 			private final int int1;
@@ -208,27 +234,28 @@ public class ElementTypeFactoryTests {
 			}
 
 			@Override
-			public ElObjTestB createElement(ElementFieldMap map) {
+			public ElObjTestB createSmofObject(BsonDocument map) {
 				return new ElObjTestB();
 			}
 		}
 	}
 	
-	private static class ElArrTest extends AbstractElement implements ElementFactory<ElArrTest>{
+	private static class ElArrTest extends AbstractElement implements SmofFactory<ElArrTest>{
 		
-		@SmofArray(name = "arr1", type = SmofField.NUMBER)
+		@SmofArray(name = "arr1", type = FieldType.NUMBER)
 		private final int[] arr1;
 		
-		@SmofArray(name = "arr2", type = SmofField.DATE)
+		@SmofArray(name = "arr2", type = FieldType.DATE)
 		private final LocalDate[] arr2;
 		
 		public ElArrTest() {
-			this.arr1 = new int[]{2, 3, -1};
+			this.arr1 = new int[500];
+			Arrays.fill(arr1, 30);
 			this.arr2 = new LocalDate[]{LocalDate.now(), LocalDate.now()};
 		}
 
 		@Override
-		public ElArrTest createElement(ElementFieldMap map) {
+		public ElArrTest createSmofObject(BsonDocument map) {
 			return new ElArrTest();
 		}
 	}

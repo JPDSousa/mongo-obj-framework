@@ -5,28 +5,26 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.bson.Document;
+import org.bson.BsonDocument;
 import org.smof.element.Element;
+import org.smof.element.SmofAdapter;
 
-import com.google.gson.Gson;
 import com.mongodb.client.FindIterable;
 
 @SuppressWarnings("javadoc")
 public class SmofResults<T extends Element> {
 	
-	private final FindIterable<Document> rawResults;
-	private final Gson jsonManager;
-	private final Class<T> type;
+	private final FindIterable<BsonDocument> rawResults;
+	private final SmofAdapter<T> parser;
 
-	public SmofResults(FindIterable<Document> rawResults, Gson jsonManager, Class<T> type) {
+	public SmofResults(FindIterable<BsonDocument> rawResults, SmofAdapter<T> parser) {
 		this.rawResults = rawResults;
-		this.jsonManager = jsonManager;
-		this.type = type;
+		this.parser = parser;
 	}
 	
 	public Stream<T> stream() {
 		return StreamSupport.stream(rawResults.spliterator(), false)
-				.map(d -> jsonManager.fromJson(d.toJson(), type));
+				.map(d -> parser.read(d));
 	}
 	
 	public List<T> asList() {
