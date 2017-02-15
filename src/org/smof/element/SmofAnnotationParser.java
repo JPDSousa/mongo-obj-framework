@@ -1,6 +1,7 @@
 package org.smof.element;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -45,6 +46,12 @@ public class SmofAnnotationParser<T> {
 	public Set<SmofField> getExternalFields() {
 		return getFields().stream()
 				.filter(f -> f.isExternal())
+				.collect(Collectors.toSet());
+	}
+	
+	public Set<SmofField> getNonFinalFields() {
+		return getFields().stream()
+				.filter(f -> !Modifier.isFinal(f.getField().getModifiers()))
 				.collect(Collectors.toSet());
 	}
 

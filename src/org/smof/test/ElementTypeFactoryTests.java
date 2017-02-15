@@ -209,9 +209,13 @@ public class ElementTypeFactoryTests {
 			@SmofString(name = "str1")
 			private final String str1;
 			
+			@SmofObject(name = "el1")
+			private final ElObjTestB elA;
+			
 			public ElObjTestA() {
 				int1 = 20;
 				str1 = "gauss";
+				elA = new ElObjTestB();
 			}
 
 			@Override

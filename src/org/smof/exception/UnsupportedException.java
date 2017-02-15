@@ -1,15 +1,15 @@
 package org.smof.exception;
 
 @SuppressWarnings("javadoc")
-public class NotSupportedException extends Exception {
+public class UnsupportedException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 	
-	public NotSupportedException(String message) {
+	public UnsupportedException(String message) {
 		super(message);
 	}
 	
-	public NotSupportedException() {
+	public UnsupportedException() {
 		super("This functionality is not supported.");
 	}
 

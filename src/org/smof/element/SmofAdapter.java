@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bson.BsonArray;
@@ -29,7 +30,7 @@ import static org.smof.element.field.SmofField.FieldType;
 import org.smof.exception.InvalidTypeException;
 import org.smof.exception.MissingRequiredFieldException;
 import org.smof.exception.NoSuchAdapterException;
-import org.smof.exception.NotSupportedException;
+import org.smof.exception.UnsupportedException;
 import org.smof.exception.SmofException;
 
 @SuppressWarnings("javadoc")
@@ -44,22 +45,85 @@ public class SmofAdapter<T> {
 		this.adapters = adapters;
 		this.parser = parser;
 	}
-	
+
 	public Class<T> getType() {
 		return parser.getType();
 	}
-	
+
 	public SmofAnnotationParser<T> getSmofMetadata() {
 		return parser;
 	}
 
 	public T read(BsonDocument document) {
 		try {
-			return factory.createSmofObject(document);
-		} catch (SmofException e) {
+			final T element = factory.createSmofObject(document);
+			BsonValue value;
+			Object obj = null;
+
+			for(SmofField field : parser.getNonFinalFields()) {
+				value = document.get(field.getName());
+				switch(field.getType()) {
+				case ARRAY:
+					obj = getArray(field, value);
+					break;
+				case DATE:
+					obj = getDate(field, value);
+					break;
+				case NUMBER:
+					obj = getNumber(field, value);
+					break;
+				case OBJECT:
+					obj = getObject(field, value);
+					break;
+				case OBJECT_ID:
+					obj = getObjectId(field, value);
+					break;
+				case STRING:
+					obj = getString(field, value);
+					break;
+				}
+				field.getField().setAccessible(true);
+				field.getField().set(element, obj);
+				field.getField().setAccessible(false);
+			}
+			return element;
+		} catch (IllegalArgumentException | IllegalAccessException | SmofException | UnsupportedException e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	private Object getString(SmofField field, BsonValue rawValue) throws UnsupportedException {
+		final Class<?> fieldClass = field.getField().getType();
+		if(rawValue.isString() && (fieldClass.equals(String.class))) {
+			return rawValue.asString().getValue();
+		}
+		throw new UnsupportedException();
+	}
+
+	private Object getObjectId(SmofField field, BsonValue value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private Object getObject(SmofField field, BsonValue value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private Object getNumber(SmofField field, BsonValue value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private Object getDate(SmofField field, BsonValue value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private Object getArray(SmofField field, BsonValue value) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public BsonDocument write(T element) throws SmofException {
@@ -70,7 +134,7 @@ public class SmofAdapter<T> {
 		final BsonArray array = new BsonArray();
 		switch(annotation.type()) {
 		case ARRAY:
-			throw new SmofException(new NotSupportedException("Arrays of arrays are not supported yet."));
+			throw new SmofException(new UnsupportedException("Arrays of arrays are not supported yet."));
 		case DATE:
 			for(BsonDateTime date : parseDateArray(parseArray(fieldValue))) {
 				array.add(date);
@@ -231,13 +295,13 @@ public class SmofAdapter<T> {
 					value = handleString(fieldValue);
 					break;
 				default:
-					throw new NotSupportedException();
+					throw new UnsupportedException();
 				}
 				smofField.getField().setAccessible(false);
 				document.append(smofField.getName(), value);
 			}
 			return document;
-		} catch(IllegalAccessException | NotSupportedException | NoSuchAdapterException e){
+		} catch(IllegalAccessException | UnsupportedException | NoSuchAdapterException e){
 			throw new SmofException(e);
 		}
 	}
