@@ -49,9 +49,9 @@ public class SmofAnnotationParser<T> {
 				.collect(Collectors.toSet());
 	}
 	
-	public Set<SmofField> getNonFinalFields() {
+	public Set<SmofField> getReadableFields() {
 		return getFields().stream()
-				.filter(f -> !Modifier.isFinal(f.getField().getModifiers()))
+				.filter(f -> !f.isManualRead())
 				.collect(Collectors.toSet());
 	}
 

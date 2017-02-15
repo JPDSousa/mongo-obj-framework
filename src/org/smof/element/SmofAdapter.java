@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bson.BsonArray;
@@ -60,7 +59,7 @@ public class SmofAdapter<T> {
 			BsonValue value;
 			Object obj = null;
 
-			for(SmofField field : parser.getNonFinalFields()) {
+			for(SmofField field : parser.getReadableFields()) {
 				value = document.get(field.getName());
 				switch(field.getType()) {
 				case ARRAY:
@@ -76,10 +75,10 @@ public class SmofAdapter<T> {
 					obj = getObject(field, value);
 					break;
 				case OBJECT_ID:
-					obj = getObjectId(field, value);
+					obj = getObjectId(value);
 					break;
 				case STRING:
-					obj = getString(field, value);
+					obj = getString(value);
 					break;
 				}
 				field.getField().setAccessible(true);
@@ -93,17 +92,18 @@ public class SmofAdapter<T> {
 		}
 	}
 
-	private Object getString(SmofField field, BsonValue rawValue) throws UnsupportedException {
-		final Class<?> fieldClass = field.getField().getType();
-		if(rawValue.isString() && (fieldClass.equals(String.class))) {
+	private Object getString(BsonValue rawValue) throws UnsupportedException {
+		if(rawValue.isString()) {
 			return rawValue.asString().getValue();
 		}
 		throw new UnsupportedException();
 	}
 
-	private Object getObjectId(SmofField field, BsonValue value) {
-		// TODO Auto-generated method stub
-		return null;
+	private Object getObjectId(BsonValue value) throws UnsupportedException {
+		if(value.isObjectId()) {
+			return value.asObjectId().getValue();
+		}
+		throw new UnsupportedException();
 	}
 
 	private Object getObject(SmofField field, BsonValue value) {

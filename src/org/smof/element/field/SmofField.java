@@ -2,6 +2,7 @@ package org.smof.element.field;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import javax.lang.model.element.Element;
 
@@ -36,6 +37,7 @@ public class SmofField implements Comparable<SmofField>{
 	private final Annotation annotation;
 	private final Field field;
 	private final boolean external;
+	private final boolean manualRead;
 
 	public SmofField(Field field, FieldType type) throws InvalidSmofTypeException {
 		final SmofArray smofArray;
@@ -45,6 +47,7 @@ public class SmofField implements Comparable<SmofField>{
 		final SmofObjectId smofObjectId;
 		final SmofString smofString;
 		boolean external = false;
+		boolean read = Modifier.isFinal(field.getModifiers());
 
 		switch(type) {
 		case ARRAY:
@@ -83,6 +86,7 @@ public class SmofField implements Comparable<SmofField>{
 			name = smofString.name();
 			required = smofString.required();
 			annotation = smofString;
+			read = read || field.getType().equals(String.class);
 			break;
 		default:
 			throw new InvalidSmofTypeException();
@@ -90,6 +94,7 @@ public class SmofField implements Comparable<SmofField>{
 		this.field = field;
 		this.type = type;
 		this.external = external;
+		this.manualRead = read;
 	}
 
 	public FieldType getType() {
@@ -120,5 +125,9 @@ public class SmofField implements Comparable<SmofField>{
 
 	public boolean isExternal() {
 		return external;
+	}
+
+	public boolean isManualRead() {
+		return manualRead;
 	}
 }
