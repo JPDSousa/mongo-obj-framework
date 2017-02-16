@@ -145,7 +145,12 @@ public class SmofAnnotationParser<T> {
 			for(Parameter param : params) {
 				annot = param.getAnnotation(SmofParam.class);
 				if(annot != null) {
-					annots.add(Pair.of(annot, param));
+					if(!param.getType().isPrimitive()) {
+						annots.add(Pair.of(annot, param));	
+					}
+					else {
+						throw new InvalidSmofTypeException("No primitive types allowed on SmofBuilders.");
+					}
 				}
 				else {
 					throw new InvalidSmofTypeException("All parameters must have a SmofParam annotation.");
