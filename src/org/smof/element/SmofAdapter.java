@@ -98,7 +98,7 @@ public class SmofAdapter<T> {
 		if(rawValue.isString()) {
 			final BsonString value = rawValue.asString();
 			if(field.getField().getType().equals(String.class)) {
-				return value.getValue();	
+				return value.getValue();
 			}
 			else if(field.getField().getType().isEnum()) {
 				try {
@@ -126,9 +126,33 @@ public class SmofAdapter<T> {
 		return null;
 	}
 
-	private Object getNumber(SmofField field, BsonValue value) {
-		// TODO Auto-generated method stub
-		return null;
+	private Object getNumber(SmofField field, BsonValue rawValue) throws UnsupportedBsonException {
+		if(rawValue.isNumber()) {
+			final BsonNumber numberValue = rawValue.asNumber();
+			final Class<?> type = field.getField().getType();
+			if(numberValue.isInt32() && type.equals(Integer.class)) {
+				return new Integer(numberValue.asInt32().getValue());
+			}
+			else if(numberValue.isInt32() && type.equals(Short.class)) {
+				final int value = numberValue.asInt32().getValue();
+				if(value > Short.MIN_VALUE && value < Short.MAX_VALUE) {
+					return new Short((short) numberValue.asInt32().getValue());					
+				}
+			}
+			else if(numberValue.isDouble() && type.equals(Float.class)) {
+				final double value = numberValue.asDouble().getValue();
+				if(value < Float.MAX_VALUE && value > Float.MIN_VALUE) {
+					return new Float((float) value);
+				}
+			}
+			else if(numberValue.isDouble() && type.equals(Double.class)) {
+				return new Double(numberValue.asDouble().getValue());
+			}
+			else if(numberValue.isInt64() && type.equals(Long.class)) {
+				return new Long(numberValue.asInt64().getValue());
+			}
+		}
+		throw new UnsupportedBsonException();
 	}
 
 	private Object getDate(SmofField field, BsonValue value) throws UnsupportedBsonException {
