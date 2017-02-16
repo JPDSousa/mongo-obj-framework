@@ -4,5 +4,8 @@ package org.smof.exception;
 public class InvalidSmofTypeException extends Exception {
 
 	private static final long serialVersionUID = 1L;
-
+	
+	public InvalidSmofTypeException(String message) {
+		super(message);
+	}
 }

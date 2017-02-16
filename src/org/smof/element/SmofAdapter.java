@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,10 +25,12 @@ import org.bson.BsonNumber;
 import org.bson.BsonObjectId;
 import org.bson.BsonString;
 import org.bson.BsonValue;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.smof.element.field.SmofArray;
 import org.smof.element.field.SmofField;
 import static org.smof.element.field.SmofField.FieldType;
+
 import org.smof.exception.InvalidTypeException;
 import org.smof.exception.MissingRequiredFieldException;
 import org.smof.exception.NoSuchAdapterException;
@@ -37,12 +40,10 @@ import org.smof.exception.SmofException;
 @SuppressWarnings("javadoc")
 public class SmofAdapter<T> {
 
-	private final SmofFactory<T> factory;
 	private final SmofAdapterPool adapters;
 	private final SmofAnnotationParser<T> parser;
 
-	public SmofAdapter(SmofFactory<T> factory, SmofAnnotationParser<T> parser, SmofAdapterPool adapters) {
-		this.factory = factory;
+	SmofAdapter(SmofAnnotationParser<T> parser, SmofAdapterPool adapters) {
 		this.adapters = adapters;
 		this.parser = parser;
 	}
@@ -57,11 +58,13 @@ public class SmofAdapter<T> {
 
 	public T read(BsonDocument document) {
 		try {
-			final T element = factory.createSmofObject(document);
+			final Document builderDoc = new Document();
+			final T element;
+			final Map<SmofField, Object> values = new LinkedHashMap<>();
 			BsonValue value;
 			Object obj = null;
 
-			for(SmofField field : parser.getFields()) {
+			for(SmofField field : parser.getAllFields()) {
 				value = document.get(field.getName());
 				switch(field.getType()) {
 				case ARRAY:
@@ -83,14 +86,28 @@ public class SmofAdapter<T> {
 					obj = getString(field, value);
 					break;
 				}
-				field.getField().setAccessible(true);
-				field.getField().set(element, obj);
-				field.getField().setAccessible(false);
+				if(field.isBuilderField()) {
+					System.out.println(obj.getClass());
+					builderDoc.append(field.getName(), obj);
+				}
+				else {
+					values.put(field, obj);
+				}
 			}
+			element = parser.createSmofObject(builderDoc);
+			fillElement(element, values);
 			return element;
-		} catch (IllegalArgumentException | IllegalAccessException | SmofException | UnsupportedBsonException e) {
+		} catch (IllegalArgumentException | IllegalAccessException | UnsupportedBsonException e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	private void fillElement(T element, Map<SmofField, Object> values) throws IllegalArgumentException, IllegalAccessException {
+		for(SmofField field : values.keySet()) {
+			field.getField().setAccessible(true);
+			field.getField().set(element, values.get(field));
+			field.getField().setAccessible(false);
 		}
 	}
 
@@ -137,26 +154,26 @@ public class SmofAdapter<T> {
 		if(rawValue.isNumber()) {
 			final BsonNumber numberValue = rawValue.asNumber();
 			final Class<?> type = field.getField().getType();
-			if(numberValue.isInt32() && type.equals(Integer.class)) {
-				return new Integer(numberValue.asInt32().getValue());
+			if(numberValue.isInt32() && (type.equals(Integer.class) || type.equals(Integer.TYPE))) {
+				return numberValue.asInt32().getValue();
 			}
-			else if(numberValue.isInt32() && type.equals(Short.class)) {
+			else if(numberValue.isInt32() && (type.equals(Short.class) || type.equals(Short.TYPE))) {
 				final int value = numberValue.asInt32().getValue();
 				if(value > Short.MIN_VALUE && value < Short.MAX_VALUE) {
-					return new Short((short) numberValue.asInt32().getValue());					
+					return (short) value;					
 				}
 			}
-			else if(numberValue.isDouble() && type.equals(Float.class)) {
+			else if(numberValue.isDouble() && (type.equals(Float.class) || type.equals(Float.TYPE))) {
 				final double value = numberValue.asDouble().getValue();
 				if(value < Float.MAX_VALUE && value > Float.MIN_VALUE) {
-					return new Float((float) value);
+					return (float) value;
 				}
 			}
-			else if(numberValue.isDouble() && type.equals(Double.class)) {
-				return new Double(numberValue.asDouble().getValue());
+			else if(numberValue.isDouble() && (type.equals(Double.class) || type.equals(Double.TYPE))) {
+				return numberValue.asDouble().getValue();
 			}
-			else if(numberValue.isInt64() && type.equals(Long.class)) {
-				return new Long(numberValue.asInt64().getValue());
+			else if(numberValue.isInt64() && (type.equals(Long.class) || type.equals(Long.TYPE))) {
+				return numberValue.asInt64().getValue();
 			}
 		}
 		throw new UnsupportedBsonException();
@@ -333,7 +350,7 @@ public class SmofAdapter<T> {
 			BsonValue value;
 			Object fieldValue;
 
-			for(SmofField smofField : parser.getFields()) {
+			for(SmofField smofField : parser.getAllFields()) {
 				smofField.getField().setAccessible(true);
 				fieldValue = smofField.getField().get(obj);
 				if(smofField.isRequired() && fieldValue == null)

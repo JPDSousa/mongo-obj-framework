@@ -2,6 +2,7 @@ package org.smof.element.field;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.List;
 
 import javax.lang.model.element.Element;
 
@@ -36,8 +37,9 @@ public class SmofField implements Comparable<SmofField>{
 	private final Annotation annotation;
 	private final Field field;
 	private final boolean external;
+	private final boolean builderField;
 
-	public SmofField(Field field, FieldType type) throws InvalidSmofTypeException {
+	public SmofField(Field field, FieldType type, List<String> builderFields) throws InvalidSmofTypeException {
 		final SmofArray smofArray;
 		final SmofDate smofDate;
 		final SmofNumber smofNumber;
@@ -85,11 +87,12 @@ public class SmofField implements Comparable<SmofField>{
 			annotation = smofString;
 			break;
 		default:
-			throw new InvalidSmofTypeException();
+			throw new InvalidSmofTypeException("Type not valid.");
 		}
 		this.field = field;
 		this.type = type;
 		this.external = external;
+		this.builderField = builderFields.contains(name);
 	}
 
 	public FieldType getType() {
@@ -120,5 +123,9 @@ public class SmofField implements Comparable<SmofField>{
 
 	public boolean isExternal() {
 		return external;
+	}
+
+	public boolean isBuilderField() {
+		return builderField;
 	}
 }
