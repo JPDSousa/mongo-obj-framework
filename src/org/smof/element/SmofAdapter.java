@@ -1,6 +1,8 @@
 package org.smof.element;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,7 +31,7 @@ import static org.smof.element.field.SmofField.FieldType;
 import org.smof.exception.InvalidTypeException;
 import org.smof.exception.MissingRequiredFieldException;
 import org.smof.exception.NoSuchAdapterException;
-import org.smof.exception.UnsupportedException;
+import org.smof.exception.UnsupportedBsonException;
 import org.smof.exception.SmofException;
 
 @SuppressWarnings("javadoc")
@@ -78,7 +80,7 @@ public class SmofAdapter<T> {
 					obj = getObjectId(value);
 					break;
 				case STRING:
-					obj = getString(value);
+					obj = getString(field, value);
 					break;
 				}
 				field.getField().setAccessible(true);
@@ -86,24 +88,37 @@ public class SmofAdapter<T> {
 				field.getField().setAccessible(false);
 			}
 			return element;
-		} catch (IllegalArgumentException | IllegalAccessException | SmofException | UnsupportedException e) {
+		} catch (IllegalArgumentException | IllegalAccessException | SmofException | UnsupportedBsonException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	private Object getString(BsonValue rawValue) throws UnsupportedException {
+	private Object getString(SmofField field, BsonValue rawValue) throws UnsupportedBsonException {
 		if(rawValue.isString()) {
-			return rawValue.asString().getValue();
+			final BsonString value = rawValue.asString();
+			if(field.getField().getType().equals(String.class)) {
+				return value.getValue();	
+			}
+			else if(field.getField().getType().isEnum()) {
+				try {
+					final Method valueOf = field.getField().getType().getMethod("valueOf", String.class);
+					return valueOf.invoke(null, value.getValue());
+				} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+					//all enums have valueOf!!
+					e.printStackTrace();
+					return null;
+				}
+			}
 		}
-		throw new UnsupportedException();
+		throw new UnsupportedBsonException();
 	}
 
-	private Object getObjectId(BsonValue value) throws UnsupportedException {
+	private Object getObjectId(BsonValue value) throws UnsupportedBsonException {
 		if(value.isObjectId()) {
 			return value.asObjectId().getValue();
 		}
-		throw new UnsupportedException();
+		throw new UnsupportedBsonException();
 	}
 
 	private Object getObject(SmofField field, BsonValue value) {
@@ -116,7 +131,7 @@ public class SmofAdapter<T> {
 		return null;
 	}
 
-	private Object getDate(SmofField field, BsonValue value) throws UnsupportedException {
+	private Object getDate(SmofField field, BsonValue value) throws UnsupportedBsonException {
 		final Class<?> fieldClass = field.getField().getType();
 		final BsonDateTime date;
 		if(value.isDateTime()) {
@@ -136,7 +151,7 @@ public class SmofAdapter<T> {
 						.toLocalDate();
 			}
 		}
-		throw new UnsupportedException();
+		throw new UnsupportedBsonException();
 	}
 
 	private Object getArray(SmofField field, BsonValue value) {
@@ -152,7 +167,7 @@ public class SmofAdapter<T> {
 		final BsonArray array = new BsonArray();
 		switch(annotation.type()) {
 		case ARRAY:
-			throw new SmofException(new UnsupportedException("Arrays of arrays are not supported yet."));
+			throw new SmofException(new UnsupportedBsonException("Arrays of arrays are not supported yet."));
 		case DATE:
 			for(BsonDateTime date : parseDateArray(parseArray(fieldValue))) {
 				array.add(date);
@@ -313,13 +328,13 @@ public class SmofAdapter<T> {
 					value = handleString(fieldValue);
 					break;
 				default:
-					throw new UnsupportedException();
+					throw new UnsupportedBsonException();
 				}
 				smofField.getField().setAccessible(false);
 				document.append(smofField.getName(), value);
 			}
 			return document;
-		} catch(IllegalAccessException | UnsupportedException | NoSuchAdapterException e){
+		} catch(IllegalAccessException | UnsupportedBsonException | NoSuchAdapterException e){
 			throw new SmofException(e);
 		}
 	}
