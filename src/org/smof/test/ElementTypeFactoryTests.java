@@ -56,7 +56,10 @@ public class ElementTypeFactoryTests {
 	@Test
 	public void testString() throws SmofException, NoSuchAdapterException {
 		final SmofAdapter<ElStrTest> parser = adapters.get(ElStrTest.class); 
-		System.out.println(parser.write(new ElStrTest()).toJson());
+		//System.out.println(parser.write(new ElStrTest()).toJson());
+		final ElStrTest test = new ElStrTest();
+		final BsonDocument doc = parser.write(test);
+		assertEquals(test, parser.read(doc));
 	}
 	
 	@Test
@@ -97,17 +100,9 @@ public class ElementTypeFactoryTests {
 		@SmofString(name = "en1")
 		private final EnumTest en1;
 		
-		@SmofString(name = "col1")
-		private final Collection<String> col1;
-		
-		@SmofString(name = "int1")
-		private final int int1;
-		
 		private ElStrTest() {
 			str1 = "test";
 			en1 = EnumTest.VALB;
-			col1 = Arrays.asList("as", "sd");
-			int1 = 31;
 		}
 		
 		private enum EnumTest {
@@ -119,6 +114,40 @@ public class ElementTypeFactoryTests {
 		@Override
 		public ElStrTest createSmofObject(BsonDocument map) {
 			return new ElStrTest();
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((en1 == null) ? 0 : en1.hashCode());
+			result = prime * result + ((str1 == null) ? 0 : str1.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			ElStrTest other = (ElStrTest) obj;
+			if (en1 != other.en1) {
+				return false;
+			}
+			if (str1 == null) {
+				if (other.str1 != null) {
+					return false;
+				}
+			} else if (!str1.equals(other.str1)) {
+				return false;
+			}
+			return true;
 		}
 	}
 	

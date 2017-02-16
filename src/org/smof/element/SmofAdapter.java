@@ -103,12 +103,19 @@ public class SmofAdapter<T> {
 			else if(field.getField().getType().isEnum()) {
 				try {
 					final Method valueOf = field.getField().getType().getMethod("valueOf", String.class);
-					return valueOf.invoke(null, value.getValue());
+					final Object res;
+					valueOf.setAccessible(true);
+					res = valueOf.invoke(null, value.getValue());
+					valueOf.setAccessible(false);
+					return res;
 				} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 					//all enums have valueOf!!
 					e.printStackTrace();
 					return null;
 				}
+			} else {
+				//TODO add primitive types
+				System.out.println(field.getField().getType());
 			}
 		}
 		throw new UnsupportedBsonException();
