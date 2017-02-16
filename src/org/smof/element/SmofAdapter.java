@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,7 +59,7 @@ public class SmofAdapter<T> {
 			BsonValue value;
 			Object obj = null;
 
-			for(SmofField field : parser.getReadableFields()) {
+			for(SmofField field : parser.getFields()) {
 				value = document.get(field.getName());
 				switch(field.getType()) {
 				case ARRAY:
