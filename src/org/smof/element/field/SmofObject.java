@@ -12,4 +12,5 @@ import java.lang.annotation.Target;
 public @interface SmofObject {
 	public String name();
 	public boolean required() default false;
+	public SmofField.FieldType mapValueType() default SmofField.FieldType.OBJECT;
 }
