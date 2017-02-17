@@ -1,4 +1,4 @@
-package org.smof.element.field;
+package org.smof.annnotations;
 
 import static java.lang.annotation.ElementType.FIELD;
 
@@ -9,10 +9,9 @@ import java.lang.annotation.Target;
 @SuppressWarnings("javadoc")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(FIELD)
-public @interface SmofDate {
-	public static final String NOW = "NOW";
+public @interface SmofObjectId {
 	
 	public String name();
-	public String defaultValue() default NOW;
+	public String ref() default "";
 	public boolean required() default false;
 }

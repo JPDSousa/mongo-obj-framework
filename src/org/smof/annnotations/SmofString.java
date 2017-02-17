@@ -1,4 +1,4 @@
-package org.smof.element.field;
+package org.smof.annnotations;
 
 import static java.lang.annotation.ElementType.FIELD;
 
@@ -9,9 +9,8 @@ import java.lang.annotation.Target;
 @SuppressWarnings("javadoc")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(FIELD)
-public @interface SmofObjectId {
-	
+public @interface SmofString {
 	public String name();
-	public String ref() default "";
+	public String defaultValue() default "";
 	public boolean required() default false;
 }

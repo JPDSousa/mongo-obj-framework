@@ -3,10 +3,10 @@ package org.smof.collection;
 import java.util.Set;
 
 import org.bson.BsonDocument;
+import org.smof.annnotations.SmofField;
 import org.smof.element.Element;
 import org.smof.element.SmofAdapter;
 import org.smof.element.SmofAdapterPool;
-import org.smof.element.field.SmofField;
 import org.smof.exception.InvalidSmofTypeException;
 import org.smof.exception.SmofException;
 import org.smof.query.SmofQuery;

@@ -1,6 +1,6 @@
 package org.smof.exception;
 
-import org.smof.element.field.SmofField;
+import org.smof.annnotations.SmofField;
 
 @SuppressWarnings("javadoc")
 public class InvalidTypeException extends Throwable {

@@ -1,7 +1,7 @@
 package org.smof.element;
 
 import org.bson.types.ObjectId;
-import org.smof.element.field.SmofObjectId;
+import org.smof.annnotations.SmofObjectId;
 import org.smof.exception.InvalidIdException;
 
 @SuppressWarnings("javadoc")

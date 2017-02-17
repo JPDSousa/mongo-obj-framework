@@ -11,22 +11,21 @@ import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
+import org.smof.annnotations.SmofArray;
+import org.smof.annnotations.SmofBuilder;
+import org.smof.annnotations.SmofDate;
+import org.smof.annnotations.SmofNumber;
+import org.smof.annnotations.SmofObject;
+import org.smof.annnotations.SmofObjectId;
+import org.smof.annnotations.SmofParam;
+import org.smof.annnotations.SmofString;
+import org.smof.annnotations.SmofField.FieldType;
 import org.smof.element.AbstractElement;
 import org.smof.element.SmofAdapterPool;
 import org.smof.element.SmofAdapter;
-import org.smof.element.field.SmofArray;
-import org.smof.element.field.SmofBuilder;
-import org.smof.element.field.SmofDate;
-import org.smof.element.field.SmofObject;
-import org.smof.element.field.SmofNumber;
-import org.smof.element.field.SmofObjectId;
-import org.smof.element.field.SmofParam;
-import org.smof.element.field.SmofString;
 import org.smof.exception.InvalidSmofTypeException;
 import org.smof.exception.NoSuchAdapterException;
 import org.smof.exception.SmofException;
-import org.smof.element.field.SmofField.FieldType;
 
 @SuppressWarnings("javadoc")
 public class ElementTypeFactoryTests {

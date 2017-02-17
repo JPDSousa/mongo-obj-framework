@@ -1,4 +1,4 @@
-package org.smof.element.field;
+package org.smof.annnotations;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

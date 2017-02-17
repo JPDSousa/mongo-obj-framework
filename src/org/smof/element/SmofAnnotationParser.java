@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
-import org.smof.element.field.SmofBuilder;
-import org.smof.element.field.SmofField;
-import org.smof.element.field.SmofParam;
+import org.smof.annnotations.SmofBuilder;
+import org.smof.annnotations.SmofField;
+import org.smof.annnotations.SmofParam;
 import org.smof.exception.InvalidSmofTypeException;
 
 @SuppressWarnings("javadoc")

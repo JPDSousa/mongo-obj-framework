@@ -1,8 +1,12 @@
 package org.smof.element;
 
+import static org.smof.annnotations.SmofField.FieldType;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,10 +31,8 @@ import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.smof.element.field.SmofArray;
-import org.smof.element.field.SmofField;
-import static org.smof.element.field.SmofField.FieldType;
-
+import org.smof.annnotations.SmofArray;
+import org.smof.annnotations.SmofField;
 import org.smof.exception.InvalidTypeException;
 import org.smof.exception.MissingRequiredFieldException;
 import org.smof.exception.NoSuchAdapterException;
@@ -56,7 +58,7 @@ public class SmofAdapter<T> {
 		return parser;
 	}
 
-	public T read(BsonDocument document) {
+	public T read(BsonDocument document) throws SmofException {
 		try {
 			final Document builderDoc = new Document();
 			final T element;
@@ -87,7 +89,6 @@ public class SmofAdapter<T> {
 					break;
 				}
 				if(field.isBuilderField()) {
-					System.out.println(obj.getClass());
 					builderDoc.append(field.getName(), obj);
 				}
 				else {
@@ -97,9 +98,8 @@ public class SmofAdapter<T> {
 			element = parser.createSmofObject(builderDoc);
 			fillElement(element, values);
 			return element;
-		} catch (IllegalArgumentException | IllegalAccessException | UnsupportedBsonException e) {
-			e.printStackTrace();
-			return null;
+		} catch (IllegalArgumentException | IllegalAccessException | UnsupportedBsonException | NoSuchAdapterException e) {
+			throw new SmofException(e);
 		}
 	}
 
@@ -145,9 +145,33 @@ public class SmofAdapter<T> {
 		throw new UnsupportedBsonException();
 	}
 
-	private Object getObject(SmofField field, BsonValue value) {
-		// TODO Auto-generated method stub
-		return null;
+	@SuppressWarnings("unchecked")
+	private Object getObject(SmofField field, BsonValue rawValue) throws UnsupportedBsonException, NoSuchAdapterException {
+		if(rawValue.isDocument()) {
+			final BsonDocument value = rawValue.asDocument();
+			final Class<?> type = field.getField().getType();
+			if(type.equals(Map.class)) {
+				return handleMap(field, (Class<Map<?, ?>>) type, value);
+			}
+			return adapters.get(field.getField().getType()).read(value);
+		}
+		throw new UnsupportedBsonException();
+	}
+	
+	private Map<Object, Object> handleMap(SmofField field, Class<Map<?, ?>> mapClass, BsonDocument value) throws UnsupportedBsonException {
+		final Class<?> keyClass = (Class<?>) ((ParameterizedType)mapClass.getGenericSuperclass()).getActualTypeArguments()[0];
+		final Map<Object, Object> map = new LinkedHashMap<>();
+		if(keyClass.equals(String.class)) {
+			for(String key : value.keySet()) {
+				map.put(key, value);
+			}
+			return map;
+		}
+		else if(keyClass.isEnum()) {
+			
+			return map;
+		}
+		throw new UnsupportedBsonException();
 	}
 
 	private Object getNumber(SmofField field, BsonValue rawValue) throws UnsupportedBsonException {
