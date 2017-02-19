@@ -8,10 +8,8 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import org.smof.element.Element;
-import org.smof.element.SmofAdapter;
 import org.smof.exception.InvalidIdException;
-import org.smof.query.SmofQuery;
-import org.smof.query.SmofResults;
+import org.smof.parsers.SmofParser;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -22,13 +20,13 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	protected final MongoCollection<BsonDocument> collection;
 	private final Class<T> type;
 	private final String name;
-	private final SmofAdapter<T> parser;
+	private final SmofParser parser;
 
-	SmofCollectionImpl(String name, MongoCollection<BsonDocument> collection, SmofAdapter<T> parser) {
+	SmofCollectionImpl(String name, MongoCollection<BsonDocument> collection, Class<T> type, SmofParser parser) {
 		this.collection = collection;
-		this.type = parser.getType();
 		this.name = name;
 		this.parser = parser;
+		this.type = type;
 	}
 
 	@Override
@@ -118,11 +116,6 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	@Override
 	public MongoCollection<BsonDocument> getMongoCollection() {
 		return collection;
-	}
-
-	@Override
-	public SmofAdapter<T> getParser() {
-		return parser;
 	}
 
 }

@@ -1,9 +1,9 @@
-package org.smof.query;
+package org.smof.collection;
 
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 import org.smof.element.Element;
-import org.smof.element.SmofAdapter;
+import org.smof.parsers.SmofParser;
 
 import com.mongodb.client.FindIterable;
 
@@ -26,7 +26,7 @@ public class SmofQuery<T extends Element> {
 		return conditions;
 	}
 
-	public SmofResults<T> results(FindIterable<BsonDocument> find, SmofAdapter<T> parser) {
-		return new SmofResults<T>(find, parser);
+	SmofResults<T> results(FindIterable<BsonDocument> find, SmofParser parser) {
+		return new SmofResults<T>(find, parser, elementClass);
 	}
 }

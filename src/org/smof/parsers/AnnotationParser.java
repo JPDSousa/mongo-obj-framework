@@ -1,4 +1,4 @@
-package org.smof.element;
+package org.smof.parsers;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -21,7 +21,7 @@ import org.smof.annnotations.SmofParam;
 import org.smof.exception.InvalidSmofTypeException;
 
 @SuppressWarnings("javadoc")
-public class SmofAnnotationParser<T> {
+public class AnnotationParser<T> {
 
 	@SuppressWarnings("unchecked")
 	private static <T> Builder<T> getConstructor(Class<T> type) throws InvalidSmofTypeException {
@@ -35,7 +35,7 @@ public class SmofAnnotationParser<T> {
 				break;
 			}
 		}
-		return new Builder<>(cons, null, annot);
+		return new Builder<>(cons, null);
 	}
 
 	private static <T> Builder<T> getFactoryMethod(Class<T> type, Object object) throws InvalidSmofTypeException {
@@ -52,7 +52,7 @@ public class SmofAnnotationParser<T> {
 		if(meth != null && !meth.getReturnType().equals(type)) {
 			throw new InvalidSmofTypeException("Return type from factory method is incompatible with the specified type.");
 		}
-		return new Builder<T>(null, Pair.of(object, meth), annot);
+		return new Builder<T>(null, Pair.of(object, meth));
 	}
 
 	private final Class<T> type;
@@ -60,15 +60,15 @@ public class SmofAnnotationParser<T> {
 	private final Map<String, SmofField> fields;
 	private final Builder<T> builder;
 
-	SmofAnnotationParser(Class<T> type) throws InvalidSmofTypeException {
+	AnnotationParser(Class<T> type) throws InvalidSmofTypeException {
 		this(type, getConstructor(type));
 	}
 
-	SmofAnnotationParser(Class<T> type, Object factory) throws InvalidSmofTypeException {
+	AnnotationParser(Class<T> type, Object factory) throws InvalidSmofTypeException {
 		this(type, getFactoryMethod(type, factory));
 	}
 
-	private SmofAnnotationParser(Class<T> type, Builder<T> builder) throws InvalidSmofTypeException {
+	private AnnotationParser(Class<T> type, Builder<T> builder) throws InvalidSmofTypeException {
 		final List<String> constrFields;
 		this.type = type;
 		this.builder = builder;
@@ -86,7 +86,7 @@ public class SmofAnnotationParser<T> {
 	private void fillFields(List<String> fields) throws InvalidSmofTypeException {
 		SmofField current;
 		for(Field field : type.getDeclaredFields()) {
-			for(SmofField.FieldType fieldType : SmofField.FieldType.values()) {
+			for(SmofType fieldType : SmofType.values()) {
 				if(field.isAnnotationPresent(fieldType.getAnnotClass())) {
 					current = new SmofField(field, fieldType, fields);
 					this.fields.put(current.getName(), current);
@@ -119,17 +119,15 @@ public class SmofAnnotationParser<T> {
 	private static class Builder<T> {
 		private final Constructor<T> constructor;
 		private final Pair<Object, Method> method;
-		private final SmofBuilder annot;
 		private final List<Pair<SmofParam, Parameter>> paramAnnots;
 
 		@SuppressWarnings("null")
-		private Builder(Constructor<T> constructor, Pair<Object, Method> method, SmofBuilder annot) throws InvalidSmofTypeException {
+		private Builder(Constructor<T> constructor, Pair<Object, Method> method) throws InvalidSmofTypeException {
 			if(!(constructor == null ^ method == null)) {
 				throw new InvalidSmofTypeException("Either specify a factory method or a constructor.");
 			}
 			this.method = method;
 			this.constructor = constructor;
-			this.annot = annot;
 			if (constructor != null) {
 				this.paramAnnots = getParamAnnotations(constructor.getParameters());
 			}

@@ -6,11 +6,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.smof.parsers.SmofType;
+
 @SuppressWarnings("javadoc")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(FIELD)
 public @interface SmofObject {
 	public String name();
 	public boolean required() default false;
-	public SmofField.FieldType mapValueType() default SmofField.FieldType.OBJECT;
+	public SmofType mapValueType() default SmofType.OBJECT;
 }

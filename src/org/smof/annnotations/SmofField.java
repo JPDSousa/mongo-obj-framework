@@ -7,31 +7,12 @@ import java.util.List;
 import javax.lang.model.element.Element;
 
 import org.smof.exception.InvalidSmofTypeException;
+import org.smof.parsers.SmofType;
 
 @SuppressWarnings("javadoc")
 public class SmofField implements Comparable<SmofField>{
 
-	public static enum FieldType {
-
-		STRING(SmofString.class),
-		NUMBER(SmofNumber.class),
-		DATE(SmofDate.class),
-		OBJECT(SmofObject.class),
-		OBJECT_ID(SmofObjectId.class),
-		ARRAY(SmofArray.class);
-
-		private final Class<? extends Annotation> annotClass;
-
-		private FieldType(Class<? extends Annotation> annotClass) {
-			this.annotClass = annotClass;
-		}
-
-		public Class<? extends Annotation> getAnnotClass() {
-			return annotClass;
-		}
-	}
-
-	private final FieldType type;
+	private final SmofType type;
 	private final String name;
 	private final boolean required;
 	private final Annotation annotation;
@@ -39,7 +20,7 @@ public class SmofField implements Comparable<SmofField>{
 	private final boolean external;
 	private final boolean builderField;
 
-	public SmofField(Field field, FieldType type, List<String> builderFields) throws InvalidSmofTypeException {
+	public SmofField(Field field, SmofType type, List<String> builderFields) throws InvalidSmofTypeException {
 		final SmofArray smofArray;
 		final SmofDate smofDate;
 		final SmofNumber smofNumber;
@@ -55,7 +36,7 @@ public class SmofField implements Comparable<SmofField>{
 			required = smofArray.required();
 			annotation = smofArray;
 			break;
-		case DATE:
+		case DATETIME:
 			smofDate = field.getAnnotation(SmofDate.class);
 			name = smofDate.name();
 			required = smofDate.required();
@@ -95,7 +76,7 @@ public class SmofField implements Comparable<SmofField>{
 		this.builderField = builderFields.contains(name);
 	}
 
-	public FieldType getType() {
+	public SmofType getType() {
 		return type;
 	}
 
@@ -111,7 +92,7 @@ public class SmofField implements Comparable<SmofField>{
 		return annotationType.cast(annotation);
 	}
 
-	public Field getField() {
+	public Field getRawField() {
 		return field;
 	}
 

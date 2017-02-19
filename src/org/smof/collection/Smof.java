@@ -5,12 +5,10 @@ import java.util.Set;
 import org.bson.BsonDocument;
 import org.smof.annnotations.SmofField;
 import org.smof.element.Element;
-import org.smof.element.SmofAdapter;
-import org.smof.element.SmofAdapterPool;
 import org.smof.exception.InvalidSmofTypeException;
 import org.smof.exception.SmofException;
-import org.smof.query.SmofQuery;
-import org.smof.query.SmofResults;
+import org.smof.parsers.SmofParser;
+import org.smof.parsers.SmofTypeContext;
 
 import com.mongodb.client.MongoDatabase;
 
@@ -28,12 +26,14 @@ public class Smof {
 
 	private final MongoDatabase database;
 	private final SmofCollectionsPool collections;
-	private final SmofAdapterPool adapters;
+	private final SmofTypeContext typeContext;
+	private final SmofParser parser;
 
 	private Smof(MongoDatabase database) {
 		this.database = database;
 		this.collections = new SmofCollectionsPool();
-		this.adapters = new SmofAdapterPool();
+		this.parser = new SmofParser();
+		this.typeContext = parser.getContext();
 	}
 
 	//	private void testConnection() {
@@ -53,8 +53,8 @@ public class Smof {
 
 	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass) throws SmofException {
 		try {
-			SmofAdapter<T> adapter = adapters.put(elClass);
-			loadCollection(collectionName, elClass, adapter);
+			typeContext.put(elClass);
+			loadCollection(collectionName, elClass, parser);
 		} catch (InvalidSmofTypeException e) {
 			throw new SmofException(e);
 		}
@@ -62,20 +62,20 @@ public class Smof {
 	
 	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass, Object factory) throws SmofException {
 		try {
-			SmofAdapter<T> adapter = adapters.put(elClass, factory);
-			loadCollection(collectionName, elClass, adapter);
+			typeContext.put(elClass, factory);
+			loadCollection(collectionName, elClass, parser);
 		} catch (InvalidSmofTypeException e) {
 			throw new SmofException(e);
 		}
 	}
 
-	private <T extends Element> void loadCollection(String collectionName, Class<T> elClass, SmofAdapter<T> adapter) {
-		collections.put(elClass, new SmofCollectionImpl<T>(collectionName, database.getCollection(collectionName, BsonDocument.class), adapter));
+	private <T extends Element> void loadCollection(String collectionName, Class<T> elClass, SmofParser parser) {
+		collections.put(elClass, new SmofCollectionImpl<T>(collectionName, database.getCollection(collectionName, BsonDocument.class), elClass, parser));
 	}
 
 	public <T> void registerSmofFactory(Class<T> type) throws SmofException {
 		try {
-			adapters.put(type);
+			typeContext.put(type);
 		} catch (InvalidSmofTypeException e) {
 			throw new SmofException(e);
 		}
@@ -83,7 +83,7 @@ public class Smof {
 	
 	public <T> void registerSmofFactory(Class<T> type, Object factory) throws SmofException {
 		try {
-			adapters.put(type, factory);
+			typeContext.put(type, factory);
 		} catch (InvalidSmofTypeException e) {
 			throw new SmofException(e);
 		}
@@ -112,12 +112,12 @@ public class Smof {
 
 	@SuppressWarnings("unchecked")
 	public <T extends Element> void insert(T element) {
-		Set<SmofField> fields = collections.getCollection(element.getClass()).getParser().getSmofMetadata().getExternalFields();
+		Set<SmofField> fields = typeContext.getFields(element.getClass()).getExternalFields();
 
 		if(collections.contains(element.getClass())) {
 			for(SmofField field : fields) {
 				try {
-					insert(Element.class.cast(field.getField().get(element)));
+					insert(Element.class.cast(field.getRawField().get(element)));
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
 				}

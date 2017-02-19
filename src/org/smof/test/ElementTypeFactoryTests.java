@@ -19,76 +19,70 @@ import org.smof.annnotations.SmofObject;
 import org.smof.annnotations.SmofObjectId;
 import org.smof.annnotations.SmofParam;
 import org.smof.annnotations.SmofString;
-import org.smof.annnotations.SmofField.FieldType;
 import org.smof.element.AbstractElement;
-import org.smof.element.SmofAdapterPool;
-import org.smof.element.SmofAdapter;
 import org.smof.exception.InvalidSmofTypeException;
-import org.smof.exception.NoSuchAdapterException;
 import org.smof.exception.SmofException;
+import org.smof.parsers.SmofParser;
+import org.smof.parsers.SmofType;
+import org.smof.parsers.SmofTypeContext;
 
 @SuppressWarnings("javadoc")
 public class ElementTypeFactoryTests {
 	
-	private static SmofAdapterPool adapters;
+	private static SmofParser parser;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws InvalidSmofTypeException {
-		adapters = new SmofAdapterPool();
+		parser = new SmofParser();
+		SmofTypeContext context = parser.getContext();
 		
-		adapters.put(ElStrTest.class);
-		adapters.put(ElObjIdTest.class);
-		adapters.put(ElNumTest.class);
-		adapters.put(ElDateTest.class);
-//		adapters.put(ElObjTest.class);
-//		adapters.put(ElObjTest.ElObjTestB.class);
-//		adapters.put(ElObjTest.ElObjTestA.class);
+		context.put(ElStrTest.class);
+		context.put(ElObjIdTest.class);
+		context.put(ElNumTest.class);
+		context.put(ElDateTest.class);
+		context.put(ElObjTest.class);
+		context.put(ElObjTest.ElObjTestB.class);
+		context.put(ElObjTest.ElObjTestA.class);
 //		adapters.put(ElArrTest.class);		
 	}
 
 	@Test
-	public void testString() throws SmofException, NoSuchAdapterException {
-		final SmofAdapter<ElStrTest> parser = adapters.get(ElStrTest.class);
+	public void testString() throws SmofException {
 		final ElStrTest test = new ElStrTest("test", ElStrTest.EnumTest.VALB);
 		test.str2 = "askjdahsj";
-		final BsonDocument doc = parser.write(test);
-		assertEquals(test, parser.read(doc));
+		final BsonDocument doc = parser.toBson(test);
+		assertEquals(test, parser.fromBson(doc, ElStrTest.class));
 	}
 	
 	@Test
-	public void testObjectId() throws SmofException, NoSuchAdapterException {
-		final SmofAdapter<ElObjIdTest> parser = adapters.get(ElObjIdTest.class);
+	public void testObjectId() throws SmofException {
 		final ElObjIdTest test = new ElObjIdTest(new ObjectId());
-		final BsonDocument doc = parser.write(test);
-		assertEquals(test, parser.read(doc));
+		final BsonDocument doc = parser.toBson(test);
+		assertEquals(test, parser.fromBson(doc, ElObjIdTest.class));
 	}
 	
 	@Test
-	public void testNumber() throws SmofException, NoSuchAdapterException {
-		final SmofAdapter<ElNumTest> parser = adapters.get(ElNumTest.class);
+	public void testNumber() throws SmofException {
 		final ElNumTest test = new ElNumTest(31, new Long(31), new Short((short) 200));
-		final BsonDocument doc = parser.write(test);
-		assertEquals(test, parser.read(doc));
+		final BsonDocument doc = parser.toBson(test);
+		assertEquals(test, parser.fromBson(doc, ElNumTest.class));
 	}
 	
 	@Test
-	public void testDate() throws SmofException, NoSuchAdapterException {
-		final SmofAdapter<ElDateTest> parser = adapters.get(ElDateTest.class);
+	public void testDate() throws SmofException {
 		final ElDateTest test = new ElDateTest(Instant.now(), LocalDate.now(), LocalDateTime.now());
-		final BsonDocument doc = parser.write(test);
-		assertEquals(test, parser.read(doc));
+		final BsonDocument doc = parser.toBson(test);
+		assertEquals(test, parser.fromBson(doc, ElDateTest.class));
 	}
 	
 	@Test
-	public void testObject() throws SmofException, NoSuchAdapterException {
-		final SmofAdapter<ElObjTest> parser = adapters.get(ElObjTest.class); 
-		System.out.println(parser.write(new ElObjTest()).toJson());
+	public void testObject() throws SmofException {
+		System.out.println(parser.toBson(new ElObjTest()).toJson());
 	}
 	
 	@Test
-	public void testArray() throws SmofException, NoSuchAdapterException {
-		final SmofAdapter<ElArrTest> parser = adapters.get(ElArrTest.class); 
-		System.out.println(parser.write(new ElArrTest()).toJson());
+	public void testArray() throws SmofException {
+		System.out.println(parser.toBson(new ElArrTest()).toJson());
 	}
 	
 	private static class ElStrTest extends AbstractElement {
@@ -293,6 +287,7 @@ public class ElementTypeFactoryTests {
 		@SmofObject(name = "el2")
 		private final ElObjTestB el2;
 		
+		@SmofBuilder
 		public ElObjTest() {
 			el1 = new ElObjTestA();
 			el2 = new ElObjTestB();
@@ -309,6 +304,7 @@ public class ElementTypeFactoryTests {
 			@SmofObject(name = "el1")
 			private final ElObjTestB elA;
 			
+			@SmofBuilder
 			public ElObjTestA() {
 				int1 = 20;
 				str1 = "gauss";
@@ -324,6 +320,7 @@ public class ElementTypeFactoryTests {
 			@SmofString(name = "str1")
 			private final String str1;
 			
+			@SmofBuilder
 			public ElObjTestB() {
 				int1 = 20;
 				str1 = "gauss";
@@ -333,10 +330,10 @@ public class ElementTypeFactoryTests {
 	
 	private static class ElArrTest extends AbstractElement {
 		
-		@SmofArray(name = "arr1", type = FieldType.NUMBER)
+		@SmofArray(name = "arr1", type = SmofType.NUMBER)
 		private final int[] arr1;
 		
-		@SmofArray(name = "arr2", type = FieldType.DATE)
+		@SmofArray(name = "arr2", type = SmofType.DATETIME)
 		private final LocalDate[] arr2;
 		
 		public ElArrTest() {
