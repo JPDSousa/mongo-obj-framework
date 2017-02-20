@@ -5,7 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.smof.annnotations.SmofField;
+import org.smof.element.AbstractElement;
 import org.smof.exception.SmofException;
 
 class BsonBuilder<T> {

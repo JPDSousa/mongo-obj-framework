@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.lang.model.element.Element;
+
 import org.bson.BsonValue;
 import org.smof.annnotations.SmofField;
 import org.smof.exception.SmofException;
@@ -26,10 +28,15 @@ abstract class AbstractBsonParser implements BsonParser {
 	public abstract BsonValue toBson(Object value, SmofField fieldOpts);
 
 	@Override
-	public abstract <T> T fromBson(BsonValue value, Class<T> type);
+	public abstract <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts);
 
 	@Override
-	public boolean isValidType(Class<?> type, SmofField fieldOpts) {
+	public boolean isValidType(SmofField fieldOpts) {
+		return isValidType(fieldOpts.getFieldClass());
+	}
+
+	@Override
+	public boolean isValidType(Class<?> type) {
 		return validTypes.stream().anyMatch(t -> t.isAssignableFrom(type));
 	}
 
@@ -49,11 +56,15 @@ abstract class AbstractBsonParser implements BsonParser {
 	}
 
 	protected <T> AnnotationParser<T> getAnnotationParser(Class<T> type) {
-		return bsonParser.getContext().getFields(type);
+		return bsonParser.getContext().getMetadata(type);
 	}
 
 	protected boolean isString(Class<?> type) {
 		return type.equals(String.class);
+	}
+
+	protected boolean isElement(Class<?> type) {
+		return Element.class.isAssignableFrom(type);
 	}
 
 }

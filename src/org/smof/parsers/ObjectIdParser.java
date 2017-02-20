@@ -18,7 +18,7 @@ class ObjectIdParser extends AbstractBsonParser {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T fromBson(BsonValue value, Class<T> type) {
+	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
 		return (T) value.asObjectId().getValue();
 	}
 

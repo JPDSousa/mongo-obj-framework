@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
@@ -20,11 +21,9 @@ import org.smof.annnotations.SmofObjectId;
 import org.smof.annnotations.SmofParam;
 import org.smof.annnotations.SmofString;
 import org.smof.element.AbstractElement;
-import org.smof.exception.InvalidSmofTypeException;
 import org.smof.exception.SmofException;
 import org.smof.parsers.SmofParser;
 import org.smof.parsers.SmofType;
-import org.smof.parsers.SmofTypeContext;
 
 @SuppressWarnings("javadoc")
 public class ElementTypeFactoryTests {
@@ -32,18 +31,17 @@ public class ElementTypeFactoryTests {
 	private static SmofParser parser;
 	
 	@BeforeClass
-	public static void setUpBeforeClass() throws InvalidSmofTypeException {
+	public static void setUpBeforeClass() {
 		parser = new SmofParser();
-		SmofTypeContext context = parser.getContext();
 		
-		context.put(ElStrTest.class);
-		context.put(ElObjIdTest.class);
-		context.put(ElNumTest.class);
-		context.put(ElDateTest.class);
-		context.put(ElObjTest.class);
-		context.put(ElObjTest.ElObjTestB.class);
-		context.put(ElObjTest.ElObjTestA.class);
-//		adapters.put(ElArrTest.class);		
+		parser.registerType(ElStrTest.class);
+		parser.registerType(ElObjIdTest.class);
+		parser.registerType(ElNumTest.class);
+		parser.registerType(ElDateTest.class);
+		parser.registerType(ElObjTest.class);
+		parser.registerType(ElObjTest.ElObjTestB.class);
+		parser.registerType(ElObjTest.ElObjTestA.class);
+//		parser.registerType(ElArrTest.class);		
 	}
 
 	@Test
@@ -77,7 +75,9 @@ public class ElementTypeFactoryTests {
 	
 	@Test
 	public void testObject() throws SmofException {
-		System.out.println(parser.toBson(new ElObjTest()).toJson());
+		final ElObjTest test = new ElObjTest();
+		final BsonDocument doc = parser.toBson(test);
+		assertEquals(test, parser.fromBson(doc, ElObjIdTest.class));
 	}
 	
 	@Test
@@ -331,15 +331,15 @@ public class ElementTypeFactoryTests {
 	private static class ElArrTest extends AbstractElement {
 		
 		@SmofArray(name = "arr1", type = SmofType.NUMBER)
-		private final int[] arr1;
+		private final List<Integer> arr1;
 		
 		@SmofArray(name = "arr2", type = SmofType.DATETIME)
-		private final LocalDate[] arr2;
+		private final List<LocalDate> arr2;
 		
+		@SmofBuilder
 		public ElArrTest() {
-			this.arr1 = new int[500];
-			Arrays.fill(arr1, 30);
-			this.arr2 = new LocalDate[]{LocalDate.now(), LocalDate.now()};
+			this.arr1 = Arrays.asList(500);
+			this.arr2 = Arrays.asList(LocalDate.now(), LocalDate.now());
 		}
 	}
 

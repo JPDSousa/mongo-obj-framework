@@ -7,9 +7,11 @@ interface BsonParser {
 
 	BsonValue toBson(Object value, SmofField fieldOpts);
 	
-	<T> T fromBson(BsonValue value, Class<T> type);
+	<T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts);
 	
-	boolean isValidType(Class<?> type, SmofField fieldOpts);
+	boolean isValidType(SmofField fieldOpts);
+	
+	boolean isValidType(Class<?> type);
 	
 	boolean isValidBson(BsonValue value);
 }

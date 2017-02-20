@@ -5,10 +5,8 @@ import java.util.Set;
 import org.bson.BsonDocument;
 import org.smof.annnotations.SmofField;
 import org.smof.element.Element;
-import org.smof.exception.InvalidSmofTypeException;
 import org.smof.exception.SmofException;
 import org.smof.parsers.SmofParser;
-import org.smof.parsers.SmofTypeContext;
 
 import com.mongodb.client.MongoDatabase;
 
@@ -26,14 +24,12 @@ public class Smof {
 
 	private final MongoDatabase database;
 	private final SmofCollectionsPool collections;
-	private final SmofTypeContext typeContext;
 	private final SmofParser parser;
 
 	private Smof(MongoDatabase database) {
 		this.database = database;
 		this.collections = new SmofCollectionsPool();
 		this.parser = new SmofParser();
-		this.typeContext = parser.getContext();
 	}
 
 	//	private void testConnection() {
@@ -52,21 +48,13 @@ public class Smof {
 	//	}
 
 	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass) throws SmofException {
-		try {
-			typeContext.put(elClass);
-			loadCollection(collectionName, elClass, parser);
-		} catch (InvalidSmofTypeException e) {
-			throw new SmofException(e);
-		}
+		parser.registerType(elClass);
+		loadCollection(collectionName, elClass, parser);
 	}
 	
 	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass, Object factory) throws SmofException {
-		try {
-			typeContext.put(elClass, factory);
-			loadCollection(collectionName, elClass, parser);
-		} catch (InvalidSmofTypeException e) {
-			throw new SmofException(e);
-		}
+		parser.registerType(elClass, factory);
+		loadCollection(collectionName, elClass, parser);
 	}
 
 	private <T extends Element> void loadCollection(String collectionName, Class<T> elClass, SmofParser parser) {
@@ -74,19 +62,11 @@ public class Smof {
 	}
 
 	public <T> void registerSmofFactory(Class<T> type) throws SmofException {
-		try {
-			typeContext.put(type);
-		} catch (InvalidSmofTypeException e) {
-			throw new SmofException(e);
-		}
+		parser.registerType(type);
 	}
 	
 	public <T> void registerSmofFactory(Class<T> type, Object factory) throws SmofException {
-		try {
-			typeContext.put(type, factory);
-		} catch (InvalidSmofTypeException e) {
-			throw new SmofException(e);
-		}
+		parser.registerType(type, factory);
 	}
 
 	public <T extends Element> void createCollection(String collectionName, Class<T> elClass) throws SmofException {
@@ -112,7 +92,7 @@ public class Smof {
 
 	@SuppressWarnings("unchecked")
 	public <T extends Element> void insert(T element) {
-		Set<SmofField> fields = typeContext.getFields(element.getClass()).getExternalFields();
+		Set<SmofField> fields = parser.getMetadata(element.getClass()).getExternalFields();
 
 		if(collections.contains(element.getClass())) {
 			for(SmofField field : fields) {

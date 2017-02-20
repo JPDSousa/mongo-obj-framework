@@ -44,7 +44,7 @@ class StringParser extends AbstractBsonParser {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T fromBson(BsonValue rawValue, Class<T> type) {
+	public <T> T fromBson(BsonValue rawValue, Class<T> type, SmofField fieldOpts) {
 		final String value = rawValue.asString().getValue();
 		if (isString(type)) {
 			return (T) value;

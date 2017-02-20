@@ -1,6 +1,11 @@
 package org.smof.parsers;
 
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.bson.BsonArray;
 import org.bson.BsonValue;
@@ -9,7 +14,7 @@ import org.smof.annnotations.SmofField;
 
 class ArrayParser extends AbstractBsonParser {
 
-	private static final Class<?>[] VALID_TYPES = {Object[].class, Collection.class};
+	private static final Class<?>[] VALID_TYPES = {Collection.class};
 	
 	ArrayParser(SmofParser parser) {
 		super(parser, VALID_TYPES);
@@ -20,10 +25,7 @@ class ArrayParser extends AbstractBsonParser {
 		final Class<?> type = value.getClass();
 		final Object[] array;
 		final SmofType componentType = getArrayType(fieldOpts);
-		if(isObjectArray(type)) {
-			array = (Object[]) value;
-		}
-		else if(isCollection(type)) {
+		if(isCollection(type)) {
 			array = fromCollection((Collection<?>) value);
 		}
 		else {
@@ -50,30 +52,61 @@ class ArrayParser extends AbstractBsonParser {
 		return Collection.class.isAssignableFrom(type);
 	}
 
-	private boolean isObjectArray(Class<?> type) {
-		return Object[].class.isAssignableFrom(type);
-	}
-
+	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T fromBson(BsonValue rawValue, Class<T> type) {
-//		BsonArray value = rawValue.asArray();
-//		Object[] array = toArray(value);
-//		if(isObjectArray(type)) {
-//			
-//		}
+	public <T> T fromBson(BsonValue rawValue, Class<T> type, SmofField fieldOpts) {
+		BsonArray value = rawValue.asArray();
+		if(isCollection(type)) {
+			return (T) toCollection(value, type, fieldOpts);
+		}
 		
 		return null;
 	}
+	
+	private Collection<Object> toCollection(BsonArray values, Class<?> collType, SmofField fieldOpts) {
+		final SmofType arrayType = getArrayType(fieldOpts);
+		final Class<?> type = getCollectionType(collType);
+		final Collection<Object> collection = createCollection(collType, type);
+		for(BsonValue value : values) {
+			final Object parsedValue = bsonParser.fromBson(value, type, arrayType);
+			collection.add(parsedValue);
+		}
+		
+		return collection;
+	}
+
+	private Class<?> getCollectionType(Class<?> collType) {
+		final ParameterizedType mapParamType = (ParameterizedType) collType.getGenericSuperclass();
+		return (Class<?>) mapParamType.getActualTypeArguments()[0];
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> Collection<Object> createCollection(Class<?> collectionClass, Class<T> type) {
+		final Collection<T> collection;
+		if(List.class.isAssignableFrom(collectionClass)) {
+			collection = new ArrayList<>();
+		}
+		else if(Set.class.isAssignableFrom(collectionClass)) {
+			collection = new LinkedHashSet<>();
+		}
+		else {
+			collection = null;
+		}
+		return (Collection<Object>) collection;
+	}
 
 	@Override
-	public boolean isValidType(Class<?> type, SmofField fieldOpts) {
-		return super.isValidType(type, fieldOpts)
+	public boolean isValidType(SmofField fieldOpts) {
+		final Class<?> type = fieldOpts.getFieldClass();
+		
+		return super.isValidType(type)
 				&& isValidComponentType(type, fieldOpts);
 	}
 
 	private boolean isValidComponentType(Class<?> type, SmofField fieldOpts) {
 		final SmofType componentType = getArrayType(fieldOpts);
-		final Class<?> componentClass = type.getComponentType();
+		//Careful here! The next line is only safe 'cause we only support collections
+		final Class<?> componentClass = getCollectionType(type);
 		return isSupportedComponentType(componentType)
 				&& !isMap(componentClass)
 				&& bsonParser.isValidType(componentType, componentClass);
@@ -91,5 +124,4 @@ class ArrayParser extends AbstractBsonParser {
 	public boolean isValidBson(BsonValue value) {
 		return value.isArray();
 	}
-
 }

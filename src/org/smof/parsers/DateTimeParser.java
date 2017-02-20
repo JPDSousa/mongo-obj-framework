@@ -72,7 +72,7 @@ class DateTimeParser extends AbstractBsonParser {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T fromBson(BsonValue value, Class<T> type) {
+	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
 		final long date = value.asDateTime().getValue();
 		final Object retValue;
 		if(isInstance(type)) {

@@ -7,10 +7,13 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.BsonDocument;
+import org.bson.BsonObjectId;
 import org.bson.BsonString;
 import org.bson.BsonValue;
+import org.bson.types.ObjectId;
 import org.smof.annnotations.SmofField;
 import org.smof.annnotations.SmofObject;
+import org.smof.element.Element;
 import org.smof.exception.MissingRequiredFieldException;
 
 class ObjectParser extends AbstractBsonParser {
@@ -24,7 +27,11 @@ class ObjectParser extends AbstractBsonParser {
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
 		final Class<?> type = value.getClass();
-		if(isMap(type)) {
+		
+		if(isElement(type)) {
+			return fromElement((Element) value);
+		}
+		else if(isMap(type)) {
 			final SmofType valueType = getMapValueType(fieldOpts);
 			return fromMap((Map<?, ?>) value, valueType);
 		}
@@ -35,6 +42,11 @@ class ObjectParser extends AbstractBsonParser {
 			return fromArray((Object[]) value);
 		}
 		return fromObject(value);
+	}
+
+	private BsonValue fromElement(Element value) {
+		final ObjectId id = value.getId();
+		return new BsonObjectId(id);
 	}
 
 	private BsonDocument fromObject(Object value) {
@@ -98,9 +110,45 @@ class ObjectParser extends AbstractBsonParser {
 		return document;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T fromBson(BsonValue value, Class<T> type) {
-		final BsonDocument document = value.asDocument();
+	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
+		if(isElement(type)) {
+			return null;
+		}
+		else if(isMap(type)) {
+			return (T) toMap(value.asDocument(), fieldOpts);
+		}
+		else {
+			return toObject(value.asDocument(), type);
+		}
+	}
+
+	private Map<?, ?> toMap(BsonDocument document, SmofField fieldOpts) {
+		final Map<Object, Object> map = new LinkedHashMap<>();
+		final Pair<Class<?>, Class<?>> mapClass = getMapTypes(fieldOpts.getRawField().getType());
+		
+		for(String bsonKey : document.keySet()) {
+			final BsonValue bsonValue = document.get(bsonKey);
+			final Object key = toMapKey(bsonKey, mapClass.getKey());
+			final Object value = toMapValue(bsonValue, mapClass.getValue(), fieldOpts);
+			map.put(key, value);
+		}
+		
+		return map;
+	}
+	
+	private Object toMapValue(BsonValue value, Class<?> valueType, SmofField fieldOpts) {
+		final SmofType smofValueType = getMapValueType(fieldOpts);
+		return bsonParser.fromBson(value, valueType, smofValueType);
+	}
+	
+	private Object toMapKey(String key, Class<?> keyType) {
+		final BsonString bsonKey = new BsonString(key);
+		return bsonParser.fromBson(bsonKey, keyType, SmofType.STRING);
+	}
+
+	private <T> T toObject(BsonDocument document, Class<T> type) {
 		final BsonBuilder<T> builder = new BsonBuilder<T>();
 		final AnnotationParser<T> fields = getAnnotationParser(type);
 		for(SmofField field : fields.getAllFields()) {
@@ -115,13 +163,19 @@ class ObjectParser extends AbstractBsonParser {
 	}
 
 	@Override
-	public boolean isValidType(Class<?> type, SmofField fieldOpts) {
+	public boolean isValidType(SmofField fieldOpts) {
+		final Class<?> type = fieldOpts.getFieldClass();
 		//TODO support enums!
 		//TODO support arrays!
-		return notPrimitive(type) && validMap(type, fieldOpts);
+		return isValidType(type) && isValidMap(type, fieldOpts);
 	}
 
-	private boolean validMap(Class<?> type, SmofField fieldOpts) {
+	@Override
+	public boolean isValidType(Class<?> type) {
+		return notPrimitive(type);
+	}
+
+	private boolean isValidMap(Class<?> type, SmofField fieldOpts) {
 		final Pair<Class<?>, Class<?>> mapTypes;
 		final SmofType valueType;
 		
@@ -159,7 +213,7 @@ class ObjectParser extends AbstractBsonParser {
 
 	@Override
 	public boolean isValidBson(BsonValue value) {
-		return value.isDocument();
+		return value.isDocument() || value.isObjectId();
 	}
 
 }

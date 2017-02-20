@@ -109,4 +109,8 @@ public class SmofField implements Comparable<SmofField>{
 	public boolean isBuilderField() {
 		return builderField;
 	}
+	
+	public Class<?> getFieldClass() {
+		return getRawField().getType();
+	}
 }
