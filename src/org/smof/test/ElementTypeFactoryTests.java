@@ -58,6 +58,7 @@ public class ElementTypeFactoryTests {
 	public void testObjectId() throws SmofException {
 		final ElObjIdTest test = new ElObjIdTest(new ObjectId());
 		final BsonDocument doc = parser.toBson(test);
+		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElObjIdTest.class));
 	}
 	
@@ -65,6 +66,7 @@ public class ElementTypeFactoryTests {
 	public void testNumber() throws SmofException {
 		final ElNumTest test = new ElNumTest(31, new Long(31), new Short((short) 200));
 		final BsonDocument doc = parser.toBson(test);
+		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElNumTest.class));
 	}
 	
@@ -72,6 +74,7 @@ public class ElementTypeFactoryTests {
 	public void testDate() throws SmofException {
 		final ElDateTest test = new ElDateTest(Instant.now(), LocalDate.now(), LocalDateTime.now());
 		final BsonDocument doc = parser.toBson(test);
+		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElDateTest.class));
 	}
 	
@@ -85,6 +88,7 @@ public class ElementTypeFactoryTests {
 		}
 		
 		final BsonDocument doc = parser.toBson(test);
+		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElObjTest.class));
 	}
 	
@@ -92,6 +96,7 @@ public class ElementTypeFactoryTests {
 	public void testArray() throws SmofException {
 		final ElArrTest test = new ElArrTest(Arrays.asList(500), Arrays.asList(LocalDate.now(), LocalDate.now()));
 		final BsonDocument doc = parser.toBson(test);
+		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElArrTest.class));
 	}
 	

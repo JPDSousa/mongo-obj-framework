@@ -17,6 +17,6 @@ public interface SmofCollection<T extends Element> {
 
 	void update(T element);
 
-	SmofResults<T> find(SmofQuery<T> query);
+	SmofQuery<T> query();
 	
 }

@@ -54,8 +54,9 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 	
 	@Override
-	public SmofResults<T> find(SmofQuery<T> query) {
-		return query.results(collection.find(query.toBson()), parser);
+	public SmofQuery<T> query() {
+		final FindIterable<BsonDocument> rawQuery = collection.find();
+		return new SmofQuery<T>(type, rawQuery, parser);
 	}
 	
 	protected final Stream<T> find(Bson condition) {

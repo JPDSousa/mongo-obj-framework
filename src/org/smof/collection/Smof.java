@@ -107,8 +107,9 @@ public class Smof {
 	}
 
 	@SuppressWarnings("cast")
-	public <T extends Element> SmofResults<T> find(SmofQuery<T> query) {
-		return ((SmofCollection<T>) collections.getCollection(query.getElementClass())).find(query);
+	public <T extends Element> SmofQuery<T> find(Class<T> elementClass) {
+		final SmofCollection<T> collection = (SmofCollection<T>) collections.getCollection(elementClass);
+		return collection.query();
 	}
 
 }
