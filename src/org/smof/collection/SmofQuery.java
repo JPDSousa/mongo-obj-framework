@@ -28,10 +28,10 @@ public class SmofQuery<T extends Element> {
 		return new SmofResults<T>(rawQuery, parser, elementClass);
 	}
 
-	public void withField(String fieldName, String artistName) {
-		rawQuery.filter(Filters.eq(fieldName, artistName));
-		
+	public SmofQuery<T> withField(String fieldName, Object filterValue) {
+		//validateFieldValue(fieldName, filterValue);
+		rawQuery.filter(Filters.eq(fieldName, filterValue));
+		return this;
 	}
-	
 	
 }
