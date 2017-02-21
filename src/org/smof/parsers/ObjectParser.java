@@ -126,7 +126,7 @@ class ObjectParser extends AbstractBsonParser {
 
 	private Map<?, ?> toMap(BsonDocument document, SmofField fieldOpts) {
 		final Map<Object, Object> map = new LinkedHashMap<>();
-		final Pair<Class<?>, Class<?>> mapClass = getMapTypes(fieldOpts.getRawField().getType());
+		final Pair<Class<?>, Class<?>> mapClass = getMapTypes(fieldOpts.getRawField());
 		
 		for(String bsonKey : document.keySet()) {
 			final BsonValue bsonValue = document.get(bsonKey);
@@ -180,9 +180,9 @@ class ObjectParser extends AbstractBsonParser {
 		final SmofType valueType;
 		
 		checkValidMapOpts(fieldOpts);
-		if(type.equals(Map.class)) {
+		if(isMap(type)) {
 			valueType = getMapValueType(fieldOpts);
-			mapTypes = getMapTypes(type);
+			mapTypes = getMapTypes(fieldOpts.getRawField());
 			return (mapTypes.getKey().isEnum() || mapTypes.getKey().equals(String.class))
 					&& bsonParser.isValidType(valueType, mapTypes.getValue());
 		}
@@ -194,8 +194,8 @@ class ObjectParser extends AbstractBsonParser {
 		return note.mapValueType();
 	}
 	
-	private Pair<Class<?>, Class<?>> getMapTypes(Class<?> mapClass) {
-		final ParameterizedType mapParamType = (ParameterizedType) mapClass.getGenericSuperclass();
+	private Pair<Class<?>, Class<?>> getMapTypes(Field mapClass) {
+		final ParameterizedType mapParamType = (ParameterizedType) mapClass.getGenericType();
 		final Class<?> keyClass = (Class<?>) mapParamType.getActualTypeArguments()[0];
 		final Class<?> valueClass = (Class<?>) mapParamType.getActualTypeArguments()[1];
 		return Pair.of(keyClass, valueClass);

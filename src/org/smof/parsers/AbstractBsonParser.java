@@ -52,7 +52,7 @@ abstract class AbstractBsonParser implements BsonParser {
 	}
 
 	protected boolean isMap(final Class<?> type) {
-		return type.equals(Map.class);
+		return Map.class.isAssignableFrom(type);
 	}
 
 	protected <T> AnnotationParser<T> getAnnotationParser(Class<T> type) {

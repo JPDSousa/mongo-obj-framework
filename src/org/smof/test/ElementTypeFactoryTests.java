@@ -6,7 +6,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
@@ -41,7 +43,7 @@ public class ElementTypeFactoryTests {
 		parser.registerType(ElObjTest.class);
 		parser.registerType(ElObjTest.ElObjTestB.class);
 		parser.registerType(ElObjTest.ElObjTestA.class);
-//		parser.registerType(ElArrTest.class);		
+		parser.registerType(ElArrTest.class);		
 	}
 
 	@Test
@@ -75,14 +77,22 @@ public class ElementTypeFactoryTests {
 	
 	@Test
 	public void testObject() throws SmofException {
-		final ElObjTest test = new ElObjTest();
+		final ElObjTest.ElObjTestA a = new ElObjTest.ElObjTestA(30, "gauss");
+		final ElObjTest test = new ElObjTest(a);
+		test.map1 = new LinkedHashMap<>();
+		for(int i=0;i<20;i++) {
+			test.map1.put(i+"", Instant.now());
+		}
+		
 		final BsonDocument doc = parser.toBson(test);
-		assertEquals(test, parser.fromBson(doc, ElObjIdTest.class));
+		assertEquals(test, parser.fromBson(doc, ElObjTest.class));
 	}
 	
 	@Test
 	public void testArray() throws SmofException {
-		System.out.println(parser.toBson(new ElArrTest()).toJson());
+		final ElArrTest test = new ElArrTest(Arrays.asList(500), Arrays.asList(LocalDate.now(), LocalDate.now()));
+		final BsonDocument doc = parser.toBson(test);
+		assertEquals(test, parser.fromBson(doc, ElArrTest.class));
 	}
 	
 	private static class ElStrTest extends AbstractElement {
@@ -275,8 +285,6 @@ public class ElementTypeFactoryTests {
 			}
 			return true;
 		}
-		
-		
 	}
 	
 	private static class ElObjTest extends AbstractElement {
@@ -284,13 +292,12 @@ public class ElementTypeFactoryTests {
 		@SmofObject(name = "el1")
 		private final ElObjTestA el1;
 		
-		@SmofObject(name = "el2")
-		private final ElObjTestB el2;
+		@SmofObject(name = "map1", mapValueType = SmofType.DATETIME)
+		private Map<String, Instant> map1;
 		
 		@SmofBuilder
-		public ElObjTest() {
-			el1 = new ElObjTestA();
-			el2 = new ElObjTestB();
+		public ElObjTest(@SmofParam(name="el1") ElObjTestA el1) {
+			this.el1 = el1;
 		}
 
 		private static class ElObjTestA {
@@ -301,14 +308,44 @@ public class ElementTypeFactoryTests {
 			@SmofString(name = "str1")
 			private final String str1;
 			
-			@SmofObject(name = "el1")
-			private final ElObjTestB elA;
-			
 			@SmofBuilder
-			public ElObjTestA() {
-				int1 = 20;
-				str1 = "gauss";
-				elA = new ElObjTestB();
+			public ElObjTestA(@SmofParam(name="int1")Integer int1, @SmofParam(name="str1")String str1) {
+				this.int1 = int1;
+				this.str1 = str1;
+			}
+
+			@Override
+			public int hashCode() {
+				final int prime = 31;
+				int result = 1;
+				result = prime * result + int1;
+				result = prime * result + ((str1 == null) ? 0 : str1.hashCode());
+				return result;
+			}
+
+			@Override
+			public boolean equals(Object obj) {
+				if (this == obj) {
+					return true;
+				}
+				if (obj == null) {
+					return false;
+				}
+				if (getClass() != obj.getClass()) {
+					return false;
+				}
+				ElObjTestA other = (ElObjTestA) obj;
+				if (int1 != other.int1) {
+					return false;
+				}
+				if (str1 == null) {
+					if (other.str1 != null) {
+						return false;
+					}
+				} else if (!str1.equals(other.str1)) {
+					return false;
+				}
+				return true;
 			}
 		}
 		
@@ -326,6 +363,44 @@ public class ElementTypeFactoryTests {
 				str1 = "gauss";
 			}
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((el1 == null) ? 0 : el1.hashCode());
+			result = prime * result + ((map1 == null) ? 0 : map1.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			ElObjTest other = (ElObjTest) obj;
+			if (el1 == null) {
+				if (other.el1 != null) {
+					return false;
+				}
+			} else if (!el1.equals(other.el1)) {
+				return false;
+			}
+			if (map1 == null) {
+				if (other.map1 != null) {
+					return false;
+				}
+			} else if (!map1.equals(other.map1)) {
+				return false;
+			}
+			return true;
+		}
 	}
 	
 	private static class ElArrTest extends AbstractElement {
@@ -337,9 +412,47 @@ public class ElementTypeFactoryTests {
 		private final List<LocalDate> arr2;
 		
 		@SmofBuilder
-		public ElArrTest() {
-			this.arr1 = Arrays.asList(500);
-			this.arr2 = Arrays.asList(LocalDate.now(), LocalDate.now());
+		public ElArrTest(@SmofParam(name="arr1")List<Integer> dates1, @SmofParam(name="arr2") List<LocalDate> dates2) {
+			this.arr1 = dates1;
+			this.arr2 = dates2;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((arr1 == null) ? 0 : arr1.hashCode());
+			result = prime * result + ((arr2 == null) ? 0 : arr2.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			ElArrTest other = (ElArrTest) obj;
+			if (arr1 == null) {
+				if (other.arr1 != null) {
+					return false;
+				}
+			} else if (!arr1.equals(other.arr1)) {
+				return false;
+			}
+			if (arr2 == null) {
+				if (other.arr2 != null) {
+					return false;
+				}
+			} else if (!arr2.equals(other.arr2)) {
+				return false;
+			}
+			return true;
 		}
 	}
 

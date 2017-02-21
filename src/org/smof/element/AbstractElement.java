@@ -11,7 +11,7 @@ public abstract class AbstractElement implements Element {
 	private ObjectId id;
 
 	protected AbstractElement() {
-		this.id = new ObjectId();
+		this(new ObjectId());
 	}
 
 	protected AbstractElement(final ObjectId initialID) {

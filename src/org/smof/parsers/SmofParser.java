@@ -94,7 +94,9 @@ public class SmofParser {
 	}
 
 	BsonValue toBson(Object value, SmofField field) {
-		return toBson(value, field.getType());
+		final SmofType type = field.getType();
+		final BsonParser parser = parsers.get(type);
+		return parser.toBson(value, field);
 	}
 	
 	BsonValue toBson(Object value, SmofType type) {
