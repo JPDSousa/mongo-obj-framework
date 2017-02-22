@@ -13,7 +13,7 @@ public interface SmofCollection<T extends Element> {
 	String getCollectionName();
 	MongoCollection<BsonDocument> getMongoCollection();
 	
-	boolean insert(T element);
+	void insert(T element);
 
 	void update(T element);
 

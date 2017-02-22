@@ -27,10 +27,9 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	@Override
-	public boolean insert(final T element) {
+	public void insert(final T element) {
 		final BsonDocument document = parser.toBson(element);
 		collection.insertOne(document);
-		return true;
 	}
 	
 	@Override
