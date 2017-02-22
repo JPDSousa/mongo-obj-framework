@@ -15,10 +15,8 @@ import org.smof.annnotations.SmofField;
 
 class ArrayParser extends AbstractBsonParser {
 
-	private static final Class<?>[] VALID_TYPES = {Collection.class};
-
 	ArrayParser(SmofParser parser) {
-		super(parser, VALID_TYPES);
+		super(parser, Collection.class);
 	}
 
 	@Override
@@ -108,6 +106,7 @@ class ArrayParser extends AbstractBsonParser {
 		final SmofType componentType = getArrayType(fieldOpts);
 		//Careful here! The next line is only safe 'cause we only support collections
 		final Class<?> componentClass = getCollectionType(fieldOpts.getRawField());
+
 		return isSupportedComponentType(componentType)
 				&& !isMap(componentClass)
 				&& bsonParser.isValidType(componentType, componentClass);

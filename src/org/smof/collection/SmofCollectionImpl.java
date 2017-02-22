@@ -3,12 +3,9 @@ package org.smof.collection;
 import java.util.stream.Stream;
 
 import org.bson.BsonDocument;
-import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
 
 import org.smof.element.Element;
-import org.smof.exception.InvalidIdException;
 import org.smof.parsers.SmofParser;
 
 import com.mongodb.client.FindIterable;
@@ -31,26 +28,9 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public boolean insert(final T element) {
-		final Document jsonObject;
-		final ObjectId id;
-		final BsonDocument result = collection.find(getUniqueCondition(element)).first();
-		final boolean added = result == null;
-		
-		try {
-			if(result == null) {
-//				jsonObject = Document.parse(jsonManager.toJson(element, type));
-				id = new ObjectId();
-//				jsonObject.append(Element.ID, id);
-//				collection.insertOne(jsonObject);
-				element.setId(id);
-			}
-			else {
-//				element.setId(result.getObjectId(Element.ID));
-			}
-		} catch(InvalidIdException e) {
-			e.printStackTrace();
-		}
-		return added;
+		final BsonDocument document = parser.toBson(element);
+		collection.insertOne(document);
+		return true;
 	}
 	
 	@Override

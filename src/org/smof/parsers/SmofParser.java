@@ -5,6 +5,7 @@ import org.bson.BsonNull;
 import org.bson.BsonValue;
 
 import org.smof.annnotations.SmofField;
+import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.InvalidBsonTypeException;
 import org.smof.exception.InvalidSmofTypeException;
@@ -20,10 +21,12 @@ public class SmofParser {
 	
 	private final SmofTypeContext context;
 	private final SmofParserPool parsers;
+	private final SmofDispatcher dispatcher;
 	
-	public SmofParser() {
+	public SmofParser(SmofDispatcher dispatcher) {
 		this.context = new SmofTypeContext();
 		parsers = SmofParserPool.create(this);
+		this.dispatcher = dispatcher;
 	}
 	
 	SmofTypeContext getContext() {

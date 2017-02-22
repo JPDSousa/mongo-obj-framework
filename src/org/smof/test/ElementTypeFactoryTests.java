@@ -34,7 +34,7 @@ public class ElementTypeFactoryTests {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		parser = new SmofParser();
+		parser = new SmofParser(null);
 		
 		parser.registerType(ElStrTest.class);
 		parser.registerType(ElObjIdTest.class);

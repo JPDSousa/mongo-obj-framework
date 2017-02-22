@@ -7,12 +7,12 @@ import java.util.Map;
 import org.smof.element.Element;
 
 @SuppressWarnings("javadoc")
-public class SmofCollectionsPool implements Iterable<SmofCollection<?>>{
+public class CollectionsPool implements Iterable<SmofCollection<?>>{
 	
 	private final Map<Class<? extends Element>, SmofCollection<? extends Element>> collections;
 	
 	
-	public SmofCollectionsPool() {
+	public CollectionsPool() {
 		collections = new LinkedHashMap<>();
 	}
 	
