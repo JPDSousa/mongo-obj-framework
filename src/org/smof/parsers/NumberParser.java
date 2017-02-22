@@ -111,7 +111,7 @@ class NumberParser extends AbstractBsonParser {
 
 	@Override
 	public boolean isValidBson(BsonValue value) {
-		return value.isNumber();
+		return super.isValidBson(value) || value.isNumber();
 	}
 
 	private boolean isInteger(Class<?> type) {

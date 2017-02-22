@@ -24,7 +24,7 @@ class ObjectIdParser extends AbstractBsonParser {
 
 	@Override
 	public boolean isValidBson(BsonValue value) {
-		return value.isObjectId();
+		return super.isValidBson(value) || value.isObjectId();
 	}
 
 }

@@ -124,6 +124,6 @@ class ArrayParser extends AbstractBsonParser {
 
 	@Override
 	public boolean isValidBson(BsonValue value) {
-		return value.isArray();
+		return super.isValidBson(value) || value.isArray();
 	}
 }

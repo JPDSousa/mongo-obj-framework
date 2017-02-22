@@ -48,7 +48,7 @@ public class ElementTypeFactoryTests {
 
 	@Test
 	public void testString() throws SmofException {
-		final ElStrTest test = new ElStrTest("test", ElStrTest.EnumTest.VALB);
+		final ElStrTest test = new ElStrTest("test", EnumTest.VALB);
 		test.str2 = "askjdahsj";
 		final BsonDocument doc = parser.toBson(test);
 		assertEquals(test, parser.fromBson(doc, ElStrTest.class));
@@ -100,6 +100,12 @@ public class ElementTypeFactoryTests {
 		assertEquals(test, parser.fromBson(doc, ElArrTest.class));
 	}
 	
+	private static enum EnumTest {
+		VALA,
+		VALB,
+		VALC;
+	}
+	
 	private static class ElStrTest extends AbstractElement {
 		
 		@SmofString(name = "str1")
@@ -111,16 +117,11 @@ public class ElementTypeFactoryTests {
 		@SmofString(name = "str2")
 		private String str2;
 		
+		
 		@SmofBuilder
 		private ElStrTest(@SmofParam(name = "str1") String str1, @SmofParam(name ="en1") EnumTest en1) {
 			this.str1 = str1;
 			this.en1 = en1;
-		}
-		
-		private enum EnumTest {
-			VALA,
-			VALB,
-			VALC;
 		}
 
 		@Override
@@ -193,6 +194,9 @@ public class ElementTypeFactoryTests {
 		
 		@SmofNumber(name = "int")
 		private final int int1;
+		
+		@SmofNumber(name = "int2")
+		private Integer int2;
 		
 		@SmofNumber(name = "long")
 		private final long long1;

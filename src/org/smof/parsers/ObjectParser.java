@@ -213,7 +213,7 @@ class ObjectParser extends AbstractBsonParser {
 
 	@Override
 	public boolean isValidBson(BsonValue value) {
-		return value.isDocument() || value.isObjectId();
+		return super.isValidBson(value) || value.isDocument() || value.isObjectId();
 	}
 
 }

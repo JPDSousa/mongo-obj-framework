@@ -1,6 +1,7 @@
 package org.smof.parsers;
 
 import org.bson.BsonDocument;
+import org.bson.BsonNull;
 import org.bson.BsonValue;
 
 import org.smof.annnotations.SmofField;
@@ -80,12 +81,19 @@ public class SmofParser {
 		final BsonParser parser = parsers.get(field.getType());
 		final Class<?> type = field.getRawField().getType();
 		
-		return parser.fromBson(value, type, field);
+		return fromBson(parser, value, type, field);
 	}
 	
 	Object fromBson(BsonValue value, Class<?> type, SmofType smofType) {
 		final BsonParser parser = parsers.get(smofType);
-		return parser.fromBson(value, type, null);
+		return fromBson(parser, value, type, null);
+	}
+	
+	private Object fromBson(BsonParser parser, BsonValue value, Class<?> type, SmofField field) {
+		if(value.isNull()) {
+			return null;
+		}
+		return parser.fromBson(value, type, field);
 	}
 	
 	public BsonDocument toBson(Element value) {
@@ -94,6 +102,9 @@ public class SmofParser {
 	}
 
 	BsonValue toBson(Object value, SmofField field) {
+		if(value == null) {
+			return new BsonNull();
+		}
 		final SmofType type = field.getType();
 		final BsonParser parser = parsers.get(type);
 		return parser.toBson(value, field);

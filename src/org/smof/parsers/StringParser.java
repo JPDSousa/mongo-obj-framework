@@ -82,7 +82,7 @@ class StringParser extends AbstractBsonParser {
 
 	@Override
 	public boolean isValidBson(BsonValue value) {
-		return value.isString();
+		return super.isValidBson(value) || value.isString();
 	}
 
 }

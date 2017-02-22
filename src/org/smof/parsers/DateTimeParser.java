@@ -111,7 +111,7 @@ class DateTimeParser extends AbstractBsonParser {
 
 	@Override
 	public boolean isValidBson(BsonValue value) {
-		return value.isDateTime();
+		return super.isValidBson(value) || value.isDateTime();
 	}
 
 }

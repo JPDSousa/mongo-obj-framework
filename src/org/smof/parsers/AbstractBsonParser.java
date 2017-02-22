@@ -41,7 +41,9 @@ abstract class AbstractBsonParser implements BsonParser {
 	}
 
 	@Override
-	public abstract boolean isValidBson(BsonValue value);
+	public boolean isValidBson(BsonValue value) {
+		return value.isNull();
+	}
 
 	protected boolean isArray(final Class<?> type) {
 		return type.isArray() && !type.getComponentType().isPrimitive();
