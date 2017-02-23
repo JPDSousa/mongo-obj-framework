@@ -2,9 +2,13 @@ package org.smof.test;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.bson.types.ObjectId;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -37,7 +41,7 @@ public class BasicSmofTest {
 		client = new MongoClient("localhost", 27017);
 		database = client.getDatabase("test");
 		smof = Smof.create(database);
-		smof.createCollection("guitars", Guitar.class);
+		smof.loadCollection("guitars", Guitar.class);
 		smof.registerSmofObject(Brand.class);
 	}
 
@@ -48,12 +52,36 @@ public class BasicSmofTest {
 
 	@Test
 	public void testSingleInsert() {
-		final Guitar g1 = new Guitar("GR400", Type.ELECTRIC, Tunnings.DROPD.tunning);
+		final List<Guitar> guitars = new ArrayList<>();
+		guitars.add(new Guitar("GR400", Type.ELECTRIC, Tunnings.DROPD.tunning));
+		guitars.add(new Guitar("Manhattan", Type.ACOUSTIC, Tunnings.STANDARD.tunning));
+		guitars.add(new Guitar("Roxy", Type.ACOUSTIC, Tunnings.DROPC.tunning));
+		
+		for(Guitar g : guitars) {
+			smof.insert(g);
+		}
+	}
+	
+	@Test
+	public void testQueryAll() {
+		smof.dropCollection("guitars");
+		smof.createCollection("guitars", Guitar.class);
+		final Map<ObjectId, Guitar> guitars = new LinkedHashMap<>();
+		final Guitar g1 = new Guitar("GR400", Type.ELECTRIC, Tunnings.DROPD.tunning); 
 		final Guitar g2 = new Guitar("Manhattan", Type.ACOUSTIC, Tunnings.STANDARD.tunning);
 		final Guitar g3 = new Guitar("Roxy", Type.ACOUSTIC, Tunnings.DROPC.tunning);
-		smof.insert(g1);
-		smof.insert(g2);
-		smof.insert(g3);
+		guitars.put(g1.getId(), g1);
+		guitars.put(g2.getId(), g2);
+		guitars.put(g3.getId(), g3);
+		
+		for(Guitar g : guitars.values()) {
+			smof.insert(g);
+		}
+		final List<Guitar> results = smof.find(Guitar.class).results().asList();
+		System.out.println(results.size());
+		for(Guitar g : results) {
+			assertEquals(g, guitars.get(g.getId()));
+		}
 	}
 
 	@Test(expected = MongoWriteException.class)
@@ -96,7 +124,7 @@ public class BasicSmofTest {
 		@SmofObject(name = "brand")
 		private Brand brand;
 
-		@SmofString(name = "model")
+		@SmofString(name = "model", indexKey = "main", indexType = IndexType.TEXT)
 		private final String model;
 
 		@SmofString(name = "type", indexKey = "main", indexType = IndexType.TEXT)
@@ -113,6 +141,55 @@ public class BasicSmofTest {
 			this.tunning = tunning;
 		}
 
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((brand == null) ? 0 : brand.hashCode());
+			result = prime * result + ((model == null) ? 0 : model.hashCode());
+			result = prime * result + ((tunning == null) ? 0 : tunning.hashCode());
+			result = prime * result + ((type == null) ? 0 : type.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			Guitar other = (Guitar) obj;
+			if (brand == null) {
+				if (other.brand != null) {
+					return false;
+				}
+			} else if (!brand.equals(other.brand)) {
+				return false;
+			}
+			if (model == null) {
+				if (other.model != null) {
+					return false;
+				}
+			} else if (!model.equals(other.model)) {
+				return false;
+			}
+			if (tunning == null) {
+				if (other.tunning != null) {
+					return false;
+				}
+			} else if (!tunning.equals(other.tunning)) {
+				return false;
+			}
+			if (type != other.type) {
+				return false;
+			}
+			return true;
+		}
 	}
 
 	private static class Brand {

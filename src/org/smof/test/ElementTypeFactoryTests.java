@@ -43,7 +43,7 @@ public class ElementTypeFactoryTests {
 		parser.registerType(ElObjTest.class);
 		parser.registerType(ElObjTest.ElObjTestB.class);
 		parser.registerType(ElObjTest.ElObjTestA.class);
-		parser.registerType(ElArrTest.class);		
+		parser.registerType(ElArrTest.class);	
 	}
 
 	@Test
@@ -68,7 +68,9 @@ public class ElementTypeFactoryTests {
 		final ElNumTest test = new ElNumTest(31, new Long(31), new Short((short) 200));
 		final BsonDocument doc = parser.toBson(test);
 		System.out.println(doc.toJson());
-		assertEquals(test, parser.fromBson(doc, ElNumTest.class));
+		final ElNumTest back = parser.fromBson(doc, ElNumTest.class);
+		assertEquals(test, back);
+		System.out.println("ID: " + back.getIdAsString());
 	}
 	
 	@Test
