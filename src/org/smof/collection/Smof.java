@@ -4,11 +4,11 @@ import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
+import org.smof.parsers.AnnotationParser;
 import org.smof.parsers.SmofParser;
 
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.model.Indexes;
 
 @SuppressWarnings("javadoc")
 public class Smof {
@@ -84,11 +84,21 @@ public class Smof {
 	public <T extends Element> void createCollection(String collectionName, Class<T> elClass) throws SmofException {
 		database.createCollection(collectionName);
 		loadCollection(collectionName, elClass);
+		createIndexes(elClass);
 	}
 
 	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, Object factory) throws SmofException {
 		database.createCollection(collectionName);
 		loadCollection(collectionName, elClass, factory);
+		createIndexes(elClass);
+	}
+
+	private <T extends Element> void createIndexes(Class<T> elClass) {
+		final AnnotationParser<T> typeMetadata = parser.getMetadata(elClass);
+		final SmofCollection<T> collection = collections.getCollection(elClass);
+		for(Bson index : typeMetadata.getIndexes()) {
+			collection.getMongoCollection().createIndex(index);
+		}
 	}
 
 	public boolean dropCollection(String collectionName) {

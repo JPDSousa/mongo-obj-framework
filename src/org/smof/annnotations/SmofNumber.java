@@ -13,4 +13,6 @@ public @interface SmofNumber {
 	public String name();
 	public long defaultValue() default 0;
 	public boolean required() default false;
+	
+	public String indexKey() default "";
 }

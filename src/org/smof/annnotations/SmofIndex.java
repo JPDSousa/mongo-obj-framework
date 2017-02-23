@@ -1,6 +1,6 @@
 package org.smof.annnotations;
 
-import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -8,11 +8,8 @@ import java.lang.annotation.Target;
 
 @SuppressWarnings("javadoc")
 @Retention(RetentionPolicy.RUNTIME)
-@Target(FIELD)
-public @interface SmofString {
-	String name();
-	String defaultValue() default "";
-	boolean required() default false;
-	
-	String indexKey() default "";
+@Target(ANNOTATION_TYPE)
+public @interface SmofIndex {
+	String key();
+	boolean unique() default false;
 }

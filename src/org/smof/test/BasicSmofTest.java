@@ -8,9 +8,10 @@ import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.Test.None;
 import org.smof.annnotations.SmofArray;
 import org.smof.annnotations.SmofBuilder;
+import org.smof.annnotations.SmofIndex;
+import org.smof.annnotations.SmofIndexes;
 import org.smof.annnotations.SmofNumber;
 import org.smof.annnotations.SmofObject;
 import org.smof.annnotations.SmofParam;
@@ -25,7 +26,7 @@ import com.mongodb.client.MongoDatabase;
 
 @SuppressWarnings("javadoc")
 public class BasicSmofTest {
-	
+
 	private static Smof smof;
 	private static MongoClient client;
 
@@ -53,50 +54,53 @@ public class BasicSmofTest {
 		smof.insert(g2);
 		smof.insert(g3);
 	}
-	
+
 	@Test(expected = MongoWriteException.class)
 	public void testDuplicateKey() {
 		final Guitar g1 = new Guitar("GR4001", Type.ELECTRIC, Tunnings.DROPD.tunning);
 		smof.insert(g1);
 		smof.insert(g1);
 	}
-	
+
 	@Test
 	public void testDrop() {
 		final String name = "drop";
 		smof.createCollection(name, ToDrop.class);
 		smof.dropCollection(name);
 	}
-	
+
 	private static enum Type {
 		CLASSIC,
 		ACOUSTIC,
 		ELECTRIC;
 	}
-	
+
 	private static enum Tunnings {
 		STANDARD("E-A-D-G-B-E"),
 		DROPD("D-A-D-G-B-E"),
 		DROPC("C-A-D-G-B-E");
-		
+
 		private final List<String> tunning;
-		
+
 		private Tunnings(String strings) {
 			tunning = Arrays.asList(strings.split("-"));
 		}
 	}
-	
+
+	@SmofIndexes({
+		@SmofIndex(key = "main", unique = true)
+	})
 	private static class Guitar extends AbstractElement {
-		
+
 		@SmofObject(name = "brand")
 		private Brand brand;
-		
+
 		@SmofString(name = "model")
 		private final String model;
-		
-		@SmofString(name = "type")
+
+		@SmofString(name = "type", indexKey = "main")
 		private final Type type;
-		
+
 		@SmofArray(name = "tunning", type = SmofType.STRING)
 		private final List<String> tunning;
 
@@ -107,20 +111,20 @@ public class BasicSmofTest {
 			this.type = type;
 			this.tunning = tunning;
 		}
-		
+
 	}
-	
+
 	private static class Brand {
 
 		@SmofNumber(name="year")
 		private final int year;
-		
+
 		@SmofString(name="founder")
 		private final String founder;
-		
+
 		@SmofNumber(name="units")
 		private final int units;
-		
+
 		@SmofBuilder
 		public Brand(@SmofParam(name="year") Integer year, @SmofParam(name="founder") String founder, @SmofParam(name="units") Integer units) {
 			this.year = year;
@@ -128,7 +132,7 @@ public class BasicSmofTest {
 			this.units = units;
 		}
 	}
-	
+
 	private static class ToDrop extends AbstractElement {
 		@SmofBuilder
 		public ToDrop() {

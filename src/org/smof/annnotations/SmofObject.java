@@ -12,7 +12,7 @@ import org.smof.parsers.SmofType;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(FIELD)
 public @interface SmofObject {
-	public String name();
-	public boolean required() default false;
-	public SmofType mapValueType() default SmofType.OBJECT;
+	String name();
+	boolean required() default false;
+	SmofType mapValueType() default SmofType.OBJECT;
 }

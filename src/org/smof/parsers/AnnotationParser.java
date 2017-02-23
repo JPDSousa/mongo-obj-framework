@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,10 +17,15 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.smof.annnotations.SmofBuilder;
+import org.smof.annnotations.SmofIndex;
+import org.smof.annnotations.SmofIndexes;
 import org.smof.annnotations.PrimaryField;
 import org.smof.annnotations.SmofParam;
 import org.smof.exception.InvalidSmofTypeException;
+
+import com.mongodb.client.model.Indexes;
 
 @SuppressWarnings("javadoc")
 public class AnnotationParser<T> {
@@ -60,6 +66,8 @@ public class AnnotationParser<T> {
 
 	private final Map<String, PrimaryField> fields;
 	private final Builder<T> builder;
+	
+	private final Set<Bson> indexes;
 
 	AnnotationParser(Class<T> type) throws InvalidSmofTypeException {
 		this(type, getConstructor(type));
@@ -70,31 +78,63 @@ public class AnnotationParser<T> {
 	}
 
 	private AnnotationParser(Class<T> type, Builder<T> builder) throws InvalidSmofTypeException {
-		final List<String> constrFields;
 		this.type = type;
 		this.builder = builder;
 		this.fields = new LinkedHashMap<>();
-		constrFields = builder.paramAnnots.stream()
-				.map(p -> p.getLeft().name())
+		this.indexes = new LinkedHashSet<>();
+		fillFields();
+		if(hasIndexes()) {
+			fillIndexes();	
+		}
+	}
+
+	private boolean hasIndexes() {
+		return type.isAnnotationPresent(SmofIndexes.class);
+	}
+
+	private void fillIndexes() {
+		final Map<String, List<PrimaryField>> indexedFields = getIndexedFields();
+		final SmofIndex[] indexNotes = getIndexNotes();
+		for(SmofIndex indexNote : indexNotes) {
+			final List<String> fields = mapFields(indexedFields.get(indexNote.key()));
+			final Bson index = Indexes.ascending(fields);
+			indexes.add(index);
+		}
+	}
+
+	private List<String> mapFields(List<PrimaryField> list) {
+		return list.stream()
+				.map(f -> f.getName())
 				.collect(Collectors.toList());
-		fillFields(constrFields);
 	}
 
-	public Class<T> getType() {
-		return type;
+	private SmofIndex[] getIndexNotes() {
+		return type.getAnnotation(SmofIndexes.class).value();
 	}
 
-	private void fillFields(List<String> fields) throws InvalidSmofTypeException {
+	private Map<String, List<PrimaryField>> getIndexedFields() {
+		return fields.values().stream()
+				.collect(Collectors.groupingBy(f -> f.getIndexKey()));
+	}
+
+	private void fillFields() throws InvalidSmofTypeException {
+		final List<String> builderFields = getBuilderFields();
 		PrimaryField current;
 		for(Field field : getDeclaredFields(type)) {
 			for(SmofType fieldType : SmofType.values()) {
 				if(field.isAnnotationPresent(fieldType.getAnnotClass())) {
-					current = new PrimaryField(field, fieldType, fields);
+					current = new PrimaryField(field, fieldType, builderFields);
 					this.fields.put(current.getName(), current);
 					break;
 				}
 			}
 		}
+	}
+
+	private List<String> getBuilderFields() {
+		return builder.paramAnnots.stream()
+				.map(p -> p.getLeft().name())
+				.collect(Collectors.toList());
 	}
 
 	private List<Field> getDeclaredFields(Class<?> type) {
@@ -109,10 +149,18 @@ public class AnnotationParser<T> {
 		return fields;
 	}
 
+	public Class<T> getType() {
+		return type;
+	}
+
 	public Collection<PrimaryField> getAllFields() {
 		return fields.values();
 	}
 	
+	public Set<Bson> getIndexes() {
+		return indexes;
+	}
+
 	public Set<PrimaryField> getNonBuilderFields() {
 		return getAllFields().stream()
 				.filter(f -> !f.isBuilderField())

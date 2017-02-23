@@ -19,6 +19,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	private final Field field;
 	private final boolean external;
 	private final boolean builderField;
+	private final String indexKey;
 
 	public PrimaryField(Field field, SmofType type, List<String> builderFields) throws InvalidSmofTypeException {
 		final SmofArray smofArray;
@@ -28,6 +29,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		final SmofObjectId smofObjectId;
 		final SmofString smofString;
 		boolean external = false;
+		String indexKey = "";
 
 		switch(type) {
 		case ARRAY:
@@ -47,6 +49,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 			name = smofNumber.name();
 			required = smofNumber.required();
 			annotation = smofNumber;
+			indexKey = smofNumber.indexKey();
 			break;
 		case OBJECT:
 			smofObject = field.getAnnotation(SmofObject.class);
@@ -66,6 +69,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 			name = smofString.name();
 			required = smofString.required();
 			annotation = smofString;
+			indexKey = smofString.indexKey();
 			break;
 		default:
 			throw new InvalidSmofTypeException("Type not valid.");
@@ -74,6 +78,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		this.type = type;
 		this.external = external;
 		this.builderField = builderFields.contains(name);
+		this.indexKey = indexKey;
 	}
 
 	@Override
@@ -115,5 +120,9 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	@Override
 	public Class<?> getFieldClass() {
 		return getRawField().getType();
+	}
+
+	public String getIndexKey() {
+		return indexKey;
 	}
 }
