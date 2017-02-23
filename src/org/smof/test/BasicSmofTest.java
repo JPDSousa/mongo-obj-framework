@@ -35,7 +35,7 @@ public class BasicSmofTest {
 		client = new MongoClient("localhost", 27017);
 		database = client.getDatabase("test");
 		smof = Smof.create(database);
-		smof.createCollection("guitars", Guitar.class);
+		smof.loadCollection("guitars", Guitar.class);
 		smof.registerSmofObject(Brand.class);
 	}
 
@@ -50,16 +50,22 @@ public class BasicSmofTest {
 		final Guitar g2 = new Guitar("Manhattan", Type.ACOUSTIC, Tunnings.STANDARD.tunning);
 		final Guitar g3 = new Guitar("Roxy", Type.ACOUSTIC, Tunnings.DROPC.tunning);
 		smof.insert(g1);
-		smof.insert(g1);
 		smof.insert(g2);
 		smof.insert(g3);
 	}
 	
 	@Test(expected = MongoWriteException.class)
 	public void testDuplicateKey() {
-		final Guitar g1 = new Guitar("GR400", Type.ELECTRIC, Tunnings.DROPD.tunning);
+		final Guitar g1 = new Guitar("GR4001", Type.ELECTRIC, Tunnings.DROPD.tunning);
 		smof.insert(g1);
 		smof.insert(g1);
+	}
+	
+	@Test
+	public void testDrop() {
+		final String name = "drop";
+		smof.createCollection(name, ToDrop.class);
+		smof.dropCollection(name);
 	}
 	
 	private static enum Type {
@@ -120,6 +126,13 @@ public class BasicSmofTest {
 			this.year = year;
 			this.founder = founder;
 			this.units = units;
+		}
+	}
+	
+	private static class ToDrop extends AbstractElement {
+		@SmofBuilder
+		public ToDrop() {
+			// TODO Auto-generated constructor stub
 		}
 	}
 

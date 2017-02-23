@@ -1,15 +1,14 @@
 package org.smof.collection;
 
-import java.util.Set;
-
 import org.bson.BsonDocument;
-import org.smof.annnotations.PrimaryField;
+import org.bson.conversions.Bson;
 import org.smof.element.Element;
-import org.smof.exception.NoSuchCollection;
 import org.smof.exception.SmofException;
 import org.smof.parsers.SmofParser;
 
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
 
 @SuppressWarnings("javadoc")
 public class Smof {
@@ -62,6 +61,16 @@ public class Smof {
 
 	private <T extends Element> void loadCollection(String collectionName, Class<T> elClass, SmofParser parser) {
 		collections.put(elClass, new SmofCollectionImpl<T>(collectionName, database.getCollection(collectionName, BsonDocument.class), elClass, parser));
+	}
+	
+	public void createIndex(Class<? extends Element> elementClass, Bson index, IndexOptions options) {
+		final SmofCollection<?> collection = collections.getCollection(elementClass);
+		if(options == null) {
+			collection.getMongoCollection().createIndex(index);
+		}
+		else {
+			collection.getMongoCollection().createIndex(index, options);
+		}
 	}
 
 	public <T> void registerSmofObject(Class<T> type) throws SmofException {
