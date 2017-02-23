@@ -20,6 +20,7 @@ import org.smof.element.AbstractElement;
 import org.smof.parsers.SmofType;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoDatabase;
 
 @SuppressWarnings("javadoc")
@@ -49,8 +50,16 @@ public class BasicSmofTest {
 		final Guitar g2 = new Guitar("Manhattan", Type.ACOUSTIC, Tunnings.STANDARD.tunning);
 		final Guitar g3 = new Guitar("Roxy", Type.ACOUSTIC, Tunnings.DROPC.tunning);
 		smof.insert(g1);
+		smof.insert(g1);
 		smof.insert(g2);
 		smof.insert(g3);
+	}
+	
+	@Test(expected = MongoWriteException.class)
+	public void testDuplicateKey() {
+		final Guitar g1 = new Guitar("GR400", Type.ELECTRIC, Tunnings.DROPD.tunning);
+		smof.insert(g1);
+		smof.insert(g1);
 	}
 	
 	private static enum Type {
