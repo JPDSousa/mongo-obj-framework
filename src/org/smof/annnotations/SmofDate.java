@@ -6,13 +6,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.smof.index.IndexType;
+
 @SuppressWarnings("javadoc")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(FIELD)
 public @interface SmofDate {
-	public static final String NOW = "NOW";
-	
 	public String name();
-	public String defaultValue() default NOW;
 	public boolean required() default false;
 }
