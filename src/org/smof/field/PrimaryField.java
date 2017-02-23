@@ -1,4 +1,4 @@
-package org.smof.annnotations;
+package org.smof.field;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -7,6 +7,12 @@ import java.util.List;
 import javax.lang.model.element.Element;
 
 import org.bson.conversions.Bson;
+import org.smof.annnotations.SmofArray;
+import org.smof.annnotations.SmofDate;
+import org.smof.annnotations.SmofNumber;
+import org.smof.annnotations.SmofObject;
+import org.smof.annnotations.SmofObjectId;
+import org.smof.annnotations.SmofString;
 import org.smof.exception.InvalidSmofTypeException;
 import org.smof.parsers.SmofType;
 

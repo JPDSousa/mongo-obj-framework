@@ -1,7 +1,7 @@
 package org.smof.parsers;
 
 import org.bson.BsonValue;
-import org.smof.annnotations.SmofField;
+import org.smof.field.SmofField;
 
 interface BsonParser {
 

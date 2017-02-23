@@ -3,15 +3,15 @@ package org.smof.parsers;
 import org.bson.BsonDocument;
 import org.bson.BsonNull;
 import org.bson.BsonValue;
-import org.smof.annnotations.MasterField;
-import org.smof.annnotations.PrimaryField;
-import org.smof.annnotations.SmofField;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.InvalidBsonTypeException;
 import org.smof.exception.InvalidSmofTypeException;
 import org.smof.exception.InvalidTypeException;
 import org.smof.exception.SmofException;
+import org.smof.field.MasterField;
+import org.smof.field.PrimaryField;
+import org.smof.field.SmofField;
 
 @SuppressWarnings("javadoc")
 public class SmofParser {

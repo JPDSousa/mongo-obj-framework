@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.bson.conversions.Bson;
-import org.smof.annnotations.PrimaryField;
 import org.smof.annnotations.SmofIndex;
+import org.smof.field.PrimaryField;
 
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;

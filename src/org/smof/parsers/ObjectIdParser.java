@@ -3,7 +3,7 @@ package org.smof.parsers;
 import org.bson.BsonObjectId;
 import org.bson.BsonValue;
 import org.bson.types.ObjectId;
-import org.smof.annnotations.SmofField;
+import org.smof.field.SmofField;
 
 class ObjectIdParser extends AbstractBsonParser {
 	

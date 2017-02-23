@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.bson.BsonValue;
-import org.smof.annnotations.MasterField;
-import org.smof.annnotations.PrimaryField;
-import org.smof.annnotations.SmofField;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
+import org.smof.field.MasterField;
+import org.smof.field.PrimaryField;
+import org.smof.field.SmofField;
 
 abstract class AbstractBsonParser implements BsonParser {
 	

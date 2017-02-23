@@ -5,7 +5,7 @@ import org.bson.BsonInt32;
 import org.bson.BsonInt64;
 import org.bson.BsonNumber;
 import org.bson.BsonValue;
-import org.smof.annnotations.SmofField;
+import org.smof.field.SmofField;
 
 class NumberParser extends AbstractBsonParser {
 

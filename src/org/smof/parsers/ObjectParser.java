@@ -11,12 +11,12 @@ import org.bson.BsonObjectId;
 import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.types.ObjectId;
-import org.smof.annnotations.PrimaryField;
-import org.smof.annnotations.SecondaryField;
-import org.smof.annnotations.SmofField;
 import org.smof.annnotations.SmofObject;
 import org.smof.element.Element;
 import org.smof.exception.MissingRequiredFieldException;
+import org.smof.field.PrimaryField;
+import org.smof.field.SecondaryField;
+import org.smof.field.SmofField;
 
 class ObjectParser extends AbstractBsonParser {
 	

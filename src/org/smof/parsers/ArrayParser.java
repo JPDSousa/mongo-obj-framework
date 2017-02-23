@@ -11,9 +11,9 @@ import java.util.Set;
 import org.bson.BsonArray;
 import org.bson.BsonValue;
 import org.smof.annnotations.SmofArray;
-import org.smof.annnotations.SmofField;
-import org.smof.annnotations.PrimaryField;
-import org.smof.annnotations.SecondaryField;
+import org.smof.field.PrimaryField;
+import org.smof.field.SecondaryField;
+import org.smof.field.SmofField;
 
 class ArrayParser extends AbstractBsonParser {
 

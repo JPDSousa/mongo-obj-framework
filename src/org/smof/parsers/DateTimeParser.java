@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 
 import org.bson.BsonDateTime;
 import org.bson.BsonValue;
-import org.smof.annnotations.SmofField;
+import org.smof.field.SmofField;
 
 class DateTimeParser extends AbstractBsonParser {
 	

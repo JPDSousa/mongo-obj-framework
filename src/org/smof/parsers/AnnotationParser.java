@@ -20,9 +20,9 @@ import org.bson.Document;
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofIndex;
 import org.smof.annnotations.SmofIndexes;
-import org.smof.annnotations.PrimaryField;
 import org.smof.annnotations.SmofParam;
 import org.smof.exception.InvalidSmofTypeException;
+import org.smof.field.PrimaryField;
 import org.smof.index.InternalIndex;
 
 @SuppressWarnings("javadoc")

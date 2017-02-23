@@ -6,9 +6,9 @@ import java.util.Map;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.smof.annnotations.PrimaryField;
 import org.smof.element.AbstractElement;
 import org.smof.exception.SmofException;
+import org.smof.field.PrimaryField;
 
 class BsonBuilder<T> {
 

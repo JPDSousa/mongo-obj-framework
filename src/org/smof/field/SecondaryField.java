@@ -1,4 +1,4 @@
-package org.smof.annnotations;
+package org.smof.field;
 
 import org.smof.parsers.SmofType;
 

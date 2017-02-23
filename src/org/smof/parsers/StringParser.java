@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 
 import org.bson.BsonString;
 import org.bson.BsonValue;
-import org.smof.annnotations.SmofField;
+import org.smof.field.SmofField;
 
 class StringParser extends AbstractBsonParser {
 	
