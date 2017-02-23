@@ -1,6 +1,7 @@
 package org.smof.collection;
 
 import org.bson.BsonDocument;
+import org.bson.conversions.Bson;
 import org.smof.element.Element;
 import org.smof.parsers.SmofParser;
 
@@ -31,6 +32,16 @@ public class SmofQuery<T extends Element> {
 	public SmofQuery<T> withField(String fieldName, Object filterValue) {
 		//validateFieldValue(fieldName, filterValue);
 		rawQuery.filter(Filters.eq(fieldName, filterValue));
+		return this;
+	}
+	
+	public SmofQuery<T> applyBsonFilter(Bson filter) {
+		rawQuery.filter(filter);
+		return this;
+	}
+	
+	public SmofQuery<T> applyBsonProjection(Bson projection) {
+		rawQuery.projection(projection);
 		return this;
 	}
 	
