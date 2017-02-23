@@ -38,27 +38,30 @@ public class SmofParser {
 		return context.getMetadata(type);
 	}
 	
-	public <T> void registerType(Class<T> type) {
+	public <T> AnnotationParser<T> registerType(Class<T> type) {
 		try {
 			final AnnotationParser<T> parser = new AnnotationParser<>(type);
-			registerType(parser);
+			return registerType(parser);
 		} catch (InvalidSmofTypeException e) {
 			handleError(e);
+			return null;
 		}
 	}
 	
-	public <T> void registerType(Class<T> type, Object factory){
+	public <T> AnnotationParser<T> registerType(Class<T> type, Object factory){
 		try {
 			final AnnotationParser<T> parser = new AnnotationParser<>(type, factory);
-			registerType(parser);
+			return registerType(parser);
 		} catch (InvalidSmofTypeException e) {
 			handleError(e);
+			return null;
 		}
 	}
 	
-	private void registerType(AnnotationParser<?> parser) {
+	private <T> AnnotationParser<T> registerType(AnnotationParser<T> parser) {
 		validateParserFields(parser);
 		context.put(parser);
+		return parser;
 	}
 	
 	private void validateParserFields(AnnotationParser<?> parser) {
