@@ -105,6 +105,7 @@ public class AnnotationParser<T> {
 
 	private Map<String, List<PrimaryField>> getIndexedFields() {
 		return fields.values().stream()
+				.filter(f -> f.hasIndex())
 				.collect(Collectors.groupingBy(f -> f.getIndexKey()));
 	}
 

@@ -137,4 +137,8 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	public String getIndexKey() {
 		return index.getKey();
 	}
+
+	public boolean hasIndex() {
+		return index != null;
+	}
 }

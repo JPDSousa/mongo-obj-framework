@@ -37,7 +37,7 @@ public class BasicSmofTest {
 		client = new MongoClient("localhost", 27017);
 		database = client.getDatabase("test");
 		smof = Smof.create(database);
-		smof.loadCollection("guitars", Guitar.class);
+		smof.createCollection("guitars", Guitar.class);
 		smof.registerSmofObject(Brand.class);
 	}
 
