@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.lang.model.element.Element;
 
+import org.bson.conversions.Bson;
 import org.smof.exception.InvalidSmofTypeException;
 import org.smof.parsers.SmofType;
 
@@ -19,7 +20,8 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	private final Field field;
 	private final boolean external;
 	private final boolean builderField;
-	private final String indexKey;
+	
+	private final FieldIndex index;
 
 	public PrimaryField(Field field, SmofType type, List<String> builderFields) throws InvalidSmofTypeException {
 		final SmofArray smofArray;
@@ -29,7 +31,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		final SmofObjectId smofObjectId;
 		final SmofString smofString;
 		boolean external = false;
-		String indexKey = "";
+		FieldIndex index = null;
 
 		switch(type) {
 		case ARRAY:
@@ -49,7 +51,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 			name = smofNumber.name();
 			required = smofNumber.required();
 			annotation = smofNumber;
-			indexKey = smofNumber.indexKey();
+			index = FieldIndex.create(smofNumber.indexKey(), smofNumber.indexType());
 			break;
 		case OBJECT:
 			smofObject = field.getAnnotation(SmofObject.class);
@@ -69,7 +71,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 			name = smofString.name();
 			required = smofString.required();
 			annotation = smofString;
-			indexKey = smofString.indexKey();
+			index = FieldIndex.create(smofString.indexKey(), smofString.indexType());
 			break;
 		default:
 			throw new InvalidSmofTypeException("Type not valid.");
@@ -78,7 +80,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		this.type = type;
 		this.external = external;
 		this.builderField = builderFields.contains(name);
-		this.indexKey = indexKey;
+		this.index = index;
 	}
 
 	@Override
@@ -122,7 +124,11 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		return getRawField().getType();
 	}
 
+	public Bson getIndex() {
+		return index.toBson(getName());
+	}
+	
 	public String getIndexKey() {
-		return indexKey;
+		return index.getKey();
 	}
 }

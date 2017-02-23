@@ -17,15 +17,13 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofIndex;
 import org.smof.annnotations.SmofIndexes;
 import org.smof.annnotations.PrimaryField;
 import org.smof.annnotations.SmofParam;
 import org.smof.exception.InvalidSmofTypeException;
-
-import com.mongodb.client.model.Indexes;
+import org.smof.index.InternalIndex;
 
 @SuppressWarnings("javadoc")
 public class AnnotationParser<T> {
@@ -67,7 +65,7 @@ public class AnnotationParser<T> {
 	private final Map<String, PrimaryField> fields;
 	private final Builder<T> builder;
 	
-	private final Set<Bson> indexes;
+	private final Set<InternalIndex> indexes;
 
 	AnnotationParser(Class<T> type) throws InvalidSmofTypeException {
 		this(type, getConstructor(type));
@@ -96,16 +94,9 @@ public class AnnotationParser<T> {
 		final Map<String, List<PrimaryField>> indexedFields = getIndexedFields();
 		final SmofIndex[] indexNotes = getIndexNotes();
 		for(SmofIndex indexNote : indexNotes) {
-			final List<String> fields = mapFields(indexedFields.get(indexNote.key()));
-			final Bson index = Indexes.ascending(fields);
-			indexes.add(index);
+			final List<PrimaryField> fields = indexedFields.get(indexNote.key());
+			indexes.add(new InternalIndex(indexNote, fields));
 		}
-	}
-
-	private List<String> mapFields(List<PrimaryField> list) {
-		return list.stream()
-				.map(f -> f.getName())
-				.collect(Collectors.toList());
 	}
 
 	private SmofIndex[] getIndexNotes() {
@@ -157,7 +148,7 @@ public class AnnotationParser<T> {
 		return fields.values();
 	}
 	
-	public Set<Bson> getIndexes() {
+	public Set<InternalIndex> getIndexes() {
 		return indexes;
 	}
 
