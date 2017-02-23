@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.smof.annnotations.SmofField;
-import org.smof.exception.SmofException;
 
 class StringParser extends AbstractBsonParser {
 	
@@ -16,7 +15,7 @@ class StringParser extends AbstractBsonParser {
 			byte.class, byte[].class, Integer.class, Long.class,
 			Short.class, Double.class, Float.class, Character.class,
 			Byte.class, Byte[].class*/};
-	
+
 	StringParser(SmofParser parser) {
 		super(parser, VALID_TYPES);
 	}
@@ -67,10 +66,11 @@ class StringParser extends AbstractBsonParser {
 			return res;
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			//all enums have valueOf!!
-			throw new SmofException(e);
+			handleError(e);
+			return null;
 		}
 	}
-	
+
 	private Method getValueOf(Class<?> enumType) throws NoSuchMethodException, SecurityException {
 		return enumType.getMethod("valueOf", String.class);
 	}

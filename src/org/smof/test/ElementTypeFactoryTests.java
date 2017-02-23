@@ -51,6 +51,7 @@ public class ElementTypeFactoryTests {
 		final ElStrTest test = new ElStrTest("test", EnumTest.VALB);
 		test.str2 = "askjdahsj";
 		final BsonDocument doc = parser.toBson(test);
+		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElStrTest.class));
 	}
 	

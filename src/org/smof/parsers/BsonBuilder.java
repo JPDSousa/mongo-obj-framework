@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.smof.annnotations.SmofField;
+import org.smof.annnotations.PrimaryField;
 import org.smof.element.AbstractElement;
 import org.smof.exception.SmofException;
 
@@ -28,7 +28,7 @@ class BsonBuilder<T> {
 		additionalFields.put(field, parsedObject);
 	}
 
-	void append(SmofField field, Object parsedObject) {
+	void append(PrimaryField field, Object parsedObject) {
 		final Field rawField = field.getRawField();
 		final String name = field.getName();
 		if(field.isBuilderField()) {

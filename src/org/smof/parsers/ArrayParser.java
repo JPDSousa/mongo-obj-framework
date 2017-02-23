@@ -12,6 +12,8 @@ import org.bson.BsonArray;
 import org.bson.BsonValue;
 import org.smof.annnotations.SmofArray;
 import org.smof.annnotations.SmofField;
+import org.smof.annnotations.PrimaryField;
+import org.smof.annnotations.SecondaryField;
 
 class ArrayParser extends AbstractBsonParser {
 
@@ -22,21 +24,19 @@ class ArrayParser extends AbstractBsonParser {
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
 		final Class<?> type = value.getClass();
-		final Object[] array;
-		final SmofType componentType = getArrayType(fieldOpts);
-		if(isCollection(type)) {
+		if(isPrimaryField(fieldOpts) && isCollection(type)) {
+			final Object[] array;
+			final SecondaryField componentField = getCollectionField((PrimaryField) fieldOpts);
 			array = fromCollection((Collection<?>) value);
+			return fromArray(array, componentField);
 		}
-		else {
-			array = null;
-		}
-		return fromArray(array, componentType);
+		return null;
 	}
 
-	private BsonValue fromArray(Object[] values, SmofType componentType) {
+	private BsonValue fromArray(Object[] values, SecondaryField componentField) {
 		final BsonArray bsonArray = new BsonArray();
 		for(Object value : values) {
-			final BsonValue parsedValue = bsonParser.toBson(value, componentType);
+			final BsonValue parsedValue = bsonParser.toBson(value, componentField);
 			bsonArray.add(parsedValue);
 		}
 
@@ -55,28 +55,22 @@ class ArrayParser extends AbstractBsonParser {
 	@Override
 	public <T> T fromBson(BsonValue rawValue, Class<T> type, SmofField fieldOpts) {
 		BsonArray value = rawValue.asArray();
-		if(isCollection(type)) {
-			return (T) toCollection(value, fieldOpts);
+		if(isCollection(type) && isPrimaryField(fieldOpts)) {
+			return (T) toCollection(value, (PrimaryField) fieldOpts);
 		}
 
 		return null;
 	}
 
-	private Collection<Object> toCollection(BsonArray values, SmofField fieldOpts) {
-		final SmofType arrayType = getArrayType(fieldOpts);
-		final Class<?> type = getCollectionType(fieldOpts.getRawField());
-		final Collection<Object> collection = createCollection(fieldOpts.getFieldClass(), type);
+	private Collection<Object> toCollection(BsonArray values, PrimaryField fieldOpts) {
+		final SecondaryField componentField = getCollectionField(fieldOpts);
+		final Collection<Object> collection = createCollection(fieldOpts.getFieldClass(), componentField.getFieldClass());
 		for(BsonValue value : values) {
-			final Object parsedValue = bsonParser.fromBson(value, type, arrayType);
+			final Object parsedValue = bsonParser.fromBson(value, componentField);
 			collection.add(parsedValue);
 		}
 
 		return collection;
-	}
-
-	private Class<?> getCollectionType(Field collType) {
-		final ParameterizedType mapParamType = (ParameterizedType) collType.getGenericType();
-		return (Class<?>) mapParamType.getActualTypeArguments()[0];
 	}
 
 	@SuppressWarnings("unchecked")
@@ -99,26 +93,33 @@ class ArrayParser extends AbstractBsonParser {
 		final Class<?> type = fieldOpts.getFieldClass();
 
 		return super.isValidType(type)
-				&& isValidComponentType(fieldOpts);
+				&& (!isPrimaryField(fieldOpts) || isValidComponentType((PrimaryField) fieldOpts));
 	}
 
-	private boolean isValidComponentType(SmofField fieldOpts) {
-		final SmofType componentType = getArrayType(fieldOpts);
+	private boolean isValidComponentType(PrimaryField fieldOpts) {
 		//Careful here! The next line is only safe 'cause we only support collections
-		final Class<?> componentClass = getCollectionType(fieldOpts.getRawField());
+		final SecondaryField componentField = getCollectionField(fieldOpts);
+		final Class<?> componentClass = componentField.getFieldClass();
+		final SmofType componentType = componentField.getType();
 
 		return isSupportedComponentType(componentType)
 				&& !isMap(componentClass)
-				&& bsonParser.isValidType(componentType, componentClass);
+				&& bsonParser.isValidType(componentField);
 	}
 
 	private boolean isSupportedComponentType(SmofType componentType) {
 		return componentType != SmofType.ARRAY;
 	}
 
-	private SmofType getArrayType(SmofField fieldOpts) {
+	private SecondaryField getCollectionField(PrimaryField fieldOpts) {
 		final SmofArray note = fieldOpts.getSmofAnnotationAs(SmofArray.class);
-		return note.type();
+		final Class<?> componentClass = getCollectionType(fieldOpts.getRawField());
+		return new SecondaryField(fieldOpts.getName(), note.type(), componentClass);
+	}
+
+	private Class<?> getCollectionType(Field collType) {
+		final ParameterizedType mapParamType = (ParameterizedType) collType.getGenericType();
+		return (Class<?>) mapParamType.getActualTypeArguments()[0];
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 import org.smof.annnotations.SmofBuilder;
-import org.smof.annnotations.SmofField;
+import org.smof.annnotations.PrimaryField;
 import org.smof.annnotations.SmofParam;
 import org.smof.exception.InvalidSmofTypeException;
 
@@ -57,7 +58,7 @@ public class AnnotationParser<T> {
 
 	private final Class<T> type;
 
-	private final Map<String, SmofField> fields;
+	private final Map<String, PrimaryField> fields;
 	private final Builder<T> builder;
 
 	AnnotationParser(Class<T> type) throws InvalidSmofTypeException {
@@ -84,11 +85,11 @@ public class AnnotationParser<T> {
 	}
 
 	private void fillFields(List<String> fields) throws InvalidSmofTypeException {
-		SmofField current;
-		for(Field field : type.getDeclaredFields()) {
+		PrimaryField current;
+		for(Field field : getDeclaredFields(type)) {
 			for(SmofType fieldType : SmofType.values()) {
 				if(field.isAnnotationPresent(fieldType.getAnnotClass())) {
-					current = new SmofField(field, fieldType, fields);
+					current = new PrimaryField(field, fieldType, fields);
 					this.fields.put(current.getName(), current);
 					break;
 				}
@@ -96,17 +97,29 @@ public class AnnotationParser<T> {
 		}
 	}
 
-	public Collection<SmofField> getAllFields() {
+	private List<Field> getDeclaredFields(Class<?> type) {
+		final List<Field> fields = new ArrayList<>();
+		
+		if(type != null) {
+			final Field[] classFields = type.getDeclaredFields();
+			fields.addAll(Arrays.asList(classFields));
+			fields.addAll(getDeclaredFields(type.getSuperclass()));
+		}
+		
+		return fields;
+	}
+
+	public Collection<PrimaryField> getAllFields() {
 		return fields.values();
 	}
 	
-	public Set<SmofField> getNonBuilderFields() {
+	public Set<PrimaryField> getNonBuilderFields() {
 		return getAllFields().stream()
 				.filter(f -> !f.isBuilderField())
 				.collect(Collectors.toSet());
 	}
 
-	public Set<SmofField> getExternalFields() {
+	public Set<PrimaryField> getExternalFields() {
 		return getAllFields().stream()
 				.filter(f -> f.isExternal())
 				.collect(Collectors.toSet());

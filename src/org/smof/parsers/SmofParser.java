@@ -3,7 +3,8 @@ package org.smof.parsers;
 import org.bson.BsonDocument;
 import org.bson.BsonNull;
 import org.bson.BsonValue;
-
+import org.smof.annnotations.MasterField;
+import org.smof.annnotations.PrimaryField;
 import org.smof.annnotations.SmofField;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
@@ -61,7 +62,7 @@ public class SmofParser {
 	}
 	
 	private void validateParserFields(AnnotationParser<?> parser) {
-		for(SmofField field : parser.getAllFields()) {
+		for(PrimaryField field : parser.getAllFields()) {
 			checkValidType(field);
 		}
 	}
@@ -75,21 +76,16 @@ public class SmofParser {
 
 	public <T extends Element> T fromBson(BsonDocument document, Class<T> type) {
 		final BsonParser parser = parsers.get(SmofType.OBJECT);
-		
-		return parser.fromBson(document, type, null);
+		final MasterField field = new MasterField(type);
+		return parser.fromBson(document, type, field);
 	}
 	
 	Object fromBson(BsonValue value, SmofField field) {
 		checkValidBson(value, field);
 		final BsonParser parser = parsers.get(field.getType());
-		final Class<?> type = field.getRawField().getType();
+		final Class<?> type = field.getFieldClass();
 		
 		return fromBson(parser, value, type, field);
-	}
-	
-	Object fromBson(BsonValue value, Class<?> type, SmofType smofType) {
-		final BsonParser parser = parsers.get(smofType);
-		return fromBson(parser, value, type, null);
 	}
 	
 	private Object fromBson(BsonParser parser, BsonValue value, Class<?> type, SmofField field) {
@@ -101,7 +97,8 @@ public class SmofParser {
 	
 	public BsonDocument toBson(Element value) {
 		final BsonParser parser = parsers.get(SmofType.OBJECT);
-		return (BsonDocument) parser.toBson(value, null);
+		final MasterField field = new MasterField(value.getClass());
+		return (BsonDocument) parser.toBson(value, field);
 	}
 
 	BsonValue toBson(Object value, SmofField field) {
@@ -112,11 +109,6 @@ public class SmofParser {
 		final BsonParser parser = parsers.get(type);
 		return parser.toBson(value, field);
 	}
-	
-	BsonValue toBson(Object value, SmofType type) {
-		final BsonParser parser = parsers.get(type);
-		return parser.toBson(value, null);
-	}
 
 	private void checkValidBson(BsonValue value, SmofField field) {
 		final BsonParser parser = parsers.get(field.getType());
@@ -125,8 +117,8 @@ public class SmofParser {
 		}
 	}
 
-	boolean isValidType(SmofType smofType, Class<?> type) {
-		final BsonParser parser = parsers.get(smofType);
-		return parser.isValidType(type);
+	boolean isValidType(SmofField field) {
+		final BsonParser parser = parsers.get(field.getType());
+		return parser.isValidType(field.getFieldClass());
 	}
 }

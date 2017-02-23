@@ -3,7 +3,7 @@ package org.smof.collection;
 import java.util.Set;
 
 import org.bson.BsonDocument;
-import org.smof.annnotations.SmofField;
+import org.smof.annnotations.PrimaryField;
 import org.smof.element.Element;
 import org.smof.exception.NoSuchCollection;
 import org.smof.exception.SmofException;

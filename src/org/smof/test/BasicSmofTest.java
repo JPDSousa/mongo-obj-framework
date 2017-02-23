@@ -45,14 +45,30 @@ public class BasicSmofTest {
 
 	@Test
 	public void testSingleInsert() {
-		final Guitar g1 = new Guitar("GR400", Type.ELECTRIC, Arrays.asList("D", "A", "D", "G", "B", "E"));
+		final Guitar g1 = new Guitar("GR400", Type.ELECTRIC, Tunnings.DROPD.tunning);
+		final Guitar g2 = new Guitar("Manhattan", Type.ACOUSTIC, Tunnings.STANDARD.tunning);
+		final Guitar g3 = new Guitar("Roxy", Type.ACOUSTIC, Tunnings.DROPC.tunning);
 		smof.insert(g1);
+		smof.insert(g2);
+		smof.insert(g3);
 	}
 	
 	private static enum Type {
 		CLASSIC,
 		ACOUSTIC,
 		ELECTRIC;
+	}
+	
+	private static enum Tunnings {
+		STANDARD("E-A-D-G-B-E"),
+		DROPD("D-A-D-G-B-E"),
+		DROPC("C-A-D-G-B-E");
+		
+		private final List<String> tunning;
+		
+		private Tunnings(String strings) {
+			tunning = Arrays.asList(strings.split("-"));
+		}
 	}
 	
 	private static class Guitar extends AbstractElement {
