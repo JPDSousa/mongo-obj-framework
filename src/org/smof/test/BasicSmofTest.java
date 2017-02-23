@@ -18,6 +18,7 @@ import org.smof.annnotations.SmofParam;
 import org.smof.annnotations.SmofString;
 import org.smof.collection.Smof;
 import org.smof.element.AbstractElement;
+import org.smof.index.IndexType;
 import org.smof.parsers.SmofType;
 
 import com.mongodb.MongoClient;
@@ -98,7 +99,7 @@ public class BasicSmofTest {
 		@SmofString(name = "model")
 		private final String model;
 
-		@SmofString(name = "type", indexKey = "main")
+		@SmofString(name = "type", indexKey = "main", indexType = IndexType.TEXT)
 		private final Type type;
 
 		@SmofArray(name = "tunning", type = SmofType.STRING)
