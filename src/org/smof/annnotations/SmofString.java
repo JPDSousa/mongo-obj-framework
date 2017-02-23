@@ -11,7 +11,6 @@ import java.lang.annotation.Target;
 @Target(FIELD)
 public @interface SmofString {
 	String name();
-	String defaultValue() default "";
 	boolean required() default false;
 	
 	String indexKey() default "";

@@ -15,6 +15,5 @@ public @interface SmofArray {
 	public String name();
 	public SmofType type();
 	public boolean required() default false;
-	public String[] defaultValue() default {};
 	public String[] validValues() default {};
 }
