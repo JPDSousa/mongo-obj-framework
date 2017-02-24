@@ -3,12 +3,13 @@ package org.smof.parsers;
 import org.bson.BsonObjectId;
 import org.bson.BsonValue;
 import org.bson.types.ObjectId;
+import org.smof.collection.SmofDispatcher;
 import org.smof.field.SmofField;
 
 class ObjectIdParser extends AbstractBsonParser {
 	
-	ObjectIdParser(SmofParser parser) {
-		super(parser, ObjectId.class);
+	ObjectIdParser(SmofParser parser, SmofDispatcher dispatcher) {
+		super(dispatcher, parser, ObjectId.class);
 	}
 
 	@Override

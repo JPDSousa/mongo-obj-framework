@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bson.BsonValue;
+import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
 import org.smof.field.MasterField;
@@ -19,10 +20,12 @@ abstract class AbstractBsonParser implements BsonParser {
 
 	protected final List<Class<?>> validTypes;
 	protected final SmofParser bsonParser;
+	protected final SmofDispatcher dispatcher;
 	
-	protected AbstractBsonParser(SmofParser bsonParser, Class<?>... validTypes) {
+	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser bsonParser, Class<?>... validTypes) {
 		this.validTypes = Arrays.asList(validTypes);
 		this.bsonParser = bsonParser;
+		this.dispatcher = dispatcher;
 	}
 	
 	@Override

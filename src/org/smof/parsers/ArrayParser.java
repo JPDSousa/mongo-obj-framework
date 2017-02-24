@@ -11,14 +11,15 @@ import java.util.Set;
 import org.bson.BsonArray;
 import org.bson.BsonValue;
 import org.smof.annnotations.SmofArray;
+import org.smof.collection.SmofDispatcher;
 import org.smof.field.PrimaryField;
 import org.smof.field.SecondaryField;
 import org.smof.field.SmofField;
 
 class ArrayParser extends AbstractBsonParser {
 
-	ArrayParser(SmofParser parser) {
-		super(parser, Collection.class);
+	ArrayParser(SmofParser parser, SmofDispatcher dispatcher) {
+		super(dispatcher, parser, Collection.class);
 	}
 
 	@Override

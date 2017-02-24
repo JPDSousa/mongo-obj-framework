@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 
 import org.bson.BsonDateTime;
 import org.bson.BsonValue;
+import org.smof.collection.SmofDispatcher;
 import org.smof.field.SmofField;
 
 class DateTimeParser extends AbstractBsonParser {
@@ -16,8 +17,8 @@ class DateTimeParser extends AbstractBsonParser {
 	private static final Class<?>[] VALID_TYPES = {Instant.class, LocalDate.class, LocalDateTime.class, 
 			ZonedDateTime.class};
 	
-	DateTimeParser(SmofParser parser) {
-		super(parser, VALID_TYPES);
+	DateTimeParser(SmofParser parser, SmofDispatcher dispatcher) {
+		super(dispatcher, parser, VALID_TYPES);
 	}
 
 	@Override

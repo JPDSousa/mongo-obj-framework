@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import org.bson.BsonString;
 import org.bson.BsonValue;
+import org.smof.collection.SmofDispatcher;
 import org.smof.field.SmofField;
 
 class StringParser extends AbstractBsonParser {
@@ -16,8 +17,8 @@ class StringParser extends AbstractBsonParser {
 			Short.class, Double.class, Float.class, Character.class,
 			Byte.class, Byte[].class*/};
 
-	StringParser(SmofParser parser) {
-		super(parser, VALID_TYPES);
+	StringParser(SmofParser parser, SmofDispatcher dispatcher) {
+		super(dispatcher, parser, VALID_TYPES);
 	}
 
 	@Override

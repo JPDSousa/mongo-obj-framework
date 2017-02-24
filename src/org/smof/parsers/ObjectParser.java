@@ -12,6 +12,7 @@ import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.types.ObjectId;
 import org.smof.annnotations.SmofObject;
+import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.MissingRequiredFieldException;
 import org.smof.field.PrimaryField;
@@ -22,8 +23,8 @@ class ObjectParser extends AbstractBsonParser {
 	
 	private static final String ENUM_NAME = "_enumValue";
 
-	ObjectParser(SmofParser parser) {
-		super(parser);
+	ObjectParser(SmofParser parser, SmofDispatcher dispatcher) {
+		super(dispatcher, parser);
 	}
 	
 	@Override

@@ -5,6 +5,7 @@ import org.bson.BsonInt32;
 import org.bson.BsonInt64;
 import org.bson.BsonNumber;
 import org.bson.BsonValue;
+import org.smof.collection.SmofDispatcher;
 import org.smof.field.SmofField;
 
 class NumberParser extends AbstractBsonParser {
@@ -14,8 +15,8 @@ class NumberParser extends AbstractBsonParser {
 			Integer.class, Long.class, Short.class, Double.class,
 			Float.class};
 
-	NumberParser(SmofParser parser) {
-		super(parser, VALID_TYPES);
+	NumberParser(SmofParser parser, SmofDispatcher dispatcher) {
+		super(dispatcher, parser, VALID_TYPES);
 	}
 
 	@Override

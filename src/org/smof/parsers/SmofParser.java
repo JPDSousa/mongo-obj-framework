@@ -22,12 +22,10 @@ public class SmofParser {
 	
 	private final SmofTypeContext context;
 	private final SmofParserPool parsers;
-	private final SmofDispatcher dispatcher;
 	
 	public SmofParser(SmofDispatcher dispatcher) {
 		this.context = new SmofTypeContext();
-		parsers = SmofParserPool.create(this);
-		this.dispatcher = dispatcher;
+		parsers = SmofParserPool.create(this, dispatcher);
 	}
 	
 	SmofTypeContext getContext() {
