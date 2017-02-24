@@ -9,7 +9,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Filters;
 
 @SuppressWarnings("javadoc")
-public class SmofQuery<T extends Element> {
+public class SmofQuery<T extends Element> implements FilterQuery<SmofQuery<T>>{
 
 	private final Class<T> elementClass;
 	private final FindIterable<BsonDocument> rawQuery;
@@ -29,12 +29,22 @@ public class SmofQuery<T extends Element> {
 		return new SmofResults<T>(rawQuery, parser, elementClass);
 	}
 
+	@Override
 	public SmofQuery<T> withField(String fieldName, Object filterValue) {
 		//validateFieldValue(fieldName, filterValue);
 		rawQuery.filter(Filters.eq(fieldName, filterValue));
 		return this;
 	}
 	
+	public AndQuery<T> beginAnd() {
+		return new AndQuery<>(this);
+	}
+	
+	public OrQuery<T> beginOr() {
+		return new OrQuery<>(this);
+	}
+	
+	@Override
 	public SmofQuery<T> applyBsonFilter(Bson filter) {
 		rawQuery.filter(filter);
 		return this;
