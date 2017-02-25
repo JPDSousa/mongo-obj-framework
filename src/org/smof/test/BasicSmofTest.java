@@ -227,6 +227,44 @@ public class BasicSmofTest {
 			this.founder = founder;
 			this.units = units;
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((founder == null) ? 0 : founder.hashCode());
+			result = prime * result + units;
+			result = prime * result + year;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			Brand other = (Brand) obj;
+			if (founder == null) {
+				if (other.founder != null) {
+					return false;
+				}
+			} else if (!founder.equals(other.founder)) {
+				return false;
+			}
+			if (units != other.units) {
+				return false;
+			}
+			if (year != other.year) {
+				return false;
+			}
+			return true;
+		}
 	}
 
 	private static class ToDrop extends AbstractElement {

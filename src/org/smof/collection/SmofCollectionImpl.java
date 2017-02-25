@@ -26,7 +26,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		this.name = name;
 		this.parser = parser;
 		this.type = type;
-		cache = new ElementCache<>(CACHE_SIZE);
+		cache = ElementCache.create(CACHE_SIZE);
 	}
 
 	@Override
@@ -46,6 +46,10 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	
 	@Override
 	public T findById(ObjectId id) {
+		final T cached = cache.get(id);
+		if(cached != null) {
+			return cached;
+		}
 		final Bson idFilter = Filters.eq(Element.ID, id);
 		final FindIterable<BsonDocument> query = collection.find(idFilter);
 		return parser.fromBson(query.first(), type);
