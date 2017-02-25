@@ -28,7 +28,7 @@ public class SmofQuery<T extends Element> implements FilterQuery<SmofQuery<T>>{
 	}
 
 	public SmofResults<T> results() {
-		return new SmofResults<T>(rawQuery, parser, elementClass);
+		return new SmofResults<T>(rawQuery, parser, elementClass, cache);
 	}
 
 	@Override
