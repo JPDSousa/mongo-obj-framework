@@ -6,7 +6,7 @@ import org.bson.types.ObjectId;
 import org.smof.element.Element;
 import com.google.common.collect.EvictingQueue;
 
-class ElementCache {
+class ElementCache<T extends Element> {
 
 	private final Queue<ObjectId> queue;
 	
@@ -14,11 +14,11 @@ class ElementCache {
 		queue = EvictingQueue.create(size);
 	}
 	
-	void offer(Element element) {
+	void offer(T element) {
 		queue.offer(element.getId());
 	}
 	
-	boolean contains(Element element) {
+	boolean contains(T element) {
 		return queue.contains(element.getId());
 	}
 }

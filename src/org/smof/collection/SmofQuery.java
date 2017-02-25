@@ -14,11 +14,13 @@ public class SmofQuery<T extends Element> implements FilterQuery<SmofQuery<T>>{
 	private final Class<T> elementClass;
 	private final FindIterable<BsonDocument> rawQuery;
 	private final SmofParser parser;
+	private final ElementCache<T> cache;
 	
-	SmofQuery(Class<T> elementClass, FindIterable<BsonDocument> rawQuery, SmofParser parser) {
+	SmofQuery(Class<T> elementClass, FindIterable<BsonDocument> rawQuery, SmofParser parser, ElementCache<T> cache) {
 		this.elementClass = elementClass;
 		this.rawQuery = rawQuery;
 		this.parser = parser;
+		this.cache = cache;
 	}
 	
 	public Class<T> getElementClass() {

@@ -19,14 +19,14 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	private final Class<T> type;
 	private final String name;
 	private final SmofParser parser;
-	private final ElementCache cache;
+	private final ElementCache<T> cache;
 
 	SmofCollectionImpl(String name, MongoCollection<BsonDocument> collection, Class<T> type, SmofParser parser) {
 		this.collection = collection;
 		this.name = name;
 		this.parser = parser;
 		this.type = type;
-		cache = new ElementCache(CACHE_SIZE);
+		cache = new ElementCache<>(CACHE_SIZE);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	@Override
 	public SmofQuery<T> query() {
 		final FindIterable<BsonDocument> rawQuery = collection.find();
-		return new SmofQuery<T>(type, rawQuery, parser);
+		return new SmofQuery<T>(type, rawQuery, parser, cache);
 	}
 	
 	@Override
