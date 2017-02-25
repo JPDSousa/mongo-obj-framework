@@ -57,6 +57,10 @@ class ElementCache<T extends Element> {
 	}
 
 	boolean contains(T element) {
-		return map.containsKey(element.getId());
+		return contains(element.getId());
+	}
+
+	public boolean contains(ObjectId id) {
+		return map.containsKey(id);
 	}
 }
