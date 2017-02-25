@@ -1,5 +1,6 @@
 package org.smof.collection;
 
+import org.bson.types.ObjectId;
 import org.smof.element.Element;
 import org.smof.exception.NoSuchCollection;
 import org.smof.exception.SmofException;
@@ -21,6 +22,12 @@ public class SmofDispatcher {
 	public <T extends Element> void insert(T element) {
 		checkCollection(element.getClass());
 		((SmofCollection<T>) collections.getCollection(element.getClass())).insert(element);
+	}
+	
+	@SuppressWarnings("cast")
+	public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
+		checkCollection(elementClass);
+		return ((SmofCollection<T>) collections.getCollection(elementClass)).findById(id);
 	}
 	
 	private void checkCollection(Class<? extends Element> elementClass) {

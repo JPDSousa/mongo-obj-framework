@@ -1,7 +1,7 @@
 package org.smof.collection;
 
 import org.bson.BsonDocument;
-
+import org.bson.types.ObjectId;
 import org.smof.element.Element;
 
 import com.mongodb.client.MongoCollection;
@@ -18,5 +18,6 @@ public interface SmofCollection<T extends Element> {
 	void update(T element);
 
 	SmofQuery<T> query();
+	T findById(ObjectId id);
 	
 }

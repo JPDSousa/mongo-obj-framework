@@ -4,7 +4,7 @@ import java.util.stream.Stream;
 
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
-
+import org.bson.types.ObjectId;
 import org.smof.element.Element;
 import org.smof.parsers.SmofParser;
 
@@ -38,6 +38,13 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		return new SmofQuery<T>(type, rawQuery, parser);
 	}
 	
+	@Override
+	public T findById(ObjectId id) {
+		final Bson idFilter = Filters.eq(Element.ID, id);
+		final FindIterable<BsonDocument> query = collection.find(idFilter);
+		return parser.fromBson(query.first(), type);
+	}
+
 	protected final Stream<T> find(Bson condition) {
 		final FindIterable<BsonDocument> result;
 		if(condition == null) {

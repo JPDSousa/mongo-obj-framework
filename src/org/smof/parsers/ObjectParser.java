@@ -112,7 +112,7 @@ class ObjectParser extends AbstractBsonParser {
 			return toObject(value.asDocument(), type);
 		}
 		else if(isElement(type)) {
-			return null;
+			return (T) toElement(value, (Class<Element>) type);
 		}
 		else if(isPrimaryField(fieldOpts) && isMap(type)) {
 			return (T) toMap(value.asDocument(), (PrimaryField) fieldOpts);
@@ -120,6 +120,11 @@ class ObjectParser extends AbstractBsonParser {
 		else {
 			return toObject(value.asDocument(), type);
 		}
+	}
+
+	private <T extends Element> T toElement(BsonValue value, Class<T> type) {
+		final ObjectId id = value.asObjectId().getValue();
+		return dispatcher.findById(id, type);
 	}
 
 	private Map<?, ?> toMap(BsonDocument document, PrimaryField fieldOpts) {
