@@ -14,22 +14,28 @@ import com.mongodb.client.model.Filters;
 
 class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
+	private static final int CACHE_SIZE = 100;
 	protected final MongoCollection<BsonDocument> collection;
 	private final Class<T> type;
 	private final String name;
 	private final SmofParser parser;
+	private final ElementCache cache;
 
 	SmofCollectionImpl(String name, MongoCollection<BsonDocument> collection, Class<T> type, SmofParser parser) {
 		this.collection = collection;
 		this.name = name;
 		this.parser = parser;
 		this.type = type;
+		cache = new ElementCache(CACHE_SIZE);
 	}
 
 	@Override
 	public void insert(final T element) {
-		final BsonDocument document = parser.toBson(element);
-		collection.insertOne(document);
+		if(!cache.contains(element)) {
+			final BsonDocument document = parser.toBson(element);
+			collection.insertOne(document);
+			cache.offer(element);
+		}
 	}
 	
 	@Override

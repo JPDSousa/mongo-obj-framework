@@ -48,6 +48,7 @@ class ObjectParser extends AbstractBsonParser {
 
 	private BsonValue fromElement(Element value) {
 		final ObjectId id = value.getId();
+		dispatcher.insert(value);
 		return new BsonObjectId(id);
 	}
 

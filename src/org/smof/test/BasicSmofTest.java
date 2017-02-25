@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.bson.types.ObjectId;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.smof.annnotations.SmofArray;
@@ -41,21 +43,32 @@ public class BasicSmofTest {
 		client = new MongoClient("localhost", 27017);
 		database = client.getDatabase("test");
 		smof = Smof.create(database);
-		smof.loadCollection("guitars", Guitar.class);
-		smof.registerSmofObject(Brand.class);
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() {
 		client.close();
 	}
+	
+	@Before
+	public final void setUp() {
+		smof.createCollection("guitars", Guitar.class);
+		smof.createCollection("brands", Brand.class);
+	}
+	
+	@After
+	public final void tearDown() {
+		smof.dropCollection("guitars");
+		smof.dropCollection("brands");
+	}
 
 	@Test
 	public void testSingleInsert() {
+		final Brand brand = new Brand(1965, "William Shakespear", 4000);
 		final List<Guitar> guitars = new ArrayList<>();
-		guitars.add(new Guitar("GR400", Type.ELECTRIC, Tunnings.DROPD.tunning));
-		guitars.add(new Guitar("Manhattan", Type.ACOUSTIC, Tunnings.STANDARD.tunning));
-		guitars.add(new Guitar("Roxy", Type.ACOUSTIC, Tunnings.DROPC.tunning));
+		guitars.add(new Guitar(brand, "GR400", Type.ELECTRIC, Tunnings.DROPD.tunning));
+		guitars.add(new Guitar(brand, "Manhattan", Type.ACOUSTIC, Tunnings.STANDARD.tunning));
+		guitars.add(new Guitar(brand, "Roxy", Type.ACOUSTIC, Tunnings.DROPC.tunning));
 		
 		for(Guitar g : guitars) {
 			smof.insert(g);
@@ -64,12 +77,11 @@ public class BasicSmofTest {
 	
 	@Test
 	public void testQueryAll() {
-		smof.dropCollection("guitars");
-		smof.createCollection("guitars", Guitar.class);
+		final Brand brand = new Brand(1965, "William Shakespear", 4000);
 		final Map<ObjectId, Guitar> guitars = new LinkedHashMap<>();
-		final Guitar g1 = new Guitar("GR400", Type.ELECTRIC, Tunnings.DROPD.tunning); 
-		final Guitar g2 = new Guitar("Manhattan", Type.ACOUSTIC, Tunnings.STANDARD.tunning);
-		final Guitar g3 = new Guitar("Roxy", Type.ACOUSTIC, Tunnings.DROPC.tunning);
+		final Guitar g1 = new Guitar(brand, "GR400", Type.ELECTRIC, Tunnings.DROPD.tunning); 
+		final Guitar g2 = new Guitar(brand, "Manhattan", Type.ACOUSTIC, Tunnings.STANDARD.tunning);
+		final Guitar g3 = new Guitar(brand, "Roxy", Type.ACOUSTIC, Tunnings.DROPC.tunning);
 		guitars.put(g1.getId(), g1);
 		guitars.put(g2.getId(), g2);
 		guitars.put(g3.getId(), g3);
@@ -78,7 +90,6 @@ public class BasicSmofTest {
 			smof.insert(g);
 		}
 		final List<Guitar> results = smof.find(Guitar.class).results().asList();
-		System.out.println(results.size());
 		for(Guitar g : results) {
 			assertEquals(g, guitars.get(g.getId()));
 		}
@@ -86,7 +97,8 @@ public class BasicSmofTest {
 
 	@Test(expected = MongoWriteException.class)
 	public void testDuplicateKey() {
-		final Guitar g1 = new Guitar("GR4001", Type.ELECTRIC, Tunnings.DROPD.tunning);
+		final Brand brand = new Brand(1965, "William Shakespear", 4000);
+		final Guitar g1 = new Guitar(brand, "GR4001", Type.ELECTRIC, Tunnings.DROPD.tunning);
 		smof.insert(g1);
 		smof.insert(g1);
 	}
@@ -122,7 +134,7 @@ public class BasicSmofTest {
 	private static class Guitar extends AbstractElement {
 
 		@SmofObject(name = "brand")
-		private Brand brand;
+		private final Brand brand;
 
 		@SmofString(name = "model", indexKey = "main", indexType = IndexType.TEXT)
 		private final String model;
@@ -134,11 +146,15 @@ public class BasicSmofTest {
 		private final List<String> tunning;
 
 		@SmofBuilder
-		public Guitar(@SmofParam(name="model") String model, @SmofParam(name="type") Type type, @SmofParam(name="tunning") List<String> tunning) {
+		public Guitar(@SmofParam(name = "brand") Brand brand, 
+				@SmofParam(name="model") String model, 
+				@SmofParam(name="type") Type type, 
+				@SmofParam(name="tunning") List<String> tunning) {
 			super();
 			this.model = model;
 			this.type = type;
 			this.tunning = tunning;
+			this.brand = brand;
 		}
 
 		@Override
@@ -192,7 +208,7 @@ public class BasicSmofTest {
 		}
 	}
 
-	private static class Brand {
+	private static class Brand extends AbstractElement{
 
 		@SmofNumber(name="year")
 		private final int year;
@@ -204,7 +220,9 @@ public class BasicSmofTest {
 		private final int units;
 
 		@SmofBuilder
-		public Brand(@SmofParam(name="year") Integer year, @SmofParam(name="founder") String founder, @SmofParam(name="units") Integer units) {
+		public Brand(@SmofParam(name="year") Integer year, 
+				@SmofParam(name="founder") String founder, 
+				@SmofParam(name="units") Integer units) {
 			this.year = year;
 			this.founder = founder;
 			this.units = units;
