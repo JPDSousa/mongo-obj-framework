@@ -2,7 +2,6 @@ package org.smof.element;
 
 import org.bson.types.ObjectId;
 import org.smof.annnotations.SmofObjectId;
-import org.smof.exception.InvalidIdException;
 
 @SuppressWarnings("javadoc")
 public abstract class AbstractElement implements Element {
@@ -24,7 +23,7 @@ public abstract class AbstractElement implements Element {
 	}
 
 	@Override
-	public void setId(final ObjectId id) throws InvalidIdException {
+	public void setId(final ObjectId id) {
 		this.id = id;
 	}
 

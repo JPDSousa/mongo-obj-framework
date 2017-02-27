@@ -1,7 +1,6 @@
 package org.smof.element;
 
 import org.bson.types.ObjectId;
-import org.smof.exception.InvalidIdException;
 
 @SuppressWarnings("javadoc")
 public interface Element {
@@ -12,5 +11,5 @@ public interface Element {
 	
 	public String getIdAsString();
 
-	public void setId(final ObjectId id) throws InvalidIdException;
+	public void setId(final ObjectId id);
 }
