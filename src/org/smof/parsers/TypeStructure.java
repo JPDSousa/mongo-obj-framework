@@ -73,4 +73,8 @@ class TypeStructure<T> {
 	<E> TypeParser<E> getParser(Class<E> type) {
 		return (TypeParser<E>) subTypes.get(type);
 	}
+
+	public boolean containsSub(Class<?> type) {
+		return subTypes.containsKey(type);
+	}
 }

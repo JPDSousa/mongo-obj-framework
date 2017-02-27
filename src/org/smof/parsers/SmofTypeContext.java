@@ -63,9 +63,16 @@ class SmofTypeContext {
 	private <T> TypeParser<T> getOrCreateParser(Class<T> type, SmofParserPool parsers) {
 		final TypeStructure<?> struct = getTypeStructureFromSub(type);
 		if(struct != null) {
-			return struct.getParser(type);
+			return putIfAbsent(struct, type, parsers);
 		}
-		return handleTypeParser(type, struct, parsers);
+		return handleSupertype(type, null, parsers).getParser(type);
+	}
+
+	private <T> TypeParser<T> putIfAbsent(TypeStructure<?> struct, Class<T> type, SmofParserPool parsers) {
+		if(!struct.containsSub(type)) {
+			return handleTypeParser(type, struct, parsers);
+		}
+		return struct.getParser(type);
 	}
 
 	<T> TypeBuilder<T> getTypeBuilder(Class<T> type, SmofParserPool parsers) {
