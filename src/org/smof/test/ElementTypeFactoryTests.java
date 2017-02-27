@@ -249,7 +249,7 @@ public class ElementTypeFactoryTests {
 		@SmofDate(name="localdate")
 		private final LocalDate localdate;
 		
-		@SmofDate(name="localdateTime")
+		@SmofDate(name="localdatetime")
 		private final LocalDateTime localdateTime;
 
 		@SmofBuilder
