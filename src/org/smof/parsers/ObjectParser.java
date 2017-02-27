@@ -15,6 +15,7 @@ import org.smof.annnotations.SmofObject;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.MissingRequiredFieldException;
+import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 import org.smof.field.SecondaryField;
 import org.smof.field.SmofField;
@@ -54,7 +55,7 @@ class ObjectParser extends AbstractBsonParser {
 
 	private BsonDocument fromObject(Object value) {
 		final BsonDocument document = new BsonDocument();
-		final AnnotationParser<?> metadata = getAnnotationParser(value.getClass());
+		final TypeParser<?> metadata = getTypeParser(value.getClass());
 		
 		for(PrimaryField field : metadata.getAllFields()) {
 			final Object fieldValue = extractValue(value, field);
@@ -154,16 +155,38 @@ class ObjectParser extends AbstractBsonParser {
 
 	private <T> T toObject(BsonDocument document, Class<T> type) {
 		final BsonBuilder<T> builder = new BsonBuilder<T>();
-		final AnnotationParser<T> fields = getAnnotationParser(type);
-		for(PrimaryField field : fields.getAllFields()) {
+		final T obj = buildObject(document, builder, type);
+		fillObject(document, builder, obj);
+		return obj;
+	}
+
+	private <T> void fillObject(BsonDocument document, final BsonBuilder<T> builder, final T obj) {
+		final TypeParser<?> typeParser = getTypeParser(obj.getClass());
+		for(PrimaryField field : typeParser.getNonBuilderFields()) {
 			final BsonValue fieldValue = document.get(field.getName());
 			final Object parsedObj;
-			
-			checkRequired(field, fieldValue);
 			parsedObj = bsonParser.fromBson(fieldValue, field);
-			builder.append(field, parsedObj);
+			builder.append2AdditionalFields(field.getRawField(), parsedObj);
 		}
-		return builder.build(fields);
+		builder.fillElement(obj);
+		addId(document, obj);
+	}
+	
+	private void addId(BsonDocument document, Object obj) {
+		if(obj instanceof Element) {
+			((Element) obj).setId(document.getObjectId(Element.ID).getValue());
+		}
+	}
+
+	private <T> T buildObject(BsonDocument document, BsonBuilder<T> builder, Class<T> type) {
+		final TypeBuilder<T> typeBuilder = getTypeBuilder(type);
+		for(ParameterField field : typeBuilder.getParams()) {
+			final BsonValue fieldValue = document.get(field.getName());
+			final Object parsedObj;
+			parsedObj = bsonParser.fromBson(fieldValue, field);
+			builder.append(field.getName(), parsedObj);
+		}
+		return builder.build(typeBuilder);
 	}
 
 	@Override

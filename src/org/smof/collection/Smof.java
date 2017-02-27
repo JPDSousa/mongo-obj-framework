@@ -5,7 +5,7 @@ import org.bson.BsonDocument;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
 import org.smof.index.InternalIndex;
-import org.smof.parsers.AnnotationParser;
+import org.smof.parsers.TypeParser;
 import org.smof.parsers.SmofParser;
 
 import com.mongodb.client.MongoDatabase;
@@ -84,7 +84,7 @@ public class Smof {
 	}
 
 	private <T extends Element> void createIndexes(Class<T> elClass) {
-		final AnnotationParser<T> typeMetadata = parser.getMetadata(elClass);
+		final TypeParser<T> typeMetadata = parser.getTypeParser(elClass);
 		final SmofCollection<T> collection = collections.getCollection(elClass);
 		for(InternalIndex index : typeMetadata.getIndexes()) {
 			collection.getMongoCollection().createIndex(index.getIndex());

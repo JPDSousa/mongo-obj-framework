@@ -12,6 +12,7 @@ import org.bson.BsonArray;
 import org.bson.BsonValue;
 import org.smof.annnotations.SmofArray;
 import org.smof.collection.SmofDispatcher;
+import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 import org.smof.field.SecondaryField;
 import org.smof.field.SmofField;
@@ -56,10 +57,14 @@ class ArrayParser extends AbstractBsonParser {
 	@Override
 	public <T> T fromBson(BsonValue rawValue, Class<T> type, SmofField fieldOpts) {
 		BsonArray value = rawValue.asArray();
-		if(isCollection(type) && isPrimaryField(fieldOpts)) {
-			return (T) toCollection(value, (PrimaryField) fieldOpts);
+		if(isCollection(type)) {
+			if(isPrimaryField(fieldOpts)) {
+				return (T) toCollection(value, (PrimaryField) fieldOpts);
+			}
+			else if(isParameterField(fieldOpts)) {
+				return (T) toCollection(value, ((ParameterField) fieldOpts).getPrimaryField());
+			}
 		}
-
 		return null;
 	}
 

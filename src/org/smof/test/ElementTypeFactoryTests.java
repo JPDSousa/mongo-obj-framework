@@ -256,7 +256,6 @@ public class ElementTypeFactoryTests {
 		private ElDateTest(@SmofParam(name = "date") Instant date, 
 				@SmofParam(name = "localdate") LocalDate localdate, 
 				@SmofParam(name = "localdatetime") LocalDateTime localdateTime) {
-			super();
 			this.date = date;
 			this.localdate = localdate;
 			this.localdateTime = localdateTime;

@@ -9,6 +9,7 @@ import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
 import org.smof.field.MasterField;
+import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
 
@@ -34,8 +35,12 @@ abstract class AbstractBsonParser implements BsonParser {
 	@Override
 	public abstract <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts);
 
-	protected <T> AnnotationParser<T> getAnnotationParser(Class<T> type) {
-		return bsonParser.getContext().getMetadata(type);
+	protected <T> TypeParser<T> getTypeParser(Class<T> type) {
+		return bsonParser.getContext().getTypeParser(type, bsonParser.getParsers());
+	}
+	
+	protected <T> TypeBuilder<T> getTypeBuilder(Class<T> type) {
+		return bsonParser.getContext().getTypeBuilder(type, bsonParser.getParsers());
 	}
 
 	@Override
@@ -71,6 +76,10 @@ abstract class AbstractBsonParser implements BsonParser {
 	
 	protected boolean isPrimaryField(SmofField fieldOpts) {
 		return fieldOpts instanceof PrimaryField;
+	}
+	
+	protected boolean isParameterField(SmofField field) {
+		return field instanceof ParameterField;
 	}
 
 	protected boolean isMaster(SmofField fieldOpts) {

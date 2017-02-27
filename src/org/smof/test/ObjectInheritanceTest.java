@@ -21,7 +21,7 @@ public class ObjectInheritanceTest {
 	@BeforeClass
 	public static void setUpBeforeClass() {
 		parser = new SmofParser(null);
-		parser.registerType(Ia.class, new IaFactory());
+		parser.registerType(Ia.class);
 	}
 
 	@Test

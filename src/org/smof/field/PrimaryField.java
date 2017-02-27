@@ -2,9 +2,6 @@ package org.smof.field;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.List;
-
-import javax.lang.model.element.Element;
 
 import org.bson.conversions.Bson;
 import org.smof.annnotations.SmofArray;
@@ -13,6 +10,7 @@ import org.smof.annnotations.SmofNumber;
 import org.smof.annnotations.SmofObject;
 import org.smof.annnotations.SmofObjectId;
 import org.smof.annnotations.SmofString;
+import org.smof.element.Element;
 import org.smof.exception.InvalidSmofTypeException;
 import org.smof.parsers.SmofType;
 
@@ -25,11 +23,11 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	private final Annotation annotation;
 	private final Field field;
 	private final boolean external;
-	private final boolean builderField;
+	private boolean builder;
 	
 	private final FieldIndex index;
 
-	public PrimaryField(Field field, SmofType type, List<String> builderFields) throws InvalidSmofTypeException {
+	public PrimaryField(Field field, SmofType type) throws InvalidSmofTypeException {
 		final SmofArray smofArray;
 		final SmofDate smofDate;
 		final SmofNumber smofNumber;
@@ -64,13 +62,13 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 			name = smofObject.name();
 			required = smofObject.required();
 			annotation = smofObject;
+			external = field.getType().equals(Element.class);
 			break;
 		case OBJECT_ID:
 			smofObjectId = field.getAnnotation(SmofObjectId.class);
 			name = smofObjectId.name();
 			required = smofObjectId.required();
 			annotation = smofObjectId;
-			external = field.getType().equals(Element.class);
 			break;
 		case STRING:
 			smofString = field.getAnnotation(SmofString.class);
@@ -85,7 +83,6 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		this.field = field;
 		this.type = type;
 		this.external = external;
-		this.builderField = builderFields.contains(name);
 		this.index = index;
 	}
 
@@ -120,10 +117,6 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	public boolean isExternal() {
 		return external;
 	}
-
-	public boolean isBuilderField() {
-		return builderField;
-	}
 	
 	@Override
 	public Class<?> getFieldClass() {
@@ -140,5 +133,13 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 
 	public boolean hasIndex() {
 		return index != null;
+	}
+
+	public boolean isBuilder() {
+		return builder;
+	}
+
+	public void setBuilder(boolean builder) {
+		this.builder = builder;
 	}
 }
