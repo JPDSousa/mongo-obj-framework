@@ -29,7 +29,14 @@ public class ObjectInheritanceTest {
 
 	@Test
 	public void testInterface() {
-		final Ia test = new A(30l, 31, "32");
+		final Ia test = new A(90l, 31, "32");
+		final BsonDocument doc = parser.toBson(test);
+		assertEquals(test, parser.fromBson(doc, Ia.class));
+	}
+	
+	@Test
+	public void testChild() {
+		final Ia test = new A1(300l, 31, "32");
 		final BsonDocument doc = parser.toBson(test);
 		assertEquals(test, parser.fromBson(doc, Ia.class));
 	}
@@ -55,6 +62,9 @@ public class ObjectInheritanceTest {
 		private Ia createIa(@SmofParam(name="num1") Long num1, 
 				@SmofParam(name="num2") Integer num2, 
 				@SmofParam(name="str1") String str1) {
+			if(num1 > 100) {
+				return new A1(num1, num2, str1);
+			}
 			return new A(num1, num2, str1);
 		}
 	}
@@ -126,6 +136,13 @@ public class ObjectInheritanceTest {
 				return false;
 			}
 			return true;
+		}
+	}
+	
+	private static class A1 extends A {
+		
+		private A1(Long num1, Integer num2, String str1) {
+			super(num1, num2, str1);
 		}
 	}
 
