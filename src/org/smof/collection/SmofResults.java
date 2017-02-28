@@ -43,6 +43,11 @@ public class SmofResults<T extends Element> {
 	public List<T> asList() {
 		return stream().collect(Collectors.toList());
 	}
+
+	public T first() {
+		final BsonDocument result = rawResults.first();
+		return parse(result);
+	}
 	
 	
 }
