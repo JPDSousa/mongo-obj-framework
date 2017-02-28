@@ -5,16 +5,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.smof.exception.SmofException;
+import org.smof.field.PrimaryField;
 
 class BsonBuilder<T> {
 
 	private final Document fields;
 	private final Map<Field, Object> addFields;
+	private final Map<PrimaryField, ObjectId> lazyElements;
 
 	BsonBuilder() {
 		fields = new Document();
 		addFields = new LinkedHashMap<>();
+		lazyElements = new LinkedHashMap<>();
 	}
 
 	void append(String fieldName, Object parsedObject) {
@@ -23,6 +27,10 @@ class BsonBuilder<T> {
 	
 	void append2AdditionalFields(Field field, Object parsedObject) {
 		addFields.put(field, parsedObject);
+	}
+	
+	void append2LazyElements(PrimaryField field, ObjectId id) {
+		lazyElements.put(field, id);
 	}
 
 	T build(TypeBuilder<T> builder) {

@@ -3,7 +3,6 @@ package org.smof.parsers;
 import org.bson.BsonDocument;
 import org.bson.BsonNull;
 import org.bson.BsonValue;
-
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.InvalidBsonTypeException;

@@ -163,13 +163,22 @@ class ObjectParser extends AbstractBsonParser {
 	private <T> void fillObject(BsonDocument document, final BsonBuilder<T> builder, final T obj) {
 		final TypeParser<?> typeParser = getTypeParser(obj.getClass());
 		for(PrimaryField field : typeParser.getNonBuilderFields()) {
-			final BsonValue fieldValue = document.get(field.getName());
-			final Object parsedObj;
-			parsedObj = bsonParser.fromBson(fieldValue, field);
-			builder.append2AdditionalFields(field.getRawField(), parsedObj);
+			handleField(document, builder, field);
 		}
 		builder.fillElement(obj);
 		addId(document, obj);
+	}
+
+	private <T> void handleField(BsonDocument document, final BsonBuilder<T> builder, PrimaryField field) {
+		final BsonValue fieldValue = document.get(field.getName());
+		final Object parsedObj;
+		if(fieldValue.isObjectId()) {
+			builder.append2LazyElements(field, fieldValue.asObjectId().getValue());
+		}
+		else {
+			parsedObj = bsonParser.fromBson(fieldValue, field);
+			builder.append2AdditionalFields(field.getRawField(), parsedObj);
+		}
 	}
 	
 	private void addId(BsonDocument document, Object obj) {

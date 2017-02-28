@@ -1,10 +1,7 @@
 package org.smof.element;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
-import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
 import org.smof.collection.SmofDispatcher;
 import org.smof.exception.SmofException;
@@ -19,19 +16,10 @@ class LazyLoadContext {
 	private final SmofDispatcher dispatcher;
 	private final Map<PrimaryField, ObjectId> references;
 	
-	LazyLoadContext(SmofDispatcher dispatcher, BsonDocument references, Set<PrimaryField> externalFields) { 
+	LazyLoadContext(SmofDispatcher dispatcher, Map<PrimaryField, ObjectId> references) { 
 		super();
 		this.dispatcher = dispatcher;
-		this.references = buildReferences(references, externalFields);
-	}
-
-	private Map<PrimaryField, ObjectId> buildReferences(BsonDocument references, Set<PrimaryField> externalFields) {
-		final Map<PrimaryField, ObjectId> refs = new LinkedHashMap<>();
-		for(PrimaryField primary : externalFields) {
-			final ObjectId id = references.getObjectId(primary.getName()).getValue();
-			refs.put(primary, id);
-		}
-		return refs;
+		this.references = references;
 	}
 
 	@SuppressWarnings("unchecked")
