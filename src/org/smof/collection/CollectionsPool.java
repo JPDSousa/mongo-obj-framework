@@ -30,13 +30,13 @@ public class CollectionsPool implements Iterable<SmofCollection<?>>{
 		return collections.values().iterator();
 	}
 
-	public boolean contains(Class<? extends Element> elClass) {
-		for(Class<?> type : collections.keySet()) {
+	public Class<? extends Element> getValidSuperType(Class<? extends Element> elClass) {
+		for(Class<? extends Element> type : collections.keySet()) {
 			if(type.isAssignableFrom(elClass)) {
-				return true;
+				return type;
 			}
 		}
-		return false;
+		return null;
 	}
 
 }

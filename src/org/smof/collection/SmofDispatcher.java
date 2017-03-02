@@ -20,19 +20,22 @@ public class SmofDispatcher {
 
 	@SuppressWarnings("unchecked")
 	public <T extends Element> void insert(T element) {
-		checkCollection(element.getClass());
-		((SmofCollection<T>) collections.getCollection(element.getClass())).insert(element);
+		Class<? extends Element> type = getValidCollectionType(element.getClass());
+		((SmofCollection<T>) collections.getCollection(type)).insert(element);
 	}
 
 	@SuppressWarnings("cast")
 	public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
-		checkCollection(elementClass);
+		getValidCollectionType(elementClass);
 		return ((SmofCollection<T>) collections.getCollection(elementClass)).findById(id);
 	}
 
-	private void checkCollection(Class<? extends Element> elementClass) {
-		if(!collections.contains(elementClass)) {
+	private Class<? extends Element> getValidCollectionType(Class<? extends Element> elementClass) {
+		final Class<? extends Element> validSuperType = collections.getValidSuperType(elementClass);
+		if(validSuperType == null) {
 			handleError(new NoSuchCollection(elementClass));
+			return null;
 		}
+		return validSuperType;
 	}
 }
