@@ -92,7 +92,7 @@ class TypeStructure<T> {
 	}
 
 	private void checkValidType(String name, SmofType type) {
-		if(!allFields.get(name).equals(type)) {
+		if(!allFields.get(name).getType().equals(type)) {
 			handleError(new InvalidSmofTypeException("Smof type " + type 
 					+ " is not consistent for field " + name + " in type " + this.type.getName()));
 		}
