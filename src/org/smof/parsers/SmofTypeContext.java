@@ -2,11 +2,14 @@ package org.smof.parsers;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
+import org.smof.element.Element;
 import org.smof.exception.InvalidTypeException;
 import org.smof.exception.SmofException;
 import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
+import org.smof.index.InternalIndex;
 
 class SmofTypeContext {
 
@@ -135,6 +138,10 @@ class SmofTypeContext {
 		for(PrimaryField field : parser.getAllFields()) {
 			checkValidSmofField(field, parsers);
 		}
+	}
+
+	<T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass) {
+		return types.get(elClass).getIndexes();
 	}
 
 }

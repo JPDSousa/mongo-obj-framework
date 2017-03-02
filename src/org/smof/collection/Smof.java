@@ -84,9 +84,8 @@ public class Smof {
 	}
 
 	private <T extends Element> void createIndexes(Class<T> elClass) {
-		final TypeParser<T> typeMetadata = parser.getTypeParser(elClass);
 		final SmofCollection<T> collection = collections.getCollection(elClass);
-		for(InternalIndex index : typeMetadata.getIndexes()) {
+		for(InternalIndex index : parser.getIndexes(elClass)) {
 			collection.getMongoCollection().createIndex(index.getIndex());
 		}
 	}

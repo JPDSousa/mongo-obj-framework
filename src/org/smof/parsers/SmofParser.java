@@ -1,5 +1,7 @@
 package org.smof.parsers;
 
+import java.util.Set;
+
 import org.bson.BsonDocument;
 import org.bson.BsonNull;
 import org.bson.BsonValue;
@@ -10,6 +12,7 @@ import org.smof.exception.InvalidBsonTypeException;
 import org.smof.exception.SmofException;
 import org.smof.field.MasterField;
 import org.smof.field.SmofField;
+import org.smof.index.InternalIndex;
 
 @SuppressWarnings("javadoc")
 public class SmofParser {
@@ -98,5 +101,9 @@ public class SmofParser {
 
 	SmofParserPool getParsers() {
 		return parsers;
+	}
+
+	public <T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass) {
+		return context.getIndexes(elClass);
 	}
 }

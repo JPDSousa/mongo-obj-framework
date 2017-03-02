@@ -5,18 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.smof.annnotations.SmofIndex;
-import org.smof.annnotations.SmofIndexes;
 import org.smof.exception.InvalidSmofTypeException;
 import org.smof.exception.SmofException;
 import org.smof.field.PrimaryField;
-import org.smof.index.InternalIndex;
 
 @SuppressWarnings("javadoc")
 public class TypeParser<T> {
@@ -37,40 +33,11 @@ public class TypeParser<T> {
 	private final Class<T> type;
 
 	private final Map<String, PrimaryField> fields;
-	
-	private final Set<InternalIndex> indexes;
 
 	private TypeParser(Class<T> type) throws InvalidSmofTypeException {
 		this.type = type;
 		this.fields = new LinkedHashMap<>();
-		this.indexes = new LinkedHashSet<>();
 		fillFields();
-		if(hasIndexes()) {
-			fillIndexes();	
-		}
-	}
-
-	private boolean hasIndexes() {
-		return type.isAnnotationPresent(SmofIndexes.class);
-	}
-
-	private void fillIndexes() {
-		final Map<String, List<PrimaryField>> indexedFields = getIndexedFields();
-		final SmofIndex[] indexNotes = getIndexNotes();
-		for(SmofIndex indexNote : indexNotes) {
-			final List<PrimaryField> fields = indexedFields.get(indexNote.key());
-			indexes.add(new InternalIndex(indexNote, fields));
-		}
-	}
-
-	private SmofIndex[] getIndexNotes() {
-		return type.getAnnotation(SmofIndexes.class).value();
-	}
-
-	private Map<String, List<PrimaryField>> getIndexedFields() {
-		return fields.values().stream()
-				.filter(f -> f.hasIndex())
-				.collect(Collectors.groupingBy(f -> f.getIndexKey()));
 	}
 
 	private void fillFields() throws InvalidSmofTypeException {
@@ -108,10 +75,6 @@ public class TypeParser<T> {
 	
 	public Map<String, PrimaryField> getFieldsAsMap() {
 		return fields;
-	}
-	
-	public Set<InternalIndex> getIndexes() {
-		return indexes;
 	}
 
 	public Set<PrimaryField> getNonBuilderFields() {
