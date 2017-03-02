@@ -26,7 +26,7 @@ class ModelImpl extends AbstractElement implements Model {
 	@SmofNumber(name = POPULARITY)
 	private float popularity;
 	
-	@SmofArray(name = COLORS, type = SmofType.ARRAY)
+	@SmofArray(name = COLORS, type = SmofType.STRING)
 	private final List<String> colors;
 	
 	ModelImpl(String name, int price, Brand brand, List<String> colors) {
