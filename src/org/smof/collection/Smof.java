@@ -5,7 +5,6 @@ import org.bson.BsonDocument;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
 import org.smof.index.InternalIndex;
-import org.smof.parsers.TypeParser;
 import org.smof.parsers.SmofParser;
 
 import com.mongodb.client.MongoDatabase;

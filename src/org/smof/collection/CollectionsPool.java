@@ -31,7 +31,12 @@ public class CollectionsPool implements Iterable<SmofCollection<?>>{
 	}
 
 	public boolean contains(Class<? extends Element> elClass) {
-		return collections.containsKey(elClass);
+		for(Class<?> type : collections.keySet()) {
+			if(type.isAssignableFrom(elClass)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
