@@ -141,13 +141,13 @@ class TypeBuilder<T> {
 			handleError(new InvalidSmofTypeException("No primitive types allowed on SmofBuilders."));
 		}
 	}
-	
+
 	List<String> getParamNames() {
 		return getParams().stream()
 				.map(p -> p.getName())
 				.collect(Collectors.toList());
 	}
-	
+
 	List<ParameterField> getParams() {
 		return params;
 	}
@@ -176,11 +176,17 @@ class TypeBuilder<T> {
 			return null;
 		}
 	}
-	
+
 	void setTypes(TypeParser<?> parser) {
 		final Map<String, PrimaryField> fields = parser.getFieldsAsMap();
 		for(ParameterField param : params) {
-			final String name = param.getName();
+			handleField(fields, param);
+		}
+	}
+
+	private void handleField(final Map<String, PrimaryField> fields, ParameterField param) {
+		final String name = param.getName();
+		if(fields.containsKey(name)) {
 			final PrimaryField field = fields.get(name);
 			param.setPrimaryField(field);
 			field.setBuilder(true);
