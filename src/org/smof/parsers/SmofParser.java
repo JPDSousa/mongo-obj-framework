@@ -3,6 +3,7 @@ package org.smof.parsers;
 import org.bson.BsonDocument;
 import org.bson.BsonNull;
 import org.bson.BsonValue;
+import org.bson.types.ObjectId;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.InvalidBsonTypeException;
@@ -19,14 +20,20 @@ public class SmofParser {
 
 	private final SmofTypeContext context;
 	private final SmofParserPool parsers;
+	private final LazyLoader lazyLoader;
 
 	public SmofParser(SmofDispatcher dispatcher) {
 		this.context = new SmofTypeContext();
 		parsers = SmofParserPool.create(this, dispatcher);
+		lazyLoader = LazyLoader.create(dispatcher);
 	}
 
 	SmofTypeContext getContext() {
 		return context;
+	}
+	
+	<T extends Element> T createLazyInstance(Class<T> type, ObjectId id) {
+		return lazyLoader.createLazyInstance(type, id);
 	}
 
 	public <T> TypeParser<T> getTypeParser(Class<T> type) {

@@ -12,7 +12,4 @@ public interface Element {
 	String getIdAsString();
 
 	void setId(final ObjectId id);
-	
-	void lazyLoad();
-	void setLazyLoadContext(LazyLoadContext context);
 }

@@ -126,7 +126,8 @@ class ObjectParser extends AbstractBsonParser {
 
 	private <T extends Element> T toElement(BsonValue value, Class<T> type) {
 		final ObjectId id = value.asObjectId().getValue();
-		return dispatcher.findById(id, type);
+		//all types are lazy loaded
+		return bsonParser.createLazyInstance(type, id);
 	}
 
 	private Map<?, ?> toMap(BsonDocument document, PrimaryField fieldOpts) {
@@ -166,7 +167,7 @@ class ObjectParser extends AbstractBsonParser {
 			handleField(document, builder, field);
 		}
 		builder.fillElement(obj);
-		addId(document, obj);
+		setElementMetadata(document, obj);
 	}
 
 	private <T> void handleField(BsonDocument document, final BsonBuilder<T> builder, PrimaryField field) {
@@ -181,7 +182,7 @@ class ObjectParser extends AbstractBsonParser {
 		}
 	}
 	
-	private void addId(BsonDocument document, Object obj) {
+	private void setElementMetadata(BsonDocument document, Object obj) {
 		if(obj instanceof Element) {
 			((Element) obj).setId(document.getObjectId(Element.ID).getValue());
 		}
