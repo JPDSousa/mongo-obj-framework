@@ -146,4 +146,9 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		
 	}
 
+	@Override
+	public SmofParser getParser() {
+		return parser;
+	}
+
 }

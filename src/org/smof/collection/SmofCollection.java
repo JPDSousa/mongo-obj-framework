@@ -3,6 +3,7 @@ package org.smof.collection;
 import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
 import org.smof.element.Element;
+import org.smof.parsers.SmofParser;
 
 import com.mongodb.client.MongoCollection;
 
@@ -19,5 +20,7 @@ public interface SmofCollection<T extends Element> {
 
 	SmofQuery<T> query();
 	T findById(ObjectId id);
+	
+	SmofParser getParser();
 	
 }
