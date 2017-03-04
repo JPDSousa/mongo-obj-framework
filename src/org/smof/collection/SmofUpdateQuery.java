@@ -6,7 +6,6 @@ import org.bson.types.ObjectId;
 import org.smof.element.Element;
 
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.UpdateOptions;
 
 @SuppressWarnings("javadoc")
 public class SmofUpdateQuery<T extends Element> {
@@ -14,9 +13,9 @@ public class SmofUpdateQuery<T extends Element> {
 	private final BsonDocument update;
 	private final SmofCollection<T> collection;
 	private Bson filter;
-	private final UpdateOptions options;
+	private final SmofUpdateOptions options;
 	
-	SmofUpdateQuery(BsonDocument udpate, SmofCollection<T> collection, UpdateOptions options) {
+	SmofUpdateQuery(BsonDocument udpate, SmofCollection<T> collection, SmofUpdateOptions options) {
 		super();
 		this.update = udpate;
 		this.collection = collection;

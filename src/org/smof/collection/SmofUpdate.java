@@ -13,8 +13,6 @@ import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
 import org.smof.parsers.SmofParser;
 
-import com.mongodb.client.model.UpdateOptions;
-
 @SuppressWarnings("javadoc")
 public class SmofUpdate<T extends Element> {
 	
@@ -27,7 +25,7 @@ public class SmofUpdate<T extends Element> {
 	private final Map<String, PrimaryField> fields;
 	private final Class<T> type;
 	private final SmofCollection<T> collection;
-	private final UpdateOptions options;
+	private final SmofUpdateOptions options;
 	
 	SmofUpdate(SmofCollection<T> collection) {
 		update = new BsonDocument();
@@ -35,7 +33,7 @@ public class SmofUpdate<T extends Element> {
 		this.type = collection.getType();
 		this.collection = collection;
 		fields = parser.getTypeStructure(type).getAllFields();
-		options = new UpdateOptions();
+		options = SmofUpdateOptions.create();
 	}
 	
 	private SmofField validateFieldName(String fieldName) {
@@ -56,7 +54,7 @@ public class SmofUpdate<T extends Element> {
 	}
 	
 	public void fromElement(T element) {
-		collection.replace(element);
+		collection.replace(element, options);
 	}
 
 	public SmofUpdate<T> increase(Number value, String fieldName) {

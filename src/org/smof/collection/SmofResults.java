@@ -37,17 +37,20 @@ public class SmofResults<T extends Element> {
 	
 	public Stream<T> stream() {
 		return StreamSupport.stream(rawResults.spliterator(), false)
-				.map(d -> parse(d));
+				.map(d -> parse(d))
+				.filter(d -> d != null);
 	}
 
 	private T parse(BsonDocument d) {
-		final ObjectId id = d.get(Element.ID).asObjectId().getValue();
 		try {
-			return cache.get(id, new DocumentParser(d));
+			if(d != null) {
+				final ObjectId id = d.get(Element.ID).asObjectId().getValue();
+				return cache.get(id, new DocumentParser(d));	
+			}
 		} catch (ExecutionException e) {
 			handleError(e);
-			return null;
 		}
+		return null;
 	}
 	
 	public List<T> asList() {
