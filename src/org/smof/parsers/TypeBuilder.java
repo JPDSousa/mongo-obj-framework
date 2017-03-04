@@ -124,7 +124,7 @@ class TypeBuilder<T> {
 		for(Parameter param : params) {
 			annot = param.getAnnotation(SmofParam.class);
 			checkSmofParam(annot);
-			checkNotPrimitive(param.getType());
+			checkNotPrimitiveOrArray(param.getType());
 			annots.add(new ParameterField(param, annot));
 		}
 		return annots;
@@ -136,8 +136,8 @@ class TypeBuilder<T> {
 		}
 	}
 
-	private void checkNotPrimitive(Class<?> type) {
-		if(type.isPrimitive()) {
+	private void checkNotPrimitiveOrArray(Class<?> type) {
+		if(type.isPrimitive() || type.isArray()) {
 			handleError(new InvalidSmofTypeException("No primitive types allowed on SmofBuilders."));
 		}
 	}
@@ -172,7 +172,7 @@ class TypeBuilder<T> {
 			method.getRight().setAccessible(false);
 			return element;
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
+			handleError(e);
 			return null;
 		}
 	}
