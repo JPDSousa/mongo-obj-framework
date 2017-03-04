@@ -52,7 +52,7 @@ public class SmofUpdate<T extends Element> {
 	}
 	
 	public SmofUpdateQuery<T> where() {
-		return new SmofUpdateQuery<>(update, collection);
+		return new SmofUpdateQuery<>(update, collection, options);
 	}
 	
 	public void fromElement(T element) {

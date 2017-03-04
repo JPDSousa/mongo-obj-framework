@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.smof.element.Element;
 
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
 
 @SuppressWarnings("javadoc")
 public class SmofUpdateQuery<T extends Element> {
@@ -13,12 +14,14 @@ public class SmofUpdateQuery<T extends Element> {
 	private final BsonDocument update;
 	private final SmofCollection<T> collection;
 	private Bson filter;
+	private final UpdateOptions options;
 	
-	SmofUpdateQuery(BsonDocument udpate, SmofCollection<T> collection) {
+	SmofUpdateQuery(BsonDocument udpate, SmofCollection<T> collection, UpdateOptions options) {
 		super();
 		this.update = udpate;
 		this.collection = collection;
 		filter = new BsonDocument();
+		this.options = options;
 	}
 	
 	public SmofUpdateQuery<T> withId(ObjectId id) {
@@ -27,7 +30,7 @@ public class SmofUpdateQuery<T extends Element> {
 	}
 	
 	public void execute() {
-		collection.execUpdate(filter, update);
+		collection.execUpdate(filter, update, options);
 	}
 	
 }

@@ -7,6 +7,7 @@ import org.smof.element.Element;
 import org.smof.parsers.SmofParser;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
 
 
 @SuppressWarnings("javadoc")
@@ -17,7 +18,7 @@ public interface SmofCollection<T extends Element> {
 	
 	void insert(T element);
 
-	void execUpdate(Bson filter, Bson updates);
+	void execUpdate(Bson filter, Bson updates, UpdateOptions options);
 	SmofUpdate<T> update();
 	void replace(T element);
 
