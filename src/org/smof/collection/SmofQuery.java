@@ -58,5 +58,11 @@ public class SmofQuery<T extends Element> implements FilterQuery<SmofQuery<T>>{
 		rawQuery.projection(projection);
 		return this;
 	}
+
+	public T byElement(T element) {
+		return withField(Element.ID, element.getId())
+		.results()
+		.first();
+	}
 	
 }

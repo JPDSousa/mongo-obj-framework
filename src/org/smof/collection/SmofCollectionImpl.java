@@ -3,7 +3,6 @@ package org.smof.collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
@@ -67,56 +66,23 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 			return null;
 		}
 	}
-
-	protected final Stream<T> find(Bson condition) {
-		final FindIterable<BsonDocument> result;
-		if(condition == null) {
-			result = collection.find();
-		} else {
-			result = collection.find(condition);
-		}
-		
-//		return StreamSupport.stream(result.spliterator(), false)
-//				.map(d -> jsonManager.fromJson(d.toJson(), type));
-		return null;
-	}
-
-//	@Override
-//	public T lookup(final ObjectId id) {
-//		final Document result = collection.find(Filters.eq(Element.ID, id)).first();
-//				
-//		return jsonManager.fromJson(result.toJson(), type);
-//	}
-
-//	@Override
-//	public Set<T> lookupAll(final Iterable<T> ids) {
-//		final Set<T> elements = new LinkedHashSet<>();
-//		ids.forEach(i -> elements.add(lookup(i.getId())));
-//		
-//		return elements;
-//	}
-
-	protected Bson getUniqueCondition(T element) {
-		return null;
-	}
 	
 	@Override
-	public void update(final T element) {
-		final Bson query = Filters.eq(Element.ID, element.getId());
-//		final Document doc = Document.parse(jsonManager.toJson(element, type));
-//		
-//		collection.findOneAndReplace(query, doc);
+	public void execUpdate(Bson filter, Bson update) {
+		collection.updateMany(filter, update);
 	}
-	
-//	@Override
-//	public T get(final T element) {
-//		final Document result = collection.find(getUniqueCondition(element)).first();
-//		
-//		if(result == null) {
-//			return null;
-//		}
-//		return jsonManager.fromJson(result.toJson(), type);
-//	}
+
+	@Override
+	public SmofUpdate<T> update() {
+		return new SmofUpdate<>(this);
+	}
+
+	@Override
+	public void replace(T element) {
+		final Bson query = Filters.eq(Element.ID, element.getId());
+		final BsonDocument document = parser.toBson(element);
+		collection.findOneAndReplace(query, document);
+	}
 
 	@Override
 	public String getCollectionName() {
@@ -128,24 +94,6 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		return collection;
 	}
 	
-	private class IdLoader implements Callable<T> {
-
-		private final ObjectId id;
-		
-		private IdLoader(ObjectId id) {
-			super();
-			this.id = id;
-		}
-
-		@Override
-		public T call() throws Exception {
-			final Bson idFilter = Filters.eq(Element.ID, id);
-			final FindIterable<BsonDocument> query = collection.find(idFilter);
-			return parser.fromBson(query.first(), type);
-		}
-		
-	}
-
 	@Override
 	public SmofParser getParser() {
 		return parser;
@@ -154,6 +102,24 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	@Override
 	public Class<T> getType() {
 		return type;
+	}
+
+	private class IdLoader implements Callable<T> {
+	
+		private final ObjectId id;
+		
+		private IdLoader(ObjectId id) {
+			super();
+			this.id = id;
+		}
+	
+		@Override
+		public T call() throws Exception {
+			final Bson idFilter = Filters.eq(Element.ID, id);
+			final FindIterable<BsonDocument> query = collection.find(idFilter);
+			return parser.fromBson(query.first(), type);
+		}
+		
 	}
 
 }

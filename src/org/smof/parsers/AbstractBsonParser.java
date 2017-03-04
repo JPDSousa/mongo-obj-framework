@@ -35,12 +35,16 @@ abstract class AbstractBsonParser implements BsonParser {
 	@Override
 	public abstract <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts);
 
+	protected <T> TypeStructure<T> getTypeStructure(Class<T> type) {
+		return bsonParser.getContext().getTypeStructure(type, bsonParser.getParsers());
+	}
+	
 	protected <T> TypeParser<T> getTypeParser(Class<T> type) {
-		return bsonParser.getContext().getTypeParser(type, bsonParser.getParsers());
+		return getTypeStructure(type).getParser(type);
 	}
 	
 	protected <T> TypeBuilder<T> getTypeBuilder(Class<T> type) {
-		return bsonParser.getContext().getTypeBuilder(type, bsonParser.getParsers());
+		return getTypeStructure(type).getBuilder();
 	}
 
 	@Override

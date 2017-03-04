@@ -1,6 +1,7 @@
 package org.smof.collection;
 
 import org.bson.BsonDocument;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.smof.element.Element;
 import org.smof.parsers.SmofParser;
@@ -16,7 +17,9 @@ public interface SmofCollection<T extends Element> {
 	
 	void insert(T element);
 
-	void update(T element);
+	void execUpdate(Bson filter, Bson updates);
+	SmofUpdate<T> update();
+	void replace(T element);
 
 	SmofQuery<T> query();
 	T findById(ObjectId id);

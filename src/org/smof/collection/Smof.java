@@ -103,10 +103,14 @@ public class Smof {
 	public <T extends Element> void insert(T element) {
 		dispatcher.insert(element);
 	}
+	
+	public <T extends Element> SmofUpdate<T> update(Class<T> elementClass) {
+		final SmofCollection<T> collection = collections.getCollection(elementClass);
+		return collection.update();
+	}
 
-	@SuppressWarnings("cast")
 	public <T extends Element> SmofQuery<T> find(Class<T> elementClass) {
-		final SmofCollection<T> collection = (SmofCollection<T>) collections.getCollection(elementClass);
+		final SmofCollection<T> collection = collections.getCollection(elementClass);
 		return collection.query();
 	}
 

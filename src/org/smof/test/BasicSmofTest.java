@@ -96,6 +96,15 @@ public class BasicSmofTest {
 			assertEquals(g, guitars.get(g.getId()));
 		}
 	}
+	
+	@Test
+	public void testUpdateReplace() {
+		final Brand brand = Brand.create(new Location("Nashville", "USA"), "You");
+		smof.insert(brand);
+		brand.setCapital(1000);
+		smof.update(Brand.class).fromElement(brand);
+		assertEquals(brand, smof.find(Brand.class).byElement(brand));
+	}
 
 	@Test(expected = MongoWriteException.class)
 	public void testDuplicateKey() {
