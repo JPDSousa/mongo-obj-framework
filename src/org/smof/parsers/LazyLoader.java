@@ -1,6 +1,8 @@
 package org.smof.parsers;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -11,19 +13,17 @@ import org.smof.element.Element;
 import org.smof.exception.SmofException;
 
 import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.asm.Advice.AllArguments;
-import net.bytebuddy.asm.Advice.This;
 import net.bytebuddy.description.modifier.Visibility;
-import net.bytebuddy.implementation.Implementation;
-import net.bytebuddy.implementation.MethodCall;
-import net.bytebuddy.implementation.MethodDelegation;
-import net.bytebuddy.implementation.SuperMethodCall;
-import net.bytebuddy.implementation.bind.annotation.FieldProxy;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.FieldAccessor;
+import net.bytebuddy.implementation.InvocationHandlerAdapter;
 import net.bytebuddy.matcher.ElementMatchers;
 
 @SuppressWarnings("javadoc")
 public class LazyLoader {
+
+	private static final String DISPATCHER = "dispatcher";
+	private static final String DELEGATE = "delegate";
+	private static final String LOADED = "loaded";
 
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
@@ -45,12 +45,14 @@ public class LazyLoader {
 
 	public <T extends Element> T createLazyInstance(Class<T> type, ObjectId id) {
 		final Class<? extends T> lazyType = getLazyType(type);
-		return createInstance(lazyType, id);
+		return createInstance(type, lazyType, id);
 	}
 
-	private <T> T createInstance(final Class<T> lazyType, ObjectId id){
+	private <T extends Element, E extends T> T createInstance(Class<T> type, Class<E> lazyType, ObjectId id){
 		try {
-			return lazyType.getConstructor(SmofDispatcher.class).newInstance(dispatcher, id);
+			final T element = lazyType.getConstructor().newInstance();
+			((HandlerSetter) element).setHandler(new Handler<>(id, dispatcher, type));
+			return element;
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			handleError(e);
@@ -74,19 +76,16 @@ public class LazyLoader {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends Element> Class<? extends T> createLazyClass(Class<T> type) {
+	private <T> Class<? extends T> createLazyClass(Class<T> type) {
+		System.out.println("Creating lazy interface for: " + type.getName());
 		Class<? extends Element> lazyType = byteBuddy
 				.subclass(AbstractElement.class)
 				.implement(type)
-				.defineField("delegate", type, Visibility.PRIVATE)
-				.defineField("dispatcher", SmofDispatcher.class, Visibility.PRIVATE)
-				.defineField("loaded", Boolean.class, Visibility.PRIVATE)
-				.defineConstructor(Visibility.PUBLIC)
-				.withParameter(SmofDispatcher.class)
-				.withParameter(ObjectId.class)
-				.intercept(SuperMethodCall.INSTANCE.andThen(MethodDelegation.to(ConstructorInterceptor.class)))
-				.method(ElementMatchers.any())
-				.intercept(createLazyHandler())
+				.defineField("handler", InvocationHandler.class, Visibility.PUBLIC)
+				.implement(HandlerSetter.class)
+				.intercept(FieldAccessor.ofField("handler"))
+				.method(ElementMatchers.not(ElementMatchers.isDeclaredBy(HandlerSetter.class)))
+				.intercept(InvocationHandlerAdapter.toField("handler"))
 				.make()
 				.load(type.getClassLoader())
 				.getLoaded();
@@ -95,56 +94,37 @@ public class LazyLoader {
 	}
 
 	private <T extends Element> Class<? extends T> createLazySubClass(Class<T> type) {
-		Class<? extends T> lazyType = byteBuddy
-				.subclass(type)
-				.defineField("delegate", type, Visibility.PRIVATE)
-				.defineField("dispatcher", SmofDispatcher.class, Visibility.PRIVATE)
-				.defineField("loaded", Boolean.class, Visibility.PRIVATE)
-				.defineConstructor(Visibility.PUBLIC)
-				.withParameter(SmofDispatcher.class)
-				.withParameter(ObjectId.class)
-				.intercept(SuperMethodCall.INSTANCE.andThen(MethodDelegation.to(ConstructorInterceptor.class)))
-				.method(ElementMatchers.any())
-				.intercept(createLazyHandler())
-				.make()
-				.load(type.getClassLoader())
-				.getLoaded();
-		lazyTypes.put(type, lazyType);
-		return lazyType;
+		System.out.println("not here: " + type.getName());
+		return null;
 	}
-
-	private Implementation createLazyHandler() {
-		return MethodDelegation.to(LazyHandler.class).andThen(MethodCall.invokeSelf().onField("delegate"));
+	
+	public interface HandlerSetter {
+		InvocationHandler getHandler();
+		void setHandler(InvocationHandler handler);
 	}
-
-	private static class ConstructorInterceptor {
-		@RuntimeType
-		private static void intercept(@This Element self, 
-				@AllArguments Object[] args, 
-				@FieldProxy("dispatcher") FieldSetter accessor) {
-			accessor.setValue(args[0]);
-			self.setId((ObjectId) args[1]);
+	
+	public static class Handler<T extends Element> implements InvocationHandler {
+		
+		private final ObjectId id;
+		private final SmofDispatcher dispatcher;
+		private final Class<T> delegateClass;
+		private boolean loaded;
+		private Object delegate;
+		
+		Handler(ObjectId id, SmofDispatcher dispatcher, Class<T> delegateClass) {
+			super();
+			this.id = id;
+			this.dispatcher = dispatcher;
+			this.delegateClass = delegateClass;
 		}
-	}
 
-	private interface FieldSetter {
-		void setValue(Object value);
-	}
-
-	private interface FieldGetter {
-		Object getValue();
-	}
-
-	private static class LazyHandler {
-		@SuppressWarnings({ "unused", "unchecked" })
-		private static void intercept(@This Object instance, 
-				@FieldProxy("delegate") FieldSetter delegate,
-				@FieldProxy("loaded") FieldGetter loaded,
-				@FieldProxy("dispatcher") FieldGetter dispatcher) {
-			if(!((Boolean)loaded.getValue())) {
-				final ObjectId id = ((Element) instance).getId();
-				delegate.setValue(((SmofDispatcher)dispatcher).findById(id, (Class<Element>) instance.getClass()));
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			if(!loaded) {
+				delegate = dispatcher.findById(id, delegateClass);
 			}
+			return method.invoke(delegate, args);
 		}
+		
 	}
 }

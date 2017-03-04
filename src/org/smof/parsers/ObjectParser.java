@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.BsonDocument;
+import org.bson.BsonNull;
 import org.bson.BsonObjectId;
 import org.bson.BsonString;
 import org.bson.BsonValue;
@@ -191,12 +192,17 @@ class ObjectParser extends AbstractBsonParser {
 	private <T> T buildObject(BsonDocument document, BsonBuilder<T> builder, Class<T> type) {
 		final TypeBuilder<T> typeBuilder = getTypeBuilder(type);
 		for(ParameterField field : typeBuilder.getParams()) {
-			final BsonValue fieldValue = document.get(field.getName());
+			final BsonValue fieldValue = getFromDocument(document, field.getName());
 			final Object parsedObj;
 			parsedObj = bsonParser.fromBson(fieldValue, field);
 			builder.append(field.getName(), parsedObj);
 		}
 		return builder.build(typeBuilder);
+	}
+
+	private BsonValue getFromDocument(BsonDocument document, String field) {
+		final BsonValue value = document.get(field);
+		return value == null ? new BsonNull() : value;
 	}
 
 	@Override

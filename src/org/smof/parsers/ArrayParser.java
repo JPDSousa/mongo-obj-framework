@@ -107,7 +107,7 @@ class ArrayParser extends AbstractBsonParser {
 		final SecondaryField componentField = getCollectionField(fieldOpts);
 		final Class<?> componentClass = componentField.getFieldClass();
 		final SmofType componentType = componentField.getType();
-
+		
 		return isSupportedComponentType(componentType)
 				&& !isMap(componentClass)
 				&& bsonParser.isValidType(componentField);
