@@ -70,7 +70,6 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	@Override
 	public void execUpdate(Bson filter, Bson update, SmofUpdateOptions options) {
 		collection.updateMany(filter, update, options.toUpdateOptions());
-		System.out.println("updated");
 	}
 
 	@Override
@@ -83,6 +82,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		final Bson query = Filters.eq(Element.ID, element.getId());
 		final BsonDocument document = parser.toBson(element);
 		collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
+		cache.put(element.getId(), element);
 	}
 
 	@Override
