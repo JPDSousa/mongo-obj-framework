@@ -1,6 +1,8 @@
 package org.smof.collection;
 
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -8,19 +10,25 @@ import java.util.stream.StreamSupport;
 import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
 import org.smof.element.Element;
+import org.smof.exception.SmofException;
 import org.smof.parsers.SmofParser;
 
+import com.google.common.cache.Cache;
 import com.mongodb.client.FindIterable;
 
 @SuppressWarnings("javadoc")
 public class SmofResults<T extends Element> {
 	
+	private static void handleError(Throwable cause) {
+		throw new SmofException(cause);
+	}
+	
 	private final FindIterable<BsonDocument> rawResults;
 	private final SmofParser parser;
 	private final Class<T> elClass;
-	private final ElementCache<T> cache;
+	private final Cache<ObjectId, T> cache;
 
-	SmofResults(FindIterable<BsonDocument> rawResults, SmofParser parser, Class<T> elementClass, ElementCache<T> cache) {
+	SmofResults(FindIterable<BsonDocument> rawResults, SmofParser parser, Class<T> elementClass, Cache<ObjectId, T> cache) {
 		this.rawResults = rawResults;
 		this.parser = parser;
 		elClass = elementClass;
@@ -34,10 +42,12 @@ public class SmofResults<T extends Element> {
 
 	private T parse(BsonDocument d) {
 		final ObjectId id = d.get(Element.ID).asObjectId().getValue();
-		if(cache.contains(id)) {
-			return cache.get(id);
+		try {
+			return cache.get(id, new DocumentParser(d));
+		} catch (ExecutionException e) {
+			handleError(e);
+			return null;
 		}
-		return parser.fromBson(d, elClass);
 	}
 	
 	public List<T> asList() {
@@ -49,5 +59,19 @@ public class SmofResults<T extends Element> {
 		return parse(result);
 	}
 	
+	private class DocumentParser implements Callable<T>{
+
+		private final BsonDocument document;
+		
+		private DocumentParser(BsonDocument document) {
+			super();
+			this.document = document;
+		}
+
+		@Override
+		public T call() throws Exception {
+			return parser.fromBson(document, elClass);
+		}
+	}
 	
 }

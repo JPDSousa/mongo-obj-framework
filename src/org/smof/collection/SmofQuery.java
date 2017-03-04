@@ -2,9 +2,11 @@ package org.smof.collection;
 
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.smof.element.Element;
 import org.smof.parsers.SmofParser;
 
+import com.google.common.cache.Cache;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Filters;
 
@@ -14,9 +16,9 @@ public class SmofQuery<T extends Element> implements FilterQuery<SmofQuery<T>>{
 	private final Class<T> elementClass;
 	private final FindIterable<BsonDocument> rawQuery;
 	private final SmofParser parser;
-	private final ElementCache<T> cache;
+	private final Cache<ObjectId, T> cache;
 	
-	SmofQuery(Class<T> elementClass, FindIterable<BsonDocument> rawQuery, SmofParser parser, ElementCache<T> cache) {
+	SmofQuery(Class<T> elementClass, FindIterable<BsonDocument> rawQuery, SmofParser parser, Cache<ObjectId, T> cache) {
 		this.elementClass = elementClass;
 		this.rawQuery = rawQuery;
 		this.parser = parser;
