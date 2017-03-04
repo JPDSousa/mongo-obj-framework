@@ -13,11 +13,13 @@ public interface Brand extends Element{
 	String OWNERS = "owners";
 	String FOUNDING = "founding";
 	String CAPITAL = "capital";
+	String LOCATION = "location";
 	
 	@SmofBuilder
 	static Brand create(
+			@SmofParam(name = LOCATION) Location headQuarters,
 			@SmofParam(name = OWNERS) String... owners) {
-		return new BrandImpl(owners);
+		return new BrandImpl(headQuarters, owners);
 	}
 	
 	List<String> getOwners();
@@ -29,4 +31,6 @@ public interface Brand extends Element{
 	void setCapital(long value);
 	
 	void increaseCapital(long value);
+	
+	Location getLocation();
 }

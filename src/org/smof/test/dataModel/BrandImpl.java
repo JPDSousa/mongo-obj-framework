@@ -7,6 +7,7 @@ import java.util.List;
 import org.smof.annnotations.SmofArray;
 import org.smof.annnotations.SmofDate;
 import org.smof.annnotations.SmofNumber;
+import org.smof.annnotations.SmofObject;
 import org.smof.element.AbstractElement;
 import org.smof.parsers.SmofType;
 
@@ -18,14 +19,18 @@ class BrandImpl extends AbstractElement implements Brand {
 	@SmofDate(name = FOUNDING)
 	private final LocalDate founding;
 	
+	@SmofObject(name = LOCATION)
+	private final Location headQuarters;
+	
 	@SmofNumber(name = CAPITAL)
 	private long capital;
 
-	BrandImpl(String... owners) {
+	BrandImpl(Location headQuarters, String... owners) {
 		super();
 		this.owners = Arrays.asList(owners);
 		this.founding = LocalDate.now();
 		this.capital = 0;
+		this.headQuarters = headQuarters;
 	}
 
 	@Override
@@ -59,6 +64,7 @@ class BrandImpl extends AbstractElement implements Brand {
 		int result = 1;
 		result = prime * result + (int) (capital ^ (capital >>> 32));
 		result = prime * result + ((founding == null) ? 0 : founding.hashCode());
+		result = prime * result + ((headQuarters == null) ? 0 : headQuarters.hashCode());
 		result = prime * result + ((owners == null) ? 0 : owners.hashCode());
 		return result;
 	}
@@ -85,6 +91,13 @@ class BrandImpl extends AbstractElement implements Brand {
 		} else if (!founding.equals(other.founding)) {
 			return false;
 		}
+		if (headQuarters == null) {
+			if (other.headQuarters != null) {
+				return false;
+			}
+		} else if (!headQuarters.equals(other.headQuarters)) {
+			return false;
+		}
 		if (owners == null) {
 			if (other.owners != null) {
 				return false;
@@ -93,6 +106,11 @@ class BrandImpl extends AbstractElement implements Brand {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public Location getLocation() {
+		return headQuarters;
 	}
 
 }
