@@ -21,10 +21,6 @@ import net.bytebuddy.matcher.ElementMatchers;
 @SuppressWarnings("javadoc")
 public class LazyLoader {
 
-	private static final String DISPATCHER = "dispatcher";
-	private static final String DELEGATE = "delegate";
-	private static final String LOADED = "loaded";
-
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}
@@ -77,7 +73,6 @@ public class LazyLoader {
 
 	@SuppressWarnings("unchecked")
 	private <T> Class<? extends T> createLazyClass(Class<T> type) {
-		System.out.println("Creating lazy interface for: " + type.getName());
 		Class<? extends Element> lazyType = byteBuddy
 				.subclass(AbstractElement.class)
 				.implement(type)
