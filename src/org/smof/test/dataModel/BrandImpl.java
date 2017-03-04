@@ -1,7 +1,6 @@
 package org.smof.test.dataModel;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 import org.smof.annnotations.SmofArray;
@@ -25,9 +24,9 @@ class BrandImpl extends AbstractElement implements Brand {
 	@SmofNumber(name = CAPITAL)
 	private long capital;
 
-	BrandImpl(Location headQuarters, String... owners) {
+	BrandImpl(Location headQuarters, List<String> owners) {
 		super();
-		this.owners = Arrays.asList(owners);
+		this.owners = owners;
 		this.founding = LocalDate.now();
 		this.capital = 0;
 		this.headQuarters = headQuarters;

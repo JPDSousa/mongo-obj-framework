@@ -18,7 +18,7 @@ public interface Brand extends Element{
 	@SmofBuilder
 	static Brand create(
 			@SmofParam(name = LOCATION) Location headQuarters,
-			@SmofParam(name = OWNERS) String... owners) {
+			@SmofParam(name = OWNERS) List<String> owners) {
 		return new BrandImpl(headQuarters, owners);
 	}
 	
