@@ -151,4 +151,9 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		return parser;
 	}
 
+	@Override
+	public Class<T> getType() {
+		return type;
+	}
+
 }

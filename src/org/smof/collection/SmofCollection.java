@@ -22,5 +22,6 @@ public interface SmofCollection<T extends Element> {
 	T findById(ObjectId id);
 	
 	SmofParser getParser();
+	Class<T> getType();
 	
 }

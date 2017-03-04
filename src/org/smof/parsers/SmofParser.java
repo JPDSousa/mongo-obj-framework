@@ -35,12 +35,12 @@ public class SmofParser {
 		return context;
 	}
 	
+	public <T> TypeStructure<T> getTypeStructure(Class<T> type) {
+		return getContext().getTypeStructure(type, parsers);
+	}
+	
 	<T extends Element> T createLazyInstance(Class<T> type, ObjectId id) {
 		return lazyLoader.createLazyInstance(type, id);
-	}
-
-	public <T> TypeParser<T> getTypeParser(Class<T> type) {
-		return context.getTypeParser(type, parsers);
 	}
 
 	public void registerType(Class<?> type) {
@@ -78,7 +78,7 @@ public class SmofParser {
 		return (BsonDocument) parser.toBson(value, field);
 	}
 
-	BsonValue toBson(Object value, SmofField field) {
+	public BsonValue toBson(Object value, SmofField field) {
 		if(value == null) {
 			return new BsonNull();
 		}
