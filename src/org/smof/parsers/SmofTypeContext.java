@@ -59,36 +59,25 @@ class SmofTypeContext {
 		handleTypeParser(type, typeStructure, parsers);
 	}
 
-	<T> TypeParser<T> getTypeParser(Class<T> type, SmofParserPool parsers) {
+	<T> TypeStructure<T> getTypeStructure(Class<T> type, SmofParserPool parsers) {
 		return getOrCreateParser(type, parsers);
 	}
 
-	private <T> TypeParser<T> getOrCreateParser(Class<T> type, SmofParserPool parsers) {
-		final TypeStructure<?> struct = getTypeStructureFromSub(type);
+	@SuppressWarnings("unchecked")
+	private <T> TypeStructure<T> getOrCreateParser(Class<?> type, SmofParserPool parsers) {
+		final TypeStructure<T> struct = (TypeStructure<T>) getTypeStructureFromSub(type);
 		if(struct != null) {
 			return putIfAbsent(struct, type, parsers);
 		}
-		return handleSupertype(type, null, parsers).getParser(type);
+		return (TypeStructure<T>) handleSupertype(type, null, parsers);
 	}
 
-	private <T> TypeParser<T> putIfAbsent(TypeStructure<?> struct, Class<T> type, SmofParserPool parsers) {
+	private <T> TypeStructure<T> putIfAbsent(TypeStructure<T> struct, Class<?> type, SmofParserPool parsers) {
 		if(!struct.containsSub(type)) {
-			return handleTypeParser(type, struct, parsers);
+			handleTypeParser(type, struct, parsers);
+			return struct;
 		}
-		return struct.getParser(type);
-	}
-
-	<T> TypeBuilder<T> getTypeBuilder(Class<T> type, SmofParserPool parsers) {
-		return getOrCreateBuilder(type, null, parsers);
-	}
-
-	private <T> TypeBuilder<T> getOrCreateBuilder(Class<T> type, Object factory, SmofParserPool parsers) {
-		checkValidSuperType(type);
-		final TypeStructure<T> struct = getTypeStructureFromSuper(type);
-		if(struct != null) {
-			return struct.getBuilder();
-		}
-		return handleSupertype(type, factory, parsers).getBuilder();
+		return struct;
 	}
 	
 	private TypeStructure<?> getTypeStructureFromSub(Class<?> type) {
@@ -100,14 +89,6 @@ class SmofTypeContext {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> TypeStructure<T> getTypeStructureFromSuper(Class<T> type) {
-		if(!types.containsKey(type)) {
-			return null;
-		}
-		return (TypeStructure<T>) types.get(type);
-	}
-
 	private boolean containsSubOrSuperType(Class<?> type) {
 		for(Class<?> t : types.keySet()) {
 			if(t.isAssignableFrom(type)) {
@@ -115,16 +96,6 @@ class SmofTypeContext {
 			}
 		}
 		return false;
-	}
-
-	private boolean containsSuperType(Class<?> type) {
-		return types.containsKey(type);
-	}
-
-	private void checkValidSuperType(Class<?> type) {
-		if(!containsSuperType(type) && containsSubOrSuperType(type)) {
-			handleError(new IllegalArgumentException(type.getName() + " is not a valid super type."));
-		}
 	}
 
 	private void checkValidSmofField(SmofField field, SmofParserPool parsers) {

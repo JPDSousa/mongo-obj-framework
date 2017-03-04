@@ -14,7 +14,8 @@ import org.smof.exception.SmofException;
 import org.smof.field.PrimaryField;
 import org.smof.index.InternalIndex;
 
-class TypeStructure<T> {
+@SuppressWarnings("javadoc")
+public class TypeStructure<T> {
 
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
@@ -67,7 +68,7 @@ class TypeStructure<T> {
 				.collect(Collectors.groupingBy(f -> f.getIndexKey()));
 	}
 	
-	Set<InternalIndex> getIndexes() {
+	public Set<InternalIndex> getIndexes() {
 		return indexes;
 	}
 
@@ -104,16 +105,20 @@ class TypeStructure<T> {
 		}
 	}
 
-	TypeBuilder<T> getBuilder() {
+	public TypeBuilder<T> getBuilder() {
 		return defaultTypeBuilder;
 	}
 
 	@SuppressWarnings("unchecked")
-	<E> TypeParser<E> getParser(Class<E> type) {
+	public <E> TypeParser<E> getParser(Class<E> type) {
 		return (TypeParser<E>) subTypes.get(type);
 	}
 
 	public boolean containsSub(Class<?> type) {
 		return subTypes.containsKey(type);
+	}
+
+	public Map<String, PrimaryField> getAllFields() {
+		return allFields;
 	}
 }
