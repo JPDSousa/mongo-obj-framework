@@ -50,22 +50,14 @@ public class TypeStructure<T> {
 	}
 
 	private void fillIndexes() {
-		final Map<String, List<PrimaryField>> indexedFields = getIndexedFields();
 		final SmofIndex[] indexNotes = getIndexNotes();
 		for(SmofIndex indexNote : indexNotes) {
-			final List<PrimaryField> fields = indexedFields.get(indexNote.key());
-			indexes.add(new InternalIndex(indexNote, fields));
+			indexes.add(new InternalIndex(indexNote));
 		}
 	}
 
 	private SmofIndex[] getIndexNotes() {
 		return type.getAnnotation(SmofIndexes.class).value();
-	}
-	
-	private Map<String, List<PrimaryField>> getIndexedFields() {
-		return allFields.values().stream()
-				.filter(f -> f.hasIndex())
-				.collect(Collectors.groupingBy(f -> f.getIndexKey()));
 	}
 	
 	public Set<InternalIndex> getIndexes() {

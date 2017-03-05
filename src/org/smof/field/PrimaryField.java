@@ -3,7 +3,6 @@ package org.smof.field;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
-import org.bson.conversions.Bson;
 import org.smof.annnotations.SmofArray;
 import org.smof.annnotations.SmofDate;
 import org.smof.annnotations.SmofNumber;
@@ -25,8 +24,6 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	private final boolean external;
 	private boolean builder;
 	
-	private final FieldIndex index;
-
 	public PrimaryField(Field field, SmofType type) throws InvalidSmofTypeException {
 		final SmofArray smofArray;
 		final SmofDate smofDate;
@@ -35,7 +32,6 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		final SmofObjectId smofObjectId;
 		final SmofString smofString;
 		boolean external = false;
-		FieldIndex index = null;
 
 		switch(type) {
 		case ARRAY:
@@ -55,7 +51,6 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 			name = smofNumber.name();
 			required = smofNumber.required();
 			annotation = smofNumber;
-			index = FieldIndex.create(smofNumber.indexKey(), smofNumber.indexType());
 			break;
 		case OBJECT:
 			smofObject = field.getAnnotation(SmofObject.class);
@@ -75,7 +70,6 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 			name = smofString.name();
 			required = smofString.required();
 			annotation = smofString;
-			index = FieldIndex.create(smofString.indexKey(), smofString.indexType());
 			break;
 		default:
 			throw new InvalidSmofTypeException("Type not valid.");
@@ -83,7 +77,6 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		this.field = field;
 		this.type = type;
 		this.external = external;
-		this.index = index;
 	}
 
 	@Override
@@ -121,18 +114,6 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	@Override
 	public Class<?> getFieldClass() {
 		return getRawField().getType();
-	}
-
-	public Bson getIndex() {
-		return index.toBson(getName());
-	}
-	
-	public String getIndexKey() {
-		return index.getKey();
-	}
-
-	public boolean hasIndex() {
-		return index != null;
 	}
 
 	public boolean isBuilder() {

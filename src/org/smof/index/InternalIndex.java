@@ -1,11 +1,12 @@
 package org.smof.index;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.bson.conversions.Bson;
 import org.smof.annnotations.SmofIndex;
-import org.smof.field.PrimaryField;
+import org.smof.annnotations.SmofIndexField;
 
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
@@ -13,37 +14,45 @@ import com.mongodb.client.model.Indexes;
 @SuppressWarnings("javadoc")
 public class InternalIndex {
 	
-	private final String key;
-	
 	private final Bson index;
 	
 	private final IndexOptions options;
 	
-	public InternalIndex(SmofIndex note, List<PrimaryField> fields) {
-		key = note.key();
+	public InternalIndex(SmofIndex note) {
 		options = new IndexOptions();
 		options.unique(note.unique());
-		index = createIndex(fields);
+		index = createIndex(note.fields());
 	}
 
-	private Bson createIndex(List<PrimaryField> fields) {
-		if(fields.size() == 1) {
-			return fields.get(0).getIndex();
+	private Bson createIndex(SmofIndexField[] fields) {
+		if(fields.length == 1) {
+			return createIndex(fields[0]);
 		}
-		else if(fields.size() > 1) {
+		else if(fields.length > 1) {
 			return Indexes.compoundIndex(toIndexes(fields));
 		}
 		return null;
 	}
 
-	private List<Bson> toIndexes(List<PrimaryField> fields) {
-		return fields.stream()
-				.map(f -> f.getIndex())
-				.collect(Collectors.toList());
+	private Bson createIndex(SmofIndexField field) {
+		final String fieldName = field.name();
+		switch(field.type()) {
+		case ASCENDING:
+			return Indexes.ascending(fieldName);
+		case DESCENDING:
+			return Indexes.descending(fieldName);
+		case HASHED:
+			return Indexes.hashed(fieldName);
+		case TEXT:
+			return Indexes.text(fieldName);
+		}
+		return null;
 	}
 
-	public String getKey() {
-		return key;
+	private List<Bson> toIndexes(SmofIndexField[] fields) {
+		return Arrays.stream(fields)
+				.map(f -> createIndex(f))
+				.collect(Collectors.toList());
 	}
 
 	public Bson getIndex() {
