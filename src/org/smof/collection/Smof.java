@@ -7,6 +7,7 @@ import org.smof.exception.SmofException;
 import org.smof.index.InternalIndex;
 import org.smof.parsers.SmofParser;
 
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 @SuppressWarnings("javadoc")
@@ -59,7 +60,8 @@ public class Smof {
 	}
 
 	private <T extends Element> void loadCollection(String collectionName, Class<T> elClass, SmofParser parser) {
-		collections.put(elClass, new SmofCollectionImpl<T>(collectionName, database.getCollection(collectionName, BsonDocument.class), elClass, parser));
+		final MongoCollection<BsonDocument> collection = database.getCollection(collectionName, BsonDocument.class);
+		collections.put(elClass, new SmofCollectionImpl<T>(collectionName, collection, elClass, parser));
 	}
 
 	public <T> void registerSmofObject(Class<T> type) throws SmofException {
