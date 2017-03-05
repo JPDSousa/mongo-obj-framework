@@ -16,6 +16,7 @@ import com.google.common.cache.CacheBuilder;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.ReturnDocument;
 
 class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
@@ -69,7 +70,10 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	
 	@Override
 	public void execUpdate(Bson filter, Bson update, SmofUpdateOptions options) {
-		collection.updateMany(filter, update, options.toUpdateOptions());
+		options.setReturnDocument(ReturnDocument.AFTER);
+		final BsonDocument result = collection.findOneAndUpdate(filter, update, options.toFindOneAndUpdateOptions());
+		final T element = parser.fromBson(result, type);
+		cache.put(result.getObjectId(Element.ID).getValue(), element);
 	}
 
 	@Override
