@@ -59,6 +59,9 @@ public class SmofResults<T extends Element> {
 
 	public T first() {
 		final BsonDocument result = rawResults.first();
+		if(result == null) {
+			return null;
+		}
 		return parse(result);
 	}
 	
