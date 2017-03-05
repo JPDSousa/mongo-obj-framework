@@ -84,9 +84,8 @@ public class SmofUpdate<T extends Element> {
 	}
 
 	private void putOrAppend(String key, BsonDocument doc) {
-		final BsonDocument subDoc = update.getDocument(key);
-		if(subDoc != null) {
-			subDoc.putAll(doc);
+		if(update.containsKey(key)) {
+			update.getDocument(key).putAll(doc);
 		}
 		else {
 			update.put(key, doc);
