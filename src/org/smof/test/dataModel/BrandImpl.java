@@ -7,10 +7,14 @@ import org.smof.annnotations.SmofArray;
 import org.smof.annnotations.SmofDate;
 import org.smof.annnotations.SmofNumber;
 import org.smof.annnotations.SmofObject;
+import org.smof.annnotations.SmofString;
 import org.smof.element.AbstractElement;
 import org.smof.parsers.SmofType;
 
 class BrandImpl extends AbstractElement implements Brand {
+	
+	@SmofString(name = NAME)
+	private final String name;
 	
 	@SmofArray(name = OWNERS, type = SmofType.STRING)
 	private final List<String> owners;
@@ -24,12 +28,18 @@ class BrandImpl extends AbstractElement implements Brand {
 	@SmofNumber(name = CAPITAL)
 	private long capital;
 
-	BrandImpl(Location headQuarters, List<String> owners) {
+	BrandImpl(String name, Location headQuarters, List<String> owners) {
 		super();
+		this.name = name;
 		this.owners = owners;
 		this.founding = LocalDate.now();
 		this.capital = 0;
 		this.headQuarters = headQuarters;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override

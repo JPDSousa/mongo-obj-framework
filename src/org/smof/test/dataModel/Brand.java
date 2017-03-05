@@ -10,6 +10,7 @@ import org.smof.element.Element;
 @SuppressWarnings("javadoc")
 public interface Brand extends Element{
 
+	String NAME = "name";
 	String OWNERS = "owners";
 	String FOUNDING = "founding";
 	String CAPITAL = "capital";
@@ -17,10 +18,13 @@ public interface Brand extends Element{
 	
 	@SmofBuilder
 	static Brand create(
+			@SmofParam(name = NAME) String name,
 			@SmofParam(name = LOCATION) Location headQuarters,
 			@SmofParam(name = OWNERS) List<String> owners) {
-		return new BrandImpl(headQuarters, owners);
+		return new BrandImpl(name, headQuarters, owners);
 	}
+	
+	String getName();
 	
 	List<String> getOwners();
 	
