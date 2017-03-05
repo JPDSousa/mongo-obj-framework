@@ -50,7 +50,7 @@ public class SmofUpdate<T extends Element> {
 	}
 	
 	public SmofUpdateQuery<T> where() {
-		return new SmofUpdateQuery<>(update, collection, options);
+		return new SmofUpdateQuery<>(update, collection, options, fields);
 	}
 	
 	public void fromElement(T element) {
