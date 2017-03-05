@@ -62,7 +62,7 @@ public class BasicSmofTest {
 
 	@Test
 	public void testSingleInsert() {
-		final Brand brand = Brand.create(new Location("Nashville", "USA"), Arrays.asList("Me", "Myself", "I"));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("Me", "Myself", "I"));
 		final Model model1 = Model.create("Manhattan", 1000, brand, Arrays.asList("red", "blue"));
 		final Model model2 = Model.create("BeeGees", 5463, brand, Arrays.asList("sunburst", "ebony"));
 		final List<Guitar> guitars = new ArrayList<>();
@@ -77,7 +77,7 @@ public class BasicSmofTest {
 	
 	@Test
 	public void testQueryAll() {
-		final Brand brand = Brand.create(new Location("Nashville", "USA"), Arrays.asList("You"));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
 		final Model model1 = Model.create("Manhattan", 1000, brand, Arrays.asList("red", "blue"));
 		final Model model2 = Model.create("BeeGees", 5463, brand, Arrays.asList("sunburst", "ebony"));
 		final Map<ObjectId, Guitar> guitars = new LinkedHashMap<>();
@@ -99,7 +99,7 @@ public class BasicSmofTest {
 	
 	@Test
 	public void testUpdateReplace() {
-		final Brand brand = Brand.create(new Location("Nashville", "USA"), Arrays.asList("You"));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
 		smof.insert(brand);
 		brand.setCapital(1000);
 		smof.update(Brand.class).fromElement(brand);
@@ -107,8 +107,22 @@ public class BasicSmofTest {
 	}
 	
 	@Test
+	public void testUpdateIncrease() {
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
+		final long inc = 75l;
+		smof.insert(brand);
+		smof.update(Brand.class)
+		.increase(inc, Brand.CAPITAL)
+		.where()
+		.fieldEq(Brand.NAME, "Gibson")
+		.execute();
+		brand.increaseCapital(inc);
+		assertEquals(brand, smof.find(Brand.class).byElement(brand));
+	}
+	
+	@Test
 	public void testUpsert() {
-		final Brand brand = Brand.create(new Location("Nashville", "USA"), Arrays.asList("You"));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
 		smof.update(Brand.class)
 			.setUpsert(true)
 			.fromElement(brand);
@@ -117,7 +131,7 @@ public class BasicSmofTest {
 
 	@Test(expected = MongoWriteException.class)
 	public void testDuplicateKey() {
-		final Brand brand = Brand.create(new Location("Nashville", "USA"), Arrays.asList("You"));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
 		final Model model2 = Model.create("BeeGees", 5463, brand, Arrays.asList("sunburst", "ebony"));
 		final Guitar g1 = Guitar.create(model2, TypeGuitar.ELECTRIC, 1, 0);
 		smof.insert(g1);
