@@ -4,7 +4,6 @@ import org.bson.BsonDocument;
 
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
-import org.smof.index.InternalIndex;
 import org.smof.parsers.SmofParser;
 
 import com.mongodb.client.MongoCollection;
@@ -34,21 +33,6 @@ public class Smof {
 		this.parser = new SmofParser(dispatcher);
 	}
 
-	//	private void testConnection() {
-	//		Debugger.message(DebugLevel.DATABASE, "Connecting to database...");
-	//		new Thread(new Runnable() {
-	//			@Override
-	//			public void run() {
-	//				try {
-	//					client.getAddress();
-	//					Debugger.message(DebugLevel.DATABASE, "Connection successful");
-	//				} catch (MongoTimeoutException e) {
-	//					Debugger.exception(getClass(), new DBException(e));;
-	//				}
-	//			}
-	//		}).start();;
-	//	}
-
 	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass) {
 		parser.registerType(elClass);
 		loadCollection(collectionName, elClass, parser);
@@ -75,20 +59,11 @@ public class Smof {
 	public <T extends Element> void createCollection(String collectionName, Class<T> elClass) throws SmofException {
 		database.createCollection(collectionName);
 		loadCollection(collectionName, elClass);
-		createIndexes(elClass);
 	}
 
 	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, Object factory) throws SmofException {
 		database.createCollection(collectionName);
 		loadCollection(collectionName, elClass, factory);
-		createIndexes(elClass);
-	}
-
-	private <T extends Element> void createIndexes(Class<T> elClass) {
-		final SmofCollection<T> collection = collections.getCollection(elClass);
-		for(InternalIndex index : parser.getIndexes(elClass)) {
-			collection.getMongoCollection().createIndex(index.getIndex());
-		}
 	}
 
 	public boolean dropCollection(String collectionName) {

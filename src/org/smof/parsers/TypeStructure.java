@@ -2,10 +2,8 @@ package org.smof.parsers;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.smof.annnotations.SmofIndex;
 import org.smof.annnotations.SmofIndexes;
@@ -52,7 +50,7 @@ public class TypeStructure<T> {
 	private void fillIndexes() {
 		final SmofIndex[] indexNotes = getIndexNotes();
 		for(SmofIndex indexNote : indexNotes) {
-			indexes.add(new InternalIndex(indexNote));
+			indexes.add(InternalIndex.fromSmofIndex(indexNote));
 		}
 	}
 

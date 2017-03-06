@@ -1,19 +1,25 @@
 package org.smof.collection;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
+import org.smof.index.InternalIndex;
 import org.smof.parsers.SmofParser;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReturnDocument;
@@ -30,6 +36,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	private final Class<T> type;
 	private final String name;
 	private final SmofParser parser;
+	private final Set<InternalIndex> indexes;
 	private final Cache<ObjectId, T> cache;
 
 	SmofCollectionImpl(String name, MongoCollection<BsonDocument> collection, Class<T> type, SmofParser parser) {
@@ -37,10 +44,28 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		this.name = name;
 		this.parser = parser;
 		this.type = type;
+		this.indexes = loadIndexes();
 		cache = CacheBuilder.newBuilder()
 				.maximumSize(CACHE_SIZE)
 				.expireAfterAccess(5, TimeUnit.MINUTES)
 				.build();
+		updateIndexes();
+	}
+	
+	private Set<InternalIndex> loadIndexes() {
+		final Set<InternalIndex> indexes = new LinkedHashSet<>();
+//		final ListIndexesIterable<BsonDocument> bsonIndexes = collection.listIndexes(BsonDocument.class);
+//		for(BsonDocument bsonIndex : bsonIndexes) {
+//			indexes.add(InternalIndex.fromBson(bsonIndex));
+//		}
+		return indexes;
+	}
+
+	private void updateIndexes() {
+		final Collection<InternalIndex> newIndexes = CollectionUtils.removeAll(parser.getIndexes(type), indexes);
+		for(InternalIndex index : newIndexes) {
+			collection.createIndex(index.getIndex(), index.getOptions());
+		}
 	}
 
 	@Override
