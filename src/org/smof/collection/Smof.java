@@ -67,14 +67,19 @@ public class Smof {
 	}
 
 	public boolean dropCollection(String collectionName) {
-		boolean success = false;
+		SmofCollection<?> toDrop = null;
 		for(SmofCollection<?> collection : collections) {
 			if(collectionName.equals(collection.getCollectionName())) {
-				collection.getMongoCollection().drop();
-				success = true;
+				toDrop = collection;
+				break;
 			}
 		}
-		return success;
+		if(toDrop != null) {
+			toDrop.getMongoCollection().drop();
+			collections.remove(toDrop);
+			return true;
+		}
+		return false;
 	}
 
 	public <T extends Element> void insert(T element) {
