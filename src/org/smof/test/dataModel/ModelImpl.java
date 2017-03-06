@@ -14,6 +14,9 @@ class ModelImpl extends AbstractElement implements Model {
 	@SmofString(name = NAME)
 	private final String name;
 	
+	@SmofString(name = CREATOR)
+	private final String creator;
+	
 	@SmofNumber(name = UNITS)
 	private int units;
 	
@@ -29,7 +32,7 @@ class ModelImpl extends AbstractElement implements Model {
 	@SmofArray(name = COLORS, type = SmofType.STRING)
 	private final List<String> colors;
 	
-	ModelImpl(String name, int price, Brand brand, List<String> colors) {
+	ModelImpl(String name, String creator, int price, Brand brand, List<String> colors) {
 		super();
 		this.units = 0;
 		this.price = price;
@@ -37,6 +40,7 @@ class ModelImpl extends AbstractElement implements Model {
 		this.popularity = 0;
 		this.colors = colors;
 		this.name = name;
+		this.creator = creator;
 	}
 
 	@Override
@@ -127,6 +131,11 @@ class ModelImpl extends AbstractElement implements Model {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public String getCreator() {
+		return creator;
 	}
 
 }

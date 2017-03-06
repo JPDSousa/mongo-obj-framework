@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -25,17 +26,22 @@ import org.smof.test.dataModel.TypeGuitar;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoWriteException;
+import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoDatabase;
 
 @SuppressWarnings("javadoc")
 public class BasicSmofTest {
 
+	private static final String MODELS = "models";
+	private static final String BRANDS = "brands";
+	private static final String GUITARS = "guitars";
+	
 	private static Smof smof;
 	private static MongoClient client;
-
+	private static MongoDatabase database;
+	
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		final MongoDatabase database;
 		client = new MongoClient("localhost", 27017);
 		database = client.getDatabase("test");
 		smof = Smof.create(database);
@@ -48,23 +54,56 @@ public class BasicSmofTest {
 	
 	@Before
 	public final void setUp() {
-		smof.createCollection("guitars", Guitar.class);
-		smof.createCollection("brands", Brand.class);
-		smof.createCollection("models", Model.class);
+		smof.createCollection(GUITARS, Guitar.class);
+		smof.createCollection(BRANDS, Brand.class);
+		smof.createCollection(MODELS, Model.class);
 	}
 	
 	@After
 	public final void tearDown() {
-		smof.dropCollection("guitars");
-		smof.dropCollection("brands");
-		smof.dropCollection("models");
+		smof.dropCollection(GUITARS);
+		smof.dropCollection(BRANDS);
+		smof.dropCollection(MODELS);
+	}
+	
+	@Test
+	public void testIndexesGuitar() {
+		final ListIndexesIterable<BsonDocument> it = database.getCollection(GUITARS).listIndexes(BsonDocument.class);
+		int i = 0;
+		for(BsonDocument doc : it) {
+			System.out.println(doc.toJson());
+			i++;
+		}
+		assertEquals(i, 3);
+	}
+	
+	@Test
+	public void testIndexesBrand() {
+		final ListIndexesIterable<BsonDocument> it = database.getCollection(BRANDS).listIndexes(BsonDocument.class);
+		int i = 0;
+		for(BsonDocument doc : it) {
+			System.out.println(doc.toJson());
+			i++;
+		}
+		assertEquals(i, 2);
+	}
+	
+	@Test
+	public void testIndexesModel() {
+		final ListIndexesIterable<BsonDocument> it = database.getCollection(MODELS).listIndexes(BsonDocument.class);
+		int i = 0;
+		for(BsonDocument doc : it) {
+			System.out.println(doc.toJson());
+			i++;
+		}
+		assertEquals(i, 3);
 	}
 
 	@Test
 	public void testSingleInsert() {
 		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("Me", "Myself", "I"));
-		final Model model1 = Model.create("Manhattan", 1000, brand, Arrays.asList("red", "blue"));
-		final Model model2 = Model.create("BeeGees", 5463, brand, Arrays.asList("sunburst", "ebony"));
+		final Model model1 = Model.create("Manhattan", "Tyler", 1000, brand, Arrays.asList("red", "blue"));
+		final Model model2 = Model.create("BeeGees", "Tyler", 5463, brand, Arrays.asList("sunburst", "ebony"));
 		final List<Guitar> guitars = new ArrayList<>();
 		guitars.add(Guitar.create(model2, TypeGuitar.ELECTRIC, 1, 0));
 		guitars.add(Guitar.create(model1, TypeGuitar.CLASSIC, 0, 20));
@@ -78,8 +117,8 @@ public class BasicSmofTest {
 	@Test
 	public void testQueryAll() {
 		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
-		final Model model1 = Model.create("Manhattan", 1000, brand, Arrays.asList("red", "blue"));
-		final Model model2 = Model.create("BeeGees", 5463, brand, Arrays.asList("sunburst", "ebony"));
+		final Model model1 = Model.create("Manhattan", "Tyler", 1000, brand, Arrays.asList("red", "blue"));
+		final Model model2 = Model.create("BeeGees", "Tyler", 5463, brand, Arrays.asList("sunburst", "ebony"));
 		final Map<ObjectId, Guitar> guitars = new LinkedHashMap<>();
 		final Guitar g1 = Guitar.create(model2, TypeGuitar.ELECTRIC, 1, 0); 
 		final Guitar g2 = Guitar.create(model1, TypeGuitar.CLASSIC, 0, 20);
@@ -132,7 +171,7 @@ public class BasicSmofTest {
 	@Test(expected = MongoWriteException.class)
 	public void testDuplicateKey() {
 		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
-		final Model model2 = Model.create("BeeGees", 5463, brand, Arrays.asList("sunburst", "ebony"));
+		final Model model2 = Model.create("BeeGees", "Tyler", 5463, brand, Arrays.asList("sunburst", "ebony"));
 		final Guitar g1 = Guitar.create(model2, TypeGuitar.ELECTRIC, 1, 0);
 		smof.insert(g1);
 		smof.insert(g1);
