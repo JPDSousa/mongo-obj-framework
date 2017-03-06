@@ -70,7 +70,7 @@ class ArrayParser extends AbstractBsonParser {
 
 	private Collection<Object> toCollection(BsonArray values, PrimaryField fieldOpts) {
 		final SecondaryField componentField = getCollectionField(fieldOpts);
-		final Collection<Object> collection = createCollection(fieldOpts.getFieldClass(), componentField.getFieldClass());
+		final Collection<Object> collection = createCollection(fieldOpts.getFieldClass());
 		for(BsonValue value : values) {
 			final Object parsedValue = bsonParser.fromBson(value, componentField);
 			collection.add(parsedValue);
@@ -80,7 +80,7 @@ class ArrayParser extends AbstractBsonParser {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> Collection<Object> createCollection(Class<?> collectionClass, Class<T> type) {
+	private <T> Collection<Object> createCollection(Class<?> collectionClass) {
 		final Collection<T> collection;
 		if(List.class.isAssignableFrom(collectionClass)) {
 			collection = new ArrayList<>();

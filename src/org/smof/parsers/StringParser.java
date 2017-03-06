@@ -52,7 +52,7 @@ class StringParser extends AbstractBsonParser {
 		else if(isEnum(type)) {
 			return toEnum(value, type);
 		} else {
-			return toPrimitive(value, type);
+			return null;
 		}
 	}
 	
@@ -74,11 +74,6 @@ class StringParser extends AbstractBsonParser {
 
 	private Method getValueOf(Class<?> enumType) throws NoSuchMethodException, SecurityException {
 		return enumType.getMethod("valueOf", String.class);
-	}
-	
-	private <T> T toPrimitive(String value, Class<T> type) {
-		//TODO add more types
-		return null;
 	}
 
 	@Override
