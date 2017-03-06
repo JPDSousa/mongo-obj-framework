@@ -5,8 +5,10 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
@@ -16,8 +18,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.smof.annnotations.SmofBuilder;
+import org.smof.annnotations.SmofIndex;
+import org.smof.annnotations.SmofIndexes;
 import org.smof.collection.Smof;
 import org.smof.element.AbstractElement;
+import org.smof.element.Element;
+import org.smof.index.InternalIndex;
 import org.smof.test.dataModel.Brand;
 import org.smof.test.dataModel.Guitar;
 import org.smof.test.dataModel.Location;
@@ -26,7 +32,6 @@ import org.smof.test.dataModel.TypeGuitar;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoWriteException;
-import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoDatabase;
 
 @SuppressWarnings("javadoc")
@@ -66,37 +71,59 @@ public class BasicSmofTest {
 		smof.dropCollection(MODELS);
 	}
 	
-	@Test
-	public void testIndexesGuitar() {
-		final ListIndexesIterable<BsonDocument> it = database.getCollection(GUITARS).listIndexes(BsonDocument.class);
-		int i = 0;
-		for(BsonDocument doc : it) {
-			System.out.println(doc.toJson());
-			i++;
+	public void testIndexUpdating() {
+		final Set<InternalIndex> before = new LinkedHashSet<>();
+		final Set<InternalIndex> after = new LinkedHashSet<>();
+		for(BsonDocument doc : database.getCollection(GUITARS).listIndexes(BsonDocument.class)) {
+			before.add(InternalIndex.fromBson(doc));
 		}
-		assertEquals(i, 3);
+		smof.loadCollection(GUITARS, Guitar.class);
+		for(BsonDocument doc : database.getCollection(GUITARS).listIndexes(BsonDocument.class)) {
+			after.add(InternalIndex.fromBson(doc));
+		}
+		assertEquals(before, after);
 	}
 	
 	@Test
-	public void testIndexesBrand() {
-		final ListIndexesIterable<BsonDocument> it = database.getCollection(BRANDS).listIndexes(BsonDocument.class);
-		int i = 0;
-		for(BsonDocument doc : it) {
-			System.out.println(doc.toJson());
-			i++;
-		}
-		assertEquals(i, 2);
+	public void testInternalIndexEquals() {
+		final InternalIndex i1 = InternalIndex.fromBson(database.getCollection(GUITARS).listIndexes(BsonDocument.class).first());
+		final InternalIndex i2 = InternalIndex.fromBson(database.getCollection(GUITARS).listIndexes(BsonDocument.class).first());
+		assertEquals(i1, i2);
 	}
 	
 	@Test
-	public void testIndexesModel() {
-		final ListIndexesIterable<BsonDocument> it = database.getCollection(MODELS).listIndexes(BsonDocument.class);
-		int i = 0;
-		for(BsonDocument doc : it) {
-			System.out.println(doc.toJson());
-			i++;
+	public void testInternalIndex() {
+		final Set<InternalIndex> mongoIndexes = new LinkedHashSet<>();
+		final Set<InternalIndex> noteIndexes = new LinkedHashSet<>();
+		for(BsonDocument doc : database.getCollection(GUITARS).listIndexes(BsonDocument.class)) {
+			mongoIndexes.add(InternalIndex.fromBson(doc));
 		}
-		assertEquals(i, 3);
+		for(BsonDocument doc : database.getCollection(MODELS).listIndexes(BsonDocument.class)) {
+			mongoIndexes.add(InternalIndex.fromBson(doc));
+		}
+		for(BsonDocument doc : database.getCollection(BRANDS).listIndexes(BsonDocument.class)) {
+			mongoIndexes.add(InternalIndex.fromBson(doc));
+		}
+		removeId(mongoIndexes);
+		for(SmofIndex index : Guitar.class.getAnnotation(SmofIndexes.class).value()) {
+			noteIndexes.add(InternalIndex.fromSmofIndex(index));
+		}
+		for(SmofIndex index : Model.class.getAnnotation(SmofIndexes.class).value()) {
+			noteIndexes.add(InternalIndex.fromSmofIndex(index));
+		}
+		for(SmofIndex index : Brand.class.getAnnotation(SmofIndexes.class).value()) {
+			noteIndexes.add(InternalIndex.fromSmofIndex(index));
+		}
+		assertEquals(mongoIndexes, noteIndexes);
+	}
+
+	private void removeId(Set<InternalIndex> indexes) {
+		for(InternalIndex index : indexes) {
+			if(((BsonDocument) index.getIndex()).containsKey(Element.ID)) {
+				indexes.remove(index);
+				return;
+			}
+		}
 	}
 
 	@Test
