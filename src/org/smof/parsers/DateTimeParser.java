@@ -16,7 +16,7 @@ class DateTimeParser extends AbstractBsonParser {
 	
 	private static final ZoneId ZONE = ZoneId.systemDefault();
 	private static final Class<?>[] VALID_TYPES = {Instant.class, LocalDate.class, LocalDateTime.class, 
-			ZonedDateTime.class, DateTime.class, org.joda.time.LocalDate.class, org.joda.time.LocalDateTime.class};
+			ZonedDateTime.class, org.joda.time.Instant.class, DateTime.class, org.joda.time.LocalDate.class, org.joda.time.LocalDateTime.class};
 	
 	DateTimeParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, VALID_TYPES);
@@ -25,8 +25,8 @@ class DateTimeParser extends AbstractBsonParser {
 	@Override
 	public BsonValue toBson(Object value, SmofField field) {
 		final Class<?> type = value.getClass();
-		if(isInstance(type)) {
-			return new BsonDateTime(fromInstant((Instant) value));
+		if(isJavaInstant(type)) {
+			return new BsonDateTime(fromJavaInstant((Instant) value));
 		}
 		else if(isJavaLocalDateTime(type)) {
 			return new BsonDateTime(fromJavaLocalDateTime((LocalDateTime) value));
@@ -46,7 +46,18 @@ class DateTimeParser extends AbstractBsonParser {
 		else if(isJodaLocalDateTime(type)) {
 			return new BsonDateTime(fromJodaLocalDateTime((org.joda.time.LocalDateTime) value));
 		}
+		else if(isJodaInstant(type)) {
+			return new BsonDateTime(fromJodaInstant((org.joda.time.Instant) value));
+		}
 		return null;
+	}
+
+	private long fromJodaInstant(org.joda.time.Instant value) {
+		return value.getMillis();
+	}
+
+	private boolean isJodaInstant(Class<?> type) {
+		return type.equals(org.joda.time.Instant.class);
 	}
 
 	private long fromJodaLocalDateTime(org.joda.time.LocalDateTime value) {
@@ -74,7 +85,7 @@ class DateTimeParser extends AbstractBsonParser {
 	}
 
 	private long fromZoneDateTime(ZonedDateTime value) {
-		return fromInstant(value.toInstant());
+		return fromJavaInstant(value.toInstant());
 	}
 
 	private boolean isZoneDateTime(Class<?> type) {
@@ -97,11 +108,11 @@ class DateTimeParser extends AbstractBsonParser {
 		return type.equals(LocalDateTime.class);
 	}
 	
-	private long fromInstant(Instant value) {
+	private long fromJavaInstant(Instant value) {
 		return value.toEpochMilli();
 	}
 
-	private boolean isInstance(Class<?> type) {
+	private boolean isJavaInstant(Class<?> type) {
 		return type.equals(Instant.class);
 	}
 
@@ -110,7 +121,7 @@ class DateTimeParser extends AbstractBsonParser {
 	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
 		final long date = value.asDateTime().getValue();
 		final Object retValue;
-		if(isInstance(type)) {
+		if(isJavaInstant(type)) {
 			retValue = toInstant(date);
 		}
 		else if(isJavaLocalDateTime(type)) {
