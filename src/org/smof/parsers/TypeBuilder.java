@@ -29,11 +29,11 @@ class TypeBuilder<T> {
 		final Constructor<T> constructor = getConstructor(type);
 		final Method method;
 		if(constructor != null) {
-			return new TypeBuilder<>(constructor);
+			return new TypeBuilder<>(type, constructor);
 		}
 		method = getStaticMethod(type);
 		if(method != null) {
-			return new TypeBuilder<>(method);
+			return new TypeBuilder<>(type, method);
 		}
 		return null;
 	}
@@ -44,10 +44,10 @@ class TypeBuilder<T> {
 		}
 		final Method method = getFactoryMethod(type, factory);
 		if(method != null && Modifier.isStatic(method.getModifiers())) {
-			return new TypeBuilder<>(method);
+			return new TypeBuilder<>(type, method);
 		}
 		else if(method != null) {
-			return new TypeBuilder<>(method, factory);
+			return new TypeBuilder<>(type, method, factory);
 		}
 		return null;
 	}
@@ -95,23 +95,27 @@ class TypeBuilder<T> {
 		return null;
 	}
 
+	private final Class<T> type;
 	private final Constructor<T> constructor;
 	private final Pair<Object, Method> method;
 	private final List<ParameterField> params;
 
-	private TypeBuilder(Constructor<T> constructor) {
+	private TypeBuilder(Class<T> type, Constructor<T> constructor) {
+		this.type = type;
 		this.method = null;
 		this.constructor = constructor;
 		this.params = getParamAnnotations(constructor.getParameters());
 	}
 
-	private TypeBuilder(Method method, Object instance) {
+	private TypeBuilder(Class<T> type, Method method, Object instance) {
+		this.type = type;
 		this.constructor = null;
 		this.method = Pair.of(instance, method);
 		this.params = getParamAnnotations(method.getParameters());
 	}
 
-	private TypeBuilder(Method method) {
+	private TypeBuilder(Class<T> type, Method method) {
+		this.type = type;
 		this.constructor = null;
 		this.method = Pair.of(null, method);
 		this.params = getParamAnnotations(method.getParameters());
@@ -132,7 +136,7 @@ class TypeBuilder<T> {
 
 	private void checkSmofParam(SmofParam annot) {
 		if(annot == null) {
-			handleError(new InvalidSmofTypeException("All parameters must have a SmofParam annotation."));
+			handleError(new InvalidSmofTypeException("All parameters must have a SmofParam annotation: " + type.getName()));
 		}
 	}
 
