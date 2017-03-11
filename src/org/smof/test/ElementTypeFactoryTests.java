@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
+import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.smof.annnotations.SmofArray;
@@ -76,6 +77,10 @@ public class ElementTypeFactoryTests {
 	@Test
 	public void testDate() throws SmofException {
 		final ElDateTest test = new ElDateTest(Instant.now(), LocalDate.now(), LocalDateTime.now());
+		test.jodaDateTime = DateTime.now();
+		test.jodaInstant = org.joda.time.Instant.now();
+		test.jodaLocalDate = org.joda.time.LocalDate.now();
+		test.jodaLocalDateTime = org.joda.time.LocalDateTime.now();
 		final BsonDocument doc = parser.toBson(test);
 		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElDateTest.class));
@@ -243,22 +248,56 @@ public class ElementTypeFactoryTests {
 	
 	private static class ElDateTest extends AbstractElement {
 		
-		@SmofDate(name="date")
-		private final Instant date;
+		private static final String JODA_LOCAL_DATE_TIME = "jodaLocalDateTime";
+		private static final String JODA_LOCAL_DATE = "jodaLocalDate";
+		private static final String JODA_DATE_TIME = "jodaDateTime";
+		private static final String JODA_INSTANT = "jodaInstant";
+		private static final String JAVA_LOCAL_DATE_TIME = "javaLocalDateTime";
+		private static final String JAVA_LOCAL_DATE = "javaLocalDate";
+		private static final String JAVA_INSTANT = "javaInstant";
+
+		@SmofDate(name=JAVA_INSTANT)
+		private final Instant javaInstant;
 		
-		@SmofDate(name="localdate")
-		private final LocalDate localdate;
+		@SmofDate(name=JAVA_LOCAL_DATE)
+		private final LocalDate javaLocaldate;
 		
-		@SmofDate(name="localdatetime")
-		private final LocalDateTime localdateTime;
+		@SmofDate(name=JAVA_LOCAL_DATE_TIME)
+		private final LocalDateTime javaLocaldateTime;
+		
+		@SmofDate(name=JODA_INSTANT)
+		private org.joda.time.Instant jodaInstant;
+		
+		@SmofDate(name=JODA_DATE_TIME)
+		private DateTime jodaDateTime;
+		
+		@SmofDate(name = JODA_LOCAL_DATE)
+		private org.joda.time.LocalDate jodaLocalDate;
+		
+		@SmofDate(name = JODA_LOCAL_DATE_TIME)
+		private org.joda.time.LocalDateTime jodaLocalDateTime;
 
 		@SmofBuilder
-		private ElDateTest(@SmofParam(name = "date") Instant date, 
-				@SmofParam(name = "localdate") LocalDate localdate, 
-				@SmofParam(name = "localdatetime") LocalDateTime localdateTime) {
-			this.date = date;
-			this.localdate = localdate;
-			this.localdateTime = localdateTime;
+		private ElDateTest(@SmofParam(name = JAVA_INSTANT) Instant date, 
+				@SmofParam(name = JAVA_LOCAL_DATE) LocalDate localdate, 
+				@SmofParam(name = JAVA_LOCAL_DATE_TIME) LocalDateTime localdateTime) {
+			this.javaInstant = date;
+			this.javaLocaldate = localdate;
+			this.javaLocaldateTime = localdateTime;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((javaInstant == null) ? 0 : javaInstant.hashCode());
+			result = prime * result + ((javaLocaldate == null) ? 0 : javaLocaldate.hashCode());
+			result = prime * result + ((javaLocaldateTime == null) ? 0 : javaLocaldateTime.hashCode());
+			result = prime * result + ((jodaDateTime == null) ? 0 : jodaDateTime.hashCode());
+			result = prime * result + ((jodaInstant == null) ? 0 : jodaInstant.hashCode());
+			result = prime * result + ((jodaLocalDate == null) ? 0 : jodaLocalDate.hashCode());
+			result = prime * result + ((jodaLocalDateTime == null) ? 0 : jodaLocalDateTime.hashCode());
+			return result;
 		}
 
 		@Override
@@ -273,25 +312,53 @@ public class ElementTypeFactoryTests {
 				return false;
 			}
 			ElDateTest other = (ElDateTest) obj;
-			if (date == null) {
-				if (other.date != null) {
+			if (javaInstant == null) {
+				if (other.javaInstant != null) {
 					return false;
 				}
-			} else if (!date.equals(other.date)) {
+			} else if (!javaInstant.equals(other.javaInstant)) {
 				return false;
 			}
-			if (localdate == null) {
-				if (other.localdate != null) {
+			if (javaLocaldate == null) {
+				if (other.javaLocaldate != null) {
 					return false;
 				}
-			} else if (!localdate.equals(other.localdate)) {
+			} else if (!javaLocaldate.equals(other.javaLocaldate)) {
 				return false;
 			}
-			if (localdateTime == null) {
-				if (other.localdateTime != null) {
+			if (javaLocaldateTime == null) {
+				if (other.javaLocaldateTime != null) {
 					return false;
 				}
-			} else if (!localdateTime.equals(other.localdateTime)) {
+			} else if (!javaLocaldateTime.equals(other.javaLocaldateTime)) {
+				return false;
+			}
+			if (jodaDateTime == null) {
+				if (other.jodaDateTime != null) {
+					return false;
+				}
+			} else if (!jodaDateTime.equals(other.jodaDateTime)) {
+				return false;
+			}
+			if (jodaInstant == null) {
+				if (other.jodaInstant != null) {
+					return false;
+				}
+			} else if (!jodaInstant.equals(other.jodaInstant)) {
+				return false;
+			}
+			if (jodaLocalDate == null) {
+				if (other.jodaLocalDate != null) {
+					return false;
+				}
+			} else if (!jodaLocalDate.equals(other.jodaLocalDate)) {
+				return false;
+			}
+			if (jodaLocalDateTime == null) {
+				if (other.jodaLocalDateTime != null) {
+					return false;
+				}
+			} else if (!jodaLocalDateTime.equals(other.jodaLocalDateTime)) {
 				return false;
 			}
 			return true;
