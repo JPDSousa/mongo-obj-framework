@@ -28,6 +28,7 @@ public class SmofParserPool {
 		parsers.put(OBJECT, new ObjectParser(parserContext, dispatcher));
 		parsers.put(OBJECT_ID, new ObjectIdParser(parserContext, dispatcher));
 		parsers.put(STRING, new StringParser(parserContext, dispatcher));
+		parsers.put(BYTE, new ByteParser(dispatcher, parserContext));
 	}
 	
 	public BsonParser get(SmofType type) {
