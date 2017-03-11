@@ -1,5 +1,7 @@
 package org.smof.parsers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.bson.BsonDocument;
@@ -24,6 +26,7 @@ public class SmofParser {
 	private final SmofTypeContext context;
 	private final SmofParserPool parsers;
 	private final LazyLoader lazyLoader;
+	private List<Object> parserStack;
 
 	public SmofParser(SmofDispatcher dispatcher) {
 		this.context = new SmofTypeContext();
@@ -33,6 +36,14 @@ public class SmofParser {
 
 	SmofTypeContext getContext() {
 		return context;
+	}
+	
+	void addToStack(Object object) {
+		parserStack.add(object);
+	}
+	
+	boolean isOnStack(Object object) {
+		return parserStack.contains(object);
 	}
 	
 	public <T> TypeStructure<T> getTypeStructure(Class<T> type) {
@@ -75,6 +86,7 @@ public class SmofParser {
 	public BsonDocument toBson(Element value) {
 		final BsonParser parser = parsers.get(SmofType.OBJECT);
 		final MasterField field = new MasterField(value.getClass());
+		parserStack = new ArrayList<>();
 		return (BsonDocument) parser.toBson(value, field);
 	}
 

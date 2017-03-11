@@ -22,21 +22,23 @@ import org.smof.field.SecondaryField;
 import org.smof.field.SmofField;
 
 class ObjectParser extends AbstractBsonParser {
-	
+
 	private static final String ENUM_NAME = "_enumValue";
 
 	ObjectParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser);
 	}
-	
+
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
 		final Class<?> type = value.getClass();
 
 		if(isMaster(fieldOpts)) {
+			bsonParser.addToStack(value);
 			return fromObject(value);
 		}
 		else if(isElement(type)) {
+			bsonParser.addToStack(value);
 			return fromElement((Element) value);
 		}
 		else if(isMap(type) && isPrimaryField(fieldOpts)) {
@@ -45,30 +47,33 @@ class ObjectParser extends AbstractBsonParser {
 		else if(isEnum(type)) {
 			return fromEnum((Enum<?>) value);
 		}
+		bsonParser.addToStack(value);
 		return fromObject(value);
 	}
 
 	private BsonValue fromElement(Element value) {
 		final ObjectId id = value.getId();
-		dispatcher.insert(value);
+		if(!bsonParser.isOnStack(value)) {
+			dispatcher.insert(value);
+		}
 		return new BsonObjectId(id);
 	}
 
 	private BsonDocument fromObject(Object value) {
 		final BsonDocument document = new BsonDocument();
 		final TypeParser<?> metadata = getTypeParser(value.getClass());
-		
+
 		for(PrimaryField field : metadata.getAllFields()) {
 			final Object fieldValue = extractValue(value, field);
 			final BsonValue parsedValue;
-			
+
 			checkRequired(field, fieldValue);
 			parsedValue = bsonParser.toBson(fieldValue, field);
 			document.put(field.getName(), parsedValue);
 		}
 		return document;
 	}
-	
+
 	private Object extractValue(Object element, PrimaryField field) {
 		try {
 			final Field rawField = field.getRawField();
@@ -82,7 +87,7 @@ class ObjectParser extends AbstractBsonParser {
 			return null;
 		}
 	}
-	
+
 	private void checkRequired(PrimaryField field, Object value) {
 		if(field.isRequired() && value == null) {
 			final String name = field.getName();
@@ -134,22 +139,22 @@ class ObjectParser extends AbstractBsonParser {
 	private Map<?, ?> toMap(BsonDocument document, PrimaryField fieldOpts) {
 		final Map<Object, Object> map = new LinkedHashMap<>();
 		final Pair<SecondaryField, SecondaryField> mapClass = getMapFields(fieldOpts);
-		
-		
+
+
 		for(String bsonKey : document.keySet()) {
 			final BsonValue bsonValue = document.get(bsonKey);
 			final Object key = toMapKey(bsonKey, mapClass.getKey());
 			final Object value = toMapValue(bsonValue, mapClass.getValue());
 			map.put(key, value);
 		}
-		
+
 		return map;
 	}
-	
+
 	private Object toMapValue(BsonValue value, SecondaryField field) {
 		return bsonParser.fromBson(value, field);
 	}
-	
+
 	private Object toMapKey(String key, SecondaryField field) {
 		final BsonString bsonKey = new BsonString(key);
 		return bsonParser.fromBson(bsonKey, field);
@@ -182,7 +187,7 @@ class ObjectParser extends AbstractBsonParser {
 			builder.append2AdditionalFields(field.getRawField(), parsedObj);
 		}
 	}
-	
+
 	private void setElementMetadata(BsonDocument document, Object obj) {
 		if(obj instanceof Element) {
 			((Element) obj).setId(document.getObjectId(Element.ID).getValue());
@@ -219,22 +224,22 @@ class ObjectParser extends AbstractBsonParser {
 
 	private boolean isValidMap(Class<?> type, PrimaryField fieldOpts) {
 		final Pair<SecondaryField, SecondaryField> mapTypes;
-		
+
 		checkValidMapOpts(fieldOpts);
 		if(isMap(type)) {
 			mapTypes = getMapFields(fieldOpts);
-			
+
 			return bsonParser.isValidType(mapTypes.getKey())
 					&& bsonParser.isValidType(mapTypes.getValue());
 		}
 		return true;
 	}
-	
+
 	private SmofType getMapValueType(PrimaryField fieldOpts) {
 		final SmofObject note = fieldOpts.getSmofAnnotationAs(SmofObject.class);
 		return note.mapValueType();
 	}
-	
+
 	private Pair<SecondaryField, SecondaryField> getMapFields(PrimaryField mapMetadata) {
 		final String name = mapMetadata.getName();
 		final Field mapField = mapMetadata.getRawField();
