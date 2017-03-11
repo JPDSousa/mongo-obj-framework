@@ -9,7 +9,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
 import org.joda.time.DateTime;
@@ -17,6 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.smof.annnotations.SmofArray;
 import org.smof.annnotations.SmofBuilder;
+import org.smof.annnotations.SmofByte;
 import org.smof.annnotations.SmofDate;
 import org.smof.annnotations.SmofNumber;
 import org.smof.annnotations.SmofObject;
@@ -106,6 +109,19 @@ public class ElementTypeFactoryTests {
 		final BsonDocument doc = parser.toBson(test);
 		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElArrTest.class));
+	}
+	
+	@Test
+	public void testByte() {
+		final byte[] bytes1 = new byte[20];
+		final byte[] bytes2 = new byte[200];
+		final Random random = new Random();
+		random.nextBytes(bytes1);
+		random.nextBytes(bytes2);
+		final ElByteTest test = new ElByteTest(Arrays.asList(ArrayUtils.toObject(bytes1)), Arrays.asList(ArrayUtils.toObject(bytes2)));
+		final BsonDocument doc = parser.toBson(test);
+		System.out.println(doc.toJson());
+		assertEquals(test, parser.fromBson(doc, ElByteTest.class));
 	}
 	
 	private static enum EnumTest {
@@ -528,6 +544,56 @@ public class ElementTypeFactoryTests {
 					return false;
 				}
 			} else if (!arr2.equals(other.arr2)) {
+				return false;
+			}
+			return true;
+		}
+	}
+	
+	private static class ElByteTest extends AbstractElement {
+		
+		private static final String BYTES2 = "bytes2";
+		private static final String BYTES1 = "bytes1";
+
+		@SmofByte(name = BYTES1)
+		private final byte[] bytes1;
+		
+		@SmofByte(name = BYTES2)
+		private final Byte[] bytes2;
+
+		@SmofBuilder
+		ElByteTest(@SmofParam(name = BYTES1) List<Byte> bytes1, 
+				@SmofParam(name = BYTES2) List<Byte> bytes2) {
+			super();
+			this.bytes1 = ArrayUtils.toPrimitive(bytes1.toArray(new Byte[bytes1.size()]));
+			this.bytes2 = bytes2.toArray(new Byte[bytes2.size()]);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + Arrays.hashCode(bytes1);
+			result = prime * result + Arrays.hashCode(bytes2);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			ElByteTest other = (ElByteTest) obj;
+			if (!Arrays.equals(bytes1, other.bytes1)) {
+				return false;
+			}
+			if (!Arrays.equals(bytes2, other.bytes2)) {
 				return false;
 			}
 			return true;
