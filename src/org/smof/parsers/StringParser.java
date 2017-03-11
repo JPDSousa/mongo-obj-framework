@@ -11,7 +11,7 @@ import org.smof.field.SmofField;
 class StringParser extends AbstractBsonParser {
 	
 	private static final Class<?>[] VALID_TYPES = {
-			String.class, Enum.class, /*int.class, long.class, 
+			String.class, Enum.class, Integer.class/*int.class, long.class, 
 			short.class, double.class, float.class,	char.class, 
 			byte.class, byte[].class, Integer.class, Long.class,
 			Short.class, Double.class, Float.class, Character.class,
@@ -31,11 +31,18 @@ class StringParser extends AbstractBsonParser {
 		else if(isString(type)) {
 			bson = (String) value;
 		}
+		else if(isInteger(type)) {
+			bson = ((Integer) value).toString();
+		}
 		else {
 			//TODO add other type
 			bson = null;
 		}
 		return new BsonString(bson);
+	}
+
+	private boolean isInteger(Class<?> type) {
+		return Integer.class.equals(type);
 	}
 
 	private String fromEnum(Object value) {
@@ -51,7 +58,11 @@ class StringParser extends AbstractBsonParser {
 		}
 		else if(isEnum(type)) {
 			return toEnum(value, type);
-		} else {
+		}
+		else if(isInteger(type)) {
+			return (T) new Integer(value);
+		}
+		else {
 			return null;
 		}
 	}
