@@ -20,8 +20,10 @@ public class SmofDispatcher {
 
 	@SuppressWarnings("unchecked")
 	public <T extends Element> void insert(T element) {
-		Class<? extends Element> type = getValidCollectionType(element.getClass());
-		((SmofCollection<T>) collections.getCollection(type)).insert(element);
+		final Class<? extends Element> type = getValidCollectionType(element.getClass());
+		final SmofUpdateOptions options = SmofUpdateOptions.create();
+		options.upsert(true);
+		((SmofCollection<T>) collections.getCollection(type)).replace(element, options);
 	}
 
 	@SuppressWarnings("cast")
