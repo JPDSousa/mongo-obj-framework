@@ -40,7 +40,18 @@ class DateTimeParser extends AbstractBsonParser {
 		else if(isJodaDateTime(type)) {
 			return new BsonDateTime(fromJodaDateTime((DateTime) value));
 		}
+		else if(isJodaLocalDate(type)) {
+			return new BsonDateTime(fromJodaLocalDate((org.joda.time.LocalDate) value));
+		}
 		return null;
+	}
+
+	private long fromJodaLocalDate(org.joda.time.LocalDate value) {
+		return fromJodaDateTime(value.toDateTimeAtStartOfDay());
+	}
+
+	private boolean isJodaLocalDate(Class<?> type) {
+		return type.equals(org.joda.time.LocalDate.class);
 	}
 
 	private long fromJodaDateTime(DateTime value) {
