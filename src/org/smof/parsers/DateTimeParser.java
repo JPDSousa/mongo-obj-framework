@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 
 import org.bson.BsonDateTime;
 import org.bson.BsonValue;
+import org.joda.time.DateTime;
 import org.smof.collection.SmofDispatcher;
 import org.smof.field.SmofField;
 
@@ -15,7 +16,7 @@ class DateTimeParser extends AbstractBsonParser {
 	
 	private static final ZoneId ZONE = ZoneId.systemDefault();
 	private static final Class<?>[] VALID_TYPES = {Instant.class, LocalDate.class, LocalDateTime.class, 
-			ZonedDateTime.class};
+			ZonedDateTime.class, DateTime.class, org.joda.time.LocalDate.class, org.joda.time.LocalDateTime.class};
 	
 	DateTimeParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, VALID_TYPES);
@@ -36,7 +37,18 @@ class DateTimeParser extends AbstractBsonParser {
 		else if(isZoneDateTime(type)) {
 			return new BsonDateTime(fromZoneDateTime((ZonedDateTime) value)); 
 		}
+		else if(isJodaDateTime(type)) {
+			return new BsonDateTime(fromJodaDateTime((DateTime) value));
+		}
 		return null;
+	}
+
+	private long fromJodaDateTime(DateTime value) {
+		return value.getMillis();
+	}
+
+	private boolean isJodaDateTime(Class<?> type) {
+		return type.equals(DateTime.class);
 	}
 
 	private long fromZoneDateTime(ZonedDateTime value) {
