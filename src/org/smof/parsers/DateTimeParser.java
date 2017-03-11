@@ -35,7 +35,7 @@ class DateTimeParser extends AbstractBsonParser {
 			return new BsonDateTime(fromJavaLocalDate((LocalDate) value));
 		}
 		else if(isZoneDateTime(type)) {
-			return new BsonDateTime(fromZoneDateTime((ZonedDateTime) value)); 
+			return new BsonDateTime(fromJavaZoneDateTime((ZonedDateTime) value)); 
 		}
 		else if(isJodaDateTime(type)) {
 			return new BsonDateTime(fromJodaDateTime((DateTime) value));
@@ -84,7 +84,7 @@ class DateTimeParser extends AbstractBsonParser {
 		return type.equals(DateTime.class);
 	}
 
-	private long fromZoneDateTime(ZonedDateTime value) {
+	private long fromJavaZoneDateTime(ZonedDateTime value) {
 		return fromJavaInstant(value.toInstant());
 	}
 
@@ -93,7 +93,7 @@ class DateTimeParser extends AbstractBsonParser {
 	}
 	
 	private long fromJavaLocalDate(LocalDate value) {
-		return fromZoneDateTime(value.atStartOfDay(ZONE));
+		return fromJavaZoneDateTime(value.atStartOfDay(ZONE));
 	}
 
 	private boolean isJavaLocalDate(Class<?> type) {
@@ -101,7 +101,7 @@ class DateTimeParser extends AbstractBsonParser {
 	}
 	
 	private long fromJavaLocalDateTime(LocalDateTime value) {
-		return fromZoneDateTime(value.atZone(ZONE));
+		return fromJavaZoneDateTime(value.atZone(ZONE));
 	}
 
 	private boolean isJavaLocalDateTime(Class<?> type) {
@@ -122,7 +122,7 @@ class DateTimeParser extends AbstractBsonParser {
 		final long date = value.asDateTime().getValue();
 		final Object retValue;
 		if(isJavaInstant(type)) {
-			retValue = toInstant(date);
+			retValue = toJavaInstant(date);
 		}
 		else if(isJavaLocalDateTime(type)) {
 			retValue = toJavaLocalDateTime(date);
@@ -131,7 +131,19 @@ class DateTimeParser extends AbstractBsonParser {
 			retValue = toJavaLocalDate(date);
 		}
 		else if(isZoneDateTime(type)) {
-			retValue = toZoneDateTime(date);
+			retValue = toJavaZoneDateTime(date);
+		}
+		else if(isJodaInstant(type)) {
+			retValue = toJodaIntant(date);
+		}
+		else if(isJodaDateTime(type)) {
+			retValue = toJodaDateTime(date);
+		}
+		else if(isJodaLocalDate(type)) {
+			retValue = toJodaLocalDate(date);
+		}
+		else if(isJodaLocalDateTime(type)) {
+			retValue = toJodaLocalDateTime(date);
 		}
 		else {
 			retValue = null;
@@ -139,20 +151,36 @@ class DateTimeParser extends AbstractBsonParser {
 		return (T) retValue;
 	}
 	
-	private Instant toInstant(long value) {
+	private org.joda.time.LocalDateTime toJodaLocalDateTime(long date) {
+		return toJodaDateTime(date).toLocalDateTime();
+	}
+
+	private org.joda.time.LocalDate toJodaLocalDate(long date) {
+		return toJodaDateTime(date).toLocalDate();
+	}
+
+	private DateTime toJodaDateTime(long date) {
+		return toJodaIntant(date).toDateTime();
+	}
+
+	private org.joda.time.Instant toJodaIntant(long date) {
+		return  new org.joda.time.Instant(date);
+	}
+
+	private Instant toJavaInstant(long value) {
 		return Instant.ofEpochMilli(value);
 	}
 	
-	private ZonedDateTime toZoneDateTime(long value) {
-		return toInstant(value).atZone(ZONE);
+	private ZonedDateTime toJavaZoneDateTime(long value) {
+		return toJavaInstant(value).atZone(ZONE);
 	}
 	
 	private LocalDateTime toJavaLocalDateTime(long value) {
-		return toZoneDateTime(value).toLocalDateTime();
+		return toJavaZoneDateTime(value).toLocalDateTime();
 	}
 	
 	private LocalDate toJavaLocalDate(long value) {
-		return toZoneDateTime(value).toLocalDate();
+		return toJavaZoneDateTime(value).toLocalDate();
 	}
 
 	@Override
