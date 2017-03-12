@@ -23,6 +23,7 @@ public class SmofUpdateOptions {
 	private Bson projection;
 	private Bson sort;
 	private ReturnDocument ret;
+	private boolean bypassCache;
 	
 	private SmofUpdateOptions() {
 		upsert = false;
@@ -105,5 +106,13 @@ public class SmofUpdateOptions {
 	
 	public void setReturnDocument(ReturnDocument doc) {
 		this.ret = doc;
+	}
+	
+	public void bypassCache(boolean bypassCache) {
+		this.bypassCache = bypassCache;
+	}
+	
+	public boolean isBypassCache() {
+		return bypassCache;
 	}
 }

@@ -18,11 +18,22 @@ public class SmofDispatcher {
 		this.collections = collections;
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T extends Element> void insert(T element) {
-		final Class<? extends Element> type = getValidCollectionType(element.getClass());
 		final SmofUpdateOptions options = SmofUpdateOptions.create();
 		options.upsert(true);
+		options.bypassCache(true);
+		insert(element, options);
+	}
+	
+	public <T extends Element> void insertChild(T element) {
+		final SmofUpdateOptions options = SmofUpdateOptions.create();
+		options.upsert(true);
+		insert(element, options);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T extends Element> void insert(T element, SmofUpdateOptions options) {
+		final Class<? extends Element> type = getValidCollectionType(element.getClass());
 		((SmofCollection<T>) collections.getCollection(type)).replace(element, options);
 	}
 
