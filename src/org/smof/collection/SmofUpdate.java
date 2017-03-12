@@ -55,6 +55,7 @@ public class SmofUpdate<T extends Element> {
 	
 	public void fromElement(T element) {
 		collection.replace(element, options);
+		parser.reset();
 	}
 
 	public SmofUpdate<T> increase(Number value, String fieldName) {
