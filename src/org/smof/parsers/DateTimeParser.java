@@ -23,7 +23,7 @@ class DateTimeParser extends AbstractBsonParser {
 	}
 
 	@Override
-	public BsonValue toBson(Object value, SmofField field) {
+	protected BsonValue toBson(Object value, SmofField field) {
 		final Class<?> type = value.getClass();
 		if(isJavaInstant(type)) {
 			return new BsonDateTime(fromJavaInstant((Instant) value));

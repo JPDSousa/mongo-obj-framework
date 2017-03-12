@@ -24,21 +24,30 @@ class ArrayParser extends AbstractBsonParser {
 	}
 
 	@Override
-	public BsonValue toBson(Object value, SmofField fieldOpts) {
+	public BsonValue toBson(Object value, SmofField fieldOpts, SerializationContext serContext) {
+		if(serContext.contains(value, fieldOpts.getType())) {
+			return serContext.get(value, fieldOpts.getType());
+		}
 		final Class<?> type = value.getClass();
 		if(isPrimaryField(fieldOpts) && isCollection(type)) {
 			final Object[] array;
 			final SecondaryField componentField = getCollectionField((PrimaryField) fieldOpts);
 			array = fromCollection((Collection<?>) value);
-			return fromArray(array, componentField);
+			return fromArray(array, componentField, serContext);
 		}
 		return null;
 	}
 
-	private BsonValue fromArray(Object[] values, SecondaryField componentField) {
+	@Override
+	protected BsonValue toBson(Object value, SmofField fieldOpts) {
+		// unused
+		return null;
+	}
+
+	private BsonValue fromArray(Object[] values, SecondaryField componentField, SerializationContext serContext) {
 		final BsonArray bsonArray = new BsonArray();
 		for(Object value : values) {
-			final BsonValue parsedValue = bsonParser.toBson(value, componentField);
+			final BsonValue parsedValue = bsonParser.toBson(value, componentField, serContext);
 			bsonArray.add(parsedValue);
 		}
 

@@ -30,36 +30,54 @@ class ObjectParser extends AbstractBsonParser {
 	}
 
 	@Override
-	public BsonValue toBson(Object value, SmofField fieldOpts) {
+	public BsonValue toBson(Object value, SmofField fieldOpts, SerializationContext serContext) {
+		if(serContext.contains(value, fieldOpts.getType())) {
+			return serContext.get(value, fieldOpts.getType());
+		}
 		final Class<?> type = value.getClass();
+		final BsonDocument serValue;
 
 		if(isMaster(fieldOpts)) {
-			bsonParser.addToStack(value);
-			return fromObject(value);
+			return fromMasterField((Element) value, fieldOpts, serContext);
 		}
 		else if(isElement(type)) {
-			bsonParser.addToStack(value);
-			return fromElement((Element) value);
+			return fromElement((Element) value, serContext);
 		}
 		else if(isMap(type) && isPrimaryField(fieldOpts)) {
-			return fromMap((Map<?, ?>) value, (PrimaryField) fieldOpts);
+			return fromMap((Map<?, ?>) value, (PrimaryField) fieldOpts, serContext);
 		}
 		else if(isEnum(type)) {
-			return fromEnum((Enum<?>) value);
+			return fromEnum((Enum<?>) value, serContext);
 		}
-		bsonParser.addToStack(value);
-		return fromObject(value);
+		serValue = fromObject(value, serContext);
+		serContext.put(value, SmofType.OBJECT, serValue);
+		return serValue;
 	}
 
-	private BsonValue fromElement(Element value) {
+	@Override
+	protected BsonValue toBson(Object value, SmofField fieldOpts) {
+		// unused
+		return null;
+	}
+
+	private BsonDocument fromMasterField(Element value, SmofField fieldOpts, SerializationContext serContext) {
+		serContext.put(value, fieldOpts.getType(), toBsonObjectId(value));
+		return fromObject(value, serContext);
+	}
+
+	private BsonObjectId toBsonObjectId(Element value) {
 		final ObjectId id = value.getId();
-		if(!bsonParser.isOnStack(value)) {
-			dispatcher.insert(value);
-		}
 		return new BsonObjectId(id);
 	}
 
-	private BsonDocument fromObject(Object value) {
+	private BsonObjectId fromElement(Element value, SerializationContext serContext) {
+		final BsonObjectId id = toBsonObjectId(value);
+		serContext.put(value, SmofType.OBJECT, id);
+		dispatcher.insert(value);
+		return id;
+	}
+
+	private BsonDocument fromObject(Object value, SerializationContext serContext) {
 		final BsonDocument document = new BsonDocument();
 		final TypeParser<?> metadata = getTypeParser(value.getClass());
 
@@ -68,7 +86,7 @@ class ObjectParser extends AbstractBsonParser {
 			final BsonValue parsedValue;
 
 			checkRequired(field, fieldValue);
-			parsedValue = bsonParser.toBson(fieldValue, field);
+			parsedValue = bsonParser.toBson(fieldValue, field, serContext);
 			document.put(field.getName(), parsedValue);
 		}
 		return document;
@@ -95,19 +113,19 @@ class ObjectParser extends AbstractBsonParser {
 		}
 	}
 
-	private BsonDocument fromEnum(Enum<?> value) {
-		final BsonDocument document = fromObject(value);
+	private BsonDocument fromEnum(Enum<?> value, SerializationContext serContext) {
+		final BsonDocument document = fromObject(value, serContext);
 		final BsonString name = new BsonString(value.name());
 		document.append(ENUM_NAME, name);
 		return document;
 	}
 
-	private BsonDocument fromMap(Map<?, ?> value, PrimaryField mapField) {
+	private BsonDocument fromMap(Map<?, ?> value, PrimaryField mapField, SerializationContext serContext) {
 		final Pair<SecondaryField, SecondaryField> fields = getMapFields(mapField);
 		final BsonDocument document = new BsonDocument();
 		for(Object key : value.keySet()) {
 			final Object mapValue = value.get(key);
-			final BsonValue parsedValue = bsonParser.toBson(mapValue, fields.getValue());
+			final BsonValue parsedValue = bsonParser.toBson(mapValue, fields.getValue(), serContext);
 			document.append(key.toString(), parsedValue);
 		}
 		return document;

@@ -1,7 +1,5 @@
 package org.smof.parsers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import org.bson.BsonDocument;
@@ -26,7 +24,6 @@ public class SmofParser {
 	private final SmofTypeContext context;
 	private final SmofParserPool parsers;
 	private final LazyLoader lazyLoader;
-	private List<Object> parserStack;
 
 	public SmofParser(SmofDispatcher dispatcher) {
 		this.context = new SmofTypeContext();
@@ -36,14 +33,6 @@ public class SmofParser {
 
 	SmofTypeContext getContext() {
 		return context;
-	}
-	
-	void addToStack(Object object) {
-		parserStack.add(object);
-	}
-	
-	boolean isOnStack(Object object) {
-		return parserStack.contains(object);
 	}
 	
 	public <T> TypeStructure<T> getTypeStructure(Class<T> type) {
@@ -86,17 +75,23 @@ public class SmofParser {
 	public BsonDocument toBson(Element value) {
 		final BsonParser parser = parsers.get(SmofType.OBJECT);
 		final MasterField field = new MasterField(value.getClass());
-		parserStack = new ArrayList<>();
-		return (BsonDocument) parser.toBson(value, field);
+		final SerializationContext serContext = SerializationContext.create();
+		
+		return (BsonDocument) parser.toBson(value, field, serContext);
+	}
+	
+	public BsonValue toBson(Object value, SmofField field) {
+		final SerializationContext serContext = SerializationContext.create();
+		return toBson(value, field, serContext);
 	}
 
-	public BsonValue toBson(Object value, SmofField field) {
+	public BsonValue toBson(Object value, SmofField field, SerializationContext serContext) {
 		if(value == null) {
 			return new BsonNull();
 		}
 		final SmofType type = field.getType();
 		final BsonParser parser = parsers.get(type);
-		return parser.toBson(value, field);
+		return parser.toBson(value, field, serContext);
 	}
 
 	private void checkValidBson(BsonValue value, SmofField field) {

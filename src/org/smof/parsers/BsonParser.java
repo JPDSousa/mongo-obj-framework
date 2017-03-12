@@ -5,7 +5,7 @@ import org.smof.field.SmofField;
 
 interface BsonParser {
 
-	BsonValue toBson(Object value, SmofField fieldOpts);
+	BsonValue toBson(Object value, SmofField fieldOpts, SerializationContext serContext);
 	
 	<T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts);
 	
