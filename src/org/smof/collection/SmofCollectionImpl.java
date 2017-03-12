@@ -107,7 +107,6 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public void replace(T element, SmofUpdateOptions options) {
-		System.out.println(type.getName() + ": " + element);
 		if(options.isBypassCache() || !cache.asMap().containsValue(element)) {
 			final Bson query = Filters.eq(Element.ID, element.getId());
 			final BsonDocument document = parser.toBson(element);

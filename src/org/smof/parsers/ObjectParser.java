@@ -16,6 +16,7 @@ import org.smof.annnotations.SmofObject;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.MissingRequiredFieldException;
+import org.smof.field.MasterField;
 import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 import org.smof.field.SecondaryField;
@@ -32,7 +33,7 @@ class ObjectParser extends AbstractBsonParser {
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
 		final SerializationContext serContext = bsonParser.getSerializationContext();
-		if(serContext.contains(value, fieldOpts.getType())) {
+		if(contextContains(value, fieldOpts, serContext)) {
 			return serContext.get(value, fieldOpts.getType());
 		}
 		final Class<?> type = value.getClass();
@@ -53,6 +54,10 @@ class ObjectParser extends AbstractBsonParser {
 		serValue = fromObject(value);
 		serContext.put(value, SmofType.OBJECT, serValue);
 		return serValue;
+	}
+
+	private boolean contextContains(Object value, SmofField fieldOpts, final SerializationContext serContext) {
+		return !(fieldOpts instanceof MasterField) && serContext.contains(value, fieldOpts.getType());
 	}
 
 	@Override
