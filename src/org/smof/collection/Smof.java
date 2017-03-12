@@ -84,6 +84,7 @@ public class Smof {
 
 	public <T extends Element> void insert(T element) {
 		dispatcher.insert(element);
+		parser.reset();
 	}
 	
 	public <T extends Element> SmofUpdate<T> update(Class<T> elementClass) {

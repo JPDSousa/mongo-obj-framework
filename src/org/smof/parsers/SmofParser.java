@@ -113,4 +113,8 @@ public class SmofParser {
 	public <T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass) {
 		return context.getIndexes(elClass);
 	}
+
+	public void reset() {
+		serContext.clear();
+	}
 }
