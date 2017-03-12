@@ -26,11 +26,11 @@ import com.mongodb.client.model.ReturnDocument;
 class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	private static final int CACHE_SIZE = 200;
-	
+
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}
-	
+
 	protected final MongoCollection<BsonDocument> collection;
 	private final Class<T> type;
 	private final String name;
@@ -50,13 +50,13 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 				.build();
 		updateIndexes();
 	}
-	
+
 	private Set<InternalIndex> loadIndexes() {
 		final Set<InternalIndex> indexes = new LinkedHashSet<>();
-//		final ListIndexesIterable<BsonDocument> bsonIndexes = collection.listIndexes(BsonDocument.class);
-//		for(BsonDocument bsonIndex : bsonIndexes) {
-//			indexes.add(InternalIndex.fromBson(bsonIndex));
-//		}
+		//		final ListIndexesIterable<BsonDocument> bsonIndexes = collection.listIndexes(BsonDocument.class);
+		//		for(BsonDocument bsonIndex : bsonIndexes) {
+		//			indexes.add(InternalIndex.fromBson(bsonIndex));
+		//		}
 		return indexes;
 	}
 
@@ -75,13 +75,13 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 			cache.put(element.getId(), element);
 		}
 	}
-	
+
 	@Override
 	public SmofQuery<T> query() {
 		final FindIterable<BsonDocument> rawQuery = collection.find();
 		return new SmofQuery<T>(type, rawQuery, parser, cache);
 	}
-	
+
 	@Override
 	public T findById(ObjectId id) {
 		try {
@@ -91,7 +91,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 			return null;
 		}
 	}
-	
+
 	@Override
 	public void execUpdate(Bson filter, Bson update, SmofUpdateOptions options) {
 		options.setReturnDocument(ReturnDocument.AFTER);
@@ -107,10 +107,12 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public void replace(T element, SmofUpdateOptions options) {
-		final Bson query = Filters.eq(Element.ID, element.getId());
-		final BsonDocument document = parser.toBson(element);
-		collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
-		cache.put(element.getId(), element);
+		if(!cache.asMap().containsValue(element)) {
+			final Bson query = Filters.eq(Element.ID, element.getId());
+			final BsonDocument document = parser.toBson(element);
+			collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
+			cache.put(element.getId(), element);
+		}
 	}
 
 	@Override
@@ -122,7 +124,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	public MongoCollection<BsonDocument> getMongoCollection() {
 		return collection;
 	}
-	
+
 	@Override
 	public SmofParser getParser() {
 		return parser;
@@ -134,21 +136,21 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	private class IdLoader implements Callable<T> {
-	
+
 		private final ObjectId id;
-		
+
 		private IdLoader(ObjectId id) {
 			super();
 			this.id = id;
 		}
-	
+
 		@Override
 		public T call() throws Exception {
 			final Bson idFilter = Filters.eq(Element.ID, id);
 			final FindIterable<BsonDocument> query = collection.find(idFilter);
 			return parser.fromBson(query.first(), type);
 		}
-		
+
 	}
 
 }
