@@ -27,7 +27,7 @@ class ByteParser extends AbstractBsonParser {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public BsonValue toBson(Object value, SmofField fieldOpts) {
+	public BsonValue serializeToBson(Object value, SmofField fieldOpts) {
 		final Class<?> type = value.getClass();
 		if(isPrimitiveByteArray(type)) {
 			return fromPrimitiveByteArray((byte[]) value);

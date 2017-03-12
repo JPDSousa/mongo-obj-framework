@@ -29,4 +29,8 @@ class SerializationContext {
 	BsonValue get(Object object, SmofType type) {
 		return serializationStack.get(Pair.of(object, type));
 	}
+	
+	void clear() {
+		serializationStack.clear();
+	}
 }

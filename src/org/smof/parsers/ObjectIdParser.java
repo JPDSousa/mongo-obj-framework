@@ -13,7 +13,7 @@ class ObjectIdParser extends AbstractBsonParser {
 	}
 
 	@Override
-	public BsonValue toBson(Object value, SmofField fieldOpts) {
+	public BsonValue serializeToBson(Object value, SmofField fieldOpts) {
 		return new BsonObjectId((ObjectId) value);
 	}
 

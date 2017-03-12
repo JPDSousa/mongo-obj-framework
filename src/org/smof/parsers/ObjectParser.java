@@ -30,7 +30,8 @@ class ObjectParser extends AbstractBsonParser {
 	}
 
 	@Override
-	public BsonValue toBson(Object value, SmofField fieldOpts, SerializationContext serContext) {
+	public BsonValue toBson(Object value, SmofField fieldOpts) {
+		final SerializationContext serContext = bsonParser.getSerializationContext();
 		if(serContext.contains(value, fieldOpts.getType())) {
 			return serContext.get(value, fieldOpts.getType());
 		}
@@ -49,20 +50,20 @@ class ObjectParser extends AbstractBsonParser {
 		else if(isEnum(type)) {
 			return fromEnum((Enum<?>) value, serContext);
 		}
-		serValue = fromObject(value, serContext);
+		serValue = fromObject(value);
 		serContext.put(value, SmofType.OBJECT, serValue);
 		return serValue;
 	}
 
 	@Override
-	protected BsonValue toBson(Object value, SmofField fieldOpts) {
+	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
 		// unused
 		return null;
 	}
 
 	private BsonDocument fromMasterField(Element value, SmofField fieldOpts, SerializationContext serContext) {
 		serContext.put(value, fieldOpts.getType(), toBsonObjectId(value));
-		return fromObject(value, serContext);
+		return fromObject(value);
 	}
 
 	private BsonObjectId toBsonObjectId(Element value) {
@@ -77,7 +78,7 @@ class ObjectParser extends AbstractBsonParser {
 		return id;
 	}
 
-	private BsonDocument fromObject(Object value, SerializationContext serContext) {
+	private BsonDocument fromObject(Object value) {
 		final BsonDocument document = new BsonDocument();
 		final TypeParser<?> metadata = getTypeParser(value.getClass());
 
@@ -86,7 +87,7 @@ class ObjectParser extends AbstractBsonParser {
 			final BsonValue parsedValue;
 
 			checkRequired(field, fieldValue);
-			parsedValue = bsonParser.toBson(fieldValue, field, serContext);
+			parsedValue = bsonParser.toBson(fieldValue, field);
 			document.put(field.getName(), parsedValue);
 		}
 		return document;
@@ -114,9 +115,10 @@ class ObjectParser extends AbstractBsonParser {
 	}
 
 	private BsonDocument fromEnum(Enum<?> value, SerializationContext serContext) {
-		final BsonDocument document = fromObject(value, serContext);
+		final BsonDocument document = fromObject(value);
 		final BsonString name = new BsonString(value.name());
 		document.append(ENUM_NAME, name);
+		serContext.put(value, SmofType.OBJECT, document);
 		return document;
 	}
 
@@ -125,9 +127,10 @@ class ObjectParser extends AbstractBsonParser {
 		final BsonDocument document = new BsonDocument();
 		for(Object key : value.keySet()) {
 			final Object mapValue = value.get(key);
-			final BsonValue parsedValue = bsonParser.toBson(mapValue, fields.getValue(), serContext);
+			final BsonValue parsedValue = bsonParser.toBson(mapValue, fields.getValue());
 			document.append(key.toString(), parsedValue);
 		}
+		serContext.put(value, SmofType.OBJECT, document);
 		return document;
 	}
 

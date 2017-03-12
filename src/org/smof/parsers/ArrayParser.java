@@ -24,7 +24,8 @@ class ArrayParser extends AbstractBsonParser {
 	}
 
 	@Override
-	public BsonValue toBson(Object value, SmofField fieldOpts, SerializationContext serContext) {
+	public BsonValue toBson(Object value, SmofField fieldOpts) {
+		final SerializationContext serContext = bsonParser.getSerializationContext();
 		if(serContext.contains(value, fieldOpts.getType())) {
 			return serContext.get(value, fieldOpts.getType());
 		}
@@ -33,21 +34,21 @@ class ArrayParser extends AbstractBsonParser {
 			final Object[] array;
 			final SecondaryField componentField = getCollectionField((PrimaryField) fieldOpts);
 			array = fromCollection((Collection<?>) value);
-			return fromArray(array, componentField, serContext);
+			return fromArray(array, componentField);
 		}
 		return null;
 	}
 
 	@Override
-	protected BsonValue toBson(Object value, SmofField fieldOpts) {
+	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
 		// unused
 		return null;
 	}
 
-	private BsonValue fromArray(Object[] values, SecondaryField componentField, SerializationContext serContext) {
+	private BsonValue fromArray(Object[] values, SecondaryField componentField) {
 		final BsonArray bsonArray = new BsonArray();
 		for(Object value : values) {
-			final BsonValue parsedValue = bsonParser.toBson(value, componentField, serContext);
+			final BsonValue parsedValue = bsonParser.toBson(value, componentField);
 			bsonArray.add(parsedValue);
 		}
 

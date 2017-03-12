@@ -24,15 +24,21 @@ public class SmofParser {
 	private final SmofTypeContext context;
 	private final SmofParserPool parsers;
 	private final LazyLoader lazyLoader;
+	private final SerializationContext serContext;
 
 	public SmofParser(SmofDispatcher dispatcher) {
 		this.context = new SmofTypeContext();
 		parsers = SmofParserPool.create(this, dispatcher);
 		lazyLoader = LazyLoader.create(dispatcher);
+		serContext = SerializationContext.create();
 	}
 
 	SmofTypeContext getContext() {
 		return context;
+	}
+	
+	SerializationContext getSerializationContext() {
+		return serContext;
 	}
 	
 	public <T> TypeStructure<T> getTypeStructure(Class<T> type) {
@@ -75,23 +81,17 @@ public class SmofParser {
 	public BsonDocument toBson(Element value) {
 		final BsonParser parser = parsers.get(SmofType.OBJECT);
 		final MasterField field = new MasterField(value.getClass());
-		final SerializationContext serContext = SerializationContext.create();
 		
-		return (BsonDocument) parser.toBson(value, field, serContext);
-	}
-	
-	public BsonValue toBson(Object value, SmofField field) {
-		final SerializationContext serContext = SerializationContext.create();
-		return toBson(value, field, serContext);
+		return (BsonDocument) parser.toBson(value, field);
 	}
 
-	public BsonValue toBson(Object value, SmofField field, SerializationContext serContext) {
+	public BsonValue toBson(Object value, SmofField field) {
 		if(value == null) {
 			return new BsonNull();
 		}
 		final SmofType type = field.getType();
 		final BsonParser parser = parsers.get(type);
-		return parser.toBson(value, field, serContext);
+		return parser.toBson(value, field);
 	}
 
 	private void checkValidBson(BsonValue value, SmofField field) {

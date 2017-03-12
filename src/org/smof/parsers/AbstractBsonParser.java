@@ -30,17 +30,18 @@ abstract class AbstractBsonParser implements BsonParser {
 	}
 	
 	@Override
-	public BsonValue toBson(Object value, SmofField fieldOpts, SerializationContext serContext) {
+	public BsonValue toBson(Object value, SmofField fieldOpts) {
+		final SerializationContext serContext = bsonParser.getSerializationContext();
 		if(serContext.contains(value, fieldOpts.getType())) {
 			return serContext.get(value, fieldOpts.getType());
 		}
-		final BsonValue serValue = toBson(value, fieldOpts);
+		final BsonValue serValue = serializeToBson(value, fieldOpts);
 		serContext.put(value, fieldOpts.getType(), serValue);
 		return serValue;
 	}
 	
-	protected abstract BsonValue toBson(Object value, SmofField fieldOpts);
-
+	protected abstract BsonValue serializeToBson(Object value, SmofField fieldOpts);
+	
 	@Override
 	public abstract <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts);
 
