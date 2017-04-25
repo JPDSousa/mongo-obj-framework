@@ -1,43 +1,33 @@
 package org.smof.collection;
 
+import java.util.Map;
+
 import org.bson.BsonDocument;
+import org.bson.BsonValue;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.smof.element.Element;
 import org.smof.parsers.SmofParser;
 
 import com.google.common.cache.Cache;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.model.Filters;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
 
 @SuppressWarnings("javadoc")
-public class SmofQuery<T extends Element> implements FilterQuery<SmofQuery<T>>{
+public class SmofQuery<T extends Element> extends AbstractSmofQuery<T, SmofQuery<T>>{
 
-	private final Class<T> elementClass;
-	private final FindIterable<BsonDocument> rawQuery;
-	private final SmofParser parser;
 	private final Cache<ObjectId, T> cache;
+	private final MongoCollection<BsonDocument> collection;
 	
-	SmofQuery(Class<T> elementClass, FindIterable<BsonDocument> rawQuery, SmofParser parser, Cache<ObjectId, T> cache) {
-		this.elementClass = elementClass;
-		this.rawQuery = rawQuery;
-		this.parser = parser;
+	SmofQuery(Class<T> elementClass, SmofParser parser, Cache<ObjectId, T> cache, MongoCollection<BsonDocument> collection) {
+		super(parser, elementClass);
 		this.cache = cache;
+		this.collection = collection;
 	}
 	
-	public Class<T> getElementClass() {
-		return elementClass;
-	}
-
-	public SmofResults<T> results() {
-		return new SmofResults<T>(rawQuery, parser, elementClass, cache);
-	}
-
 	@Override
-	public SmofQuery<T> withField(String fieldName, Object filterValue) {
-		//validateFieldValue(fieldName, filterValue);
-		rawQuery.filter(Filters.eq(fieldName, filterValue));
-		return this;
+	public SmofResults<T> results() {
+		return new SmofResults<T>(getParser(), getElementClass(), cache, collection, getFilter());
 	}
 	
 	public AndQuery<T> beginAnd() {
@@ -50,12 +40,10 @@ public class SmofQuery<T extends Element> implements FilterQuery<SmofQuery<T>>{
 	
 	@Override
 	public SmofQuery<T> applyBsonFilter(Bson filter) {
-		rawQuery.filter(filter);
-		return this;
-	}
-	
-	public SmofQuery<T> applyBsonProjection(Bson projection) {
-		rawQuery.projection(projection);
+		final BsonDocument filterDoc = filter.toBsonDocument(BsonDocument.class, MongoClient.getDefaultCodecRegistry());
+		for(Map.Entry<String, BsonValue> entry : filterDoc.entrySet()) {
+			getFilter().append(entry.getKey(), entry.getValue());
+		}
 		return this;
 	}
 

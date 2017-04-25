@@ -1,7 +1,6 @@
 package org.smof.collection;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -81,8 +80,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public SmofQuery<T> query() {
-		final FindIterable<BsonDocument> rawQuery = collection.find();
-		return new SmofQuery<T>(type, rawQuery, parser, cache);
+		return new SmofQuery<T>(type, parser, cache, collection);
 	}
 
 	@Override

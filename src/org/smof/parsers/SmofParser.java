@@ -117,4 +117,8 @@ public class SmofParser {
 	public void reset() {
 		serContext.clear();
 	}
+
+	public SmofField getField(Class<?> type, String fieldName) {
+		return getTypeStructure(type).getAllFields().get(fieldName);
+	}
 }

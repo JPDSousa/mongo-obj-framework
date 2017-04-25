@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.bson.BsonDocument;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
@@ -15,6 +16,7 @@ import org.smof.parsers.SmofParser;
 
 import com.google.common.cache.Cache;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
 
 @SuppressWarnings("javadoc")
 public class SmofResults<T extends Element> {
@@ -23,20 +25,24 @@ public class SmofResults<T extends Element> {
 		throw new SmofException(cause);
 	}
 	
-	private final FindIterable<BsonDocument> rawResults;
+	private final Bson filter;
+	private final FindIterable<BsonDocument> results;
 	private final SmofParser parser;
 	private final Class<T> elClass;
 	private final Cache<ObjectId, T> cache;
+	private final MongoCollection<BsonDocument> collection;
 
-	SmofResults(FindIterable<BsonDocument> rawResults, SmofParser parser, Class<T> elementClass, Cache<ObjectId, T> cache) {
-		this.rawResults = rawResults;
+	SmofResults(SmofParser parser, Class<T> elementClass, Cache<ObjectId, T> cache, MongoCollection<BsonDocument> collection, Bson filter) {
 		this.parser = parser;
 		elClass = elementClass;
 		this.cache = cache;
+		this.collection = collection;
+		this.filter = filter;
+		results = filter == null ? collection.find() : collection.find(filter);
 	}
 	
 	public Stream<T> stream() {
-		return StreamSupport.stream(rawResults.spliterator(), false)
+		return StreamSupport.stream(results.spliterator(), false)
 				.map(d -> parse(d))
 				.filter(d -> d != null);
 	}
@@ -58,13 +64,17 @@ public class SmofResults<T extends Element> {
 	}
 
 	public T first() {
-		final BsonDocument result = rawResults.first();
+		final BsonDocument result = results.first();
 		if(result == null) {
 			return null;
 		}
 		return parse(result);
 	}
 	
+	public long count() {
+		return filter == null ? collection.count() : collection.count(filter);
+	}
+
 	private class DocumentParser implements Callable<T>{
 
 		private final BsonDocument document;
