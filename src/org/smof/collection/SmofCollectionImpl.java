@@ -22,7 +22,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReturnDocument;
@@ -114,8 +113,10 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		if(options.isBypassCache() || !cache.asMap().containsValue(element)) {
 			final BsonDocument document = parser.toBson(element);
 			final Bson query = createUniquenessQuery(document);
-			System.out.println(query);
-			collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
+			options.setReturnDocument(ReturnDocument.AFTER);
+			document.remove(Element.ID);
+			final BsonDocument result = collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
+			element.setId(result.get(Element.ID).asObjectId().getValue());
 			cache.put(element.getId(), element);
 		}
 	}
@@ -124,7 +125,6 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		final List<Bson> filters = Lists.newArrayList();
 		filters.add(Filters.eq(Element.ID, element.get(Element.ID)));
 		indexes.stream()
-		.peek(System.out::println)
 		.filter(i -> i.getOptions().isUnique())
 		.map(i -> createFilterFromIndex(i, element))
 		.forEach(filters::add);
@@ -139,7 +139,6 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		for(String key : indexDoc.keySet()) {
 			filters.add(Filters.eq(key, element.get(key)));
 		}
-		System.out.println(filters);
 		return Filters.and(filters);
 	}
 
