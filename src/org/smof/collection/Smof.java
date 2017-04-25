@@ -34,18 +34,26 @@ public class Smof {
 	}
 
 	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass) {
+		loadCollection(collectionName, elClass, CollectionOptions.create());
+	}
+	
+	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass, CollectionOptions<T> options) {
 		parser.registerType(elClass);
-		loadCollection(collectionName, elClass, parser);
+		loadCollection(collectionName, elClass, parser, options);
 	}
 
 	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass, Object factory) {
+		loadCollection(collectionName, elClass, factory, CollectionOptions.create());
+	}
+	
+	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass, Object factory, CollectionOptions<T> options) {
 		parser.registerType(elClass, factory);
-		loadCollection(collectionName, elClass, parser);
+		loadCollection(collectionName, elClass, parser, options);
 	}
 
-	private <T extends Element> void loadCollection(String collectionName, Class<T> elClass, SmofParser parser) {
+	private <T extends Element> void loadCollection(String collectionName, Class<T> elClass, SmofParser parser, CollectionOptions<T> options) {
 		final MongoCollection<BsonDocument> collection = database.getCollection(collectionName, BsonDocument.class);
-		collections.put(elClass, new SmofCollectionImpl<T>(collectionName, collection, elClass, parser));
+		collections.put(elClass, new SmofCollectionImpl<T>(collectionName, collection, elClass, parser, options));
 	}
 
 	public <T> void registerSmofObject(Class<T> type) throws SmofException {

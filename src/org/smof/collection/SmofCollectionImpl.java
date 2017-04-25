@@ -39,8 +39,9 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	private final SmofParser parser;
 	private final Set<InternalIndex> indexes;
 	private final Cache<ObjectId, T> cache;
+	private final CollectionOptions<T> options;
 
-	SmofCollectionImpl(String name, MongoCollection<BsonDocument> collection, Class<T> type, SmofParser parser) {
+	SmofCollectionImpl(String name, MongoCollection<BsonDocument> collection, Class<T> type, SmofParser parser, CollectionOptions<T> options) {
 		this.collection = collection;
 		this.name = name;
 		this.parser = parser;
@@ -51,6 +52,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 				.expireAfterAccess(5, TimeUnit.MINUTES)
 				.build();
 		updateIndexes();
+		this.options = options;
 	}
 
 //	private Set<InternalIndex> loadIndexes() {
@@ -108,6 +110,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public void replace(T element, SmofUpdateOptions options) {
+		checkContraints(element);
 		if(options.isBypassCache() || !cache.asMap().containsValue(element)) {
 			final BsonDocument document = parser.toBson(element);
 			final Bson query = createUniquenessQuery(document);
@@ -116,6 +119,12 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 			final BsonDocument result = collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
 			element.setId(result.get(Element.ID).asObjectId().getValue());
 			cache.put(element.getId(), element);
+		}
+	}
+
+	private void checkContraints(T element) {
+		if(!options.isValid(element)) {
+			throw new SmofException(new IllegalArgumentException(element + " breaks one or more constraints."));
 		}
 	}
 
