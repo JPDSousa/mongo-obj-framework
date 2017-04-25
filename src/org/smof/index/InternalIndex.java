@@ -21,6 +21,8 @@ import com.mongodb.client.model.Indexes;
 @SuppressWarnings("javadoc")
 public class InternalIndex {
 	
+	private static final String UNIQUE = "unique";
+
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}
@@ -122,7 +124,7 @@ public class InternalIndex {
 	}
 
 	private static boolean isUnique(BsonDocument doc) {
-		return doc.containsKey("unique") && doc.getBoolean("unique").getValue();
+		return doc.containsKey(UNIQUE) && doc.getBoolean(UNIQUE).getValue();
 	}
 	
 	private final Bson index;

@@ -32,7 +32,7 @@ public class SmofDispatcher {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T extends Element> void insert(T element, SmofUpdateOptions options) {
+	private <T extends Element> void insert(T element, SmofUpdateOptions options) {		
 		final Class<? extends Element> type = getValidCollectionType(element.getClass());
 		((SmofCollection<T>) collections.getCollection(type)).replace(element, options);
 	}
