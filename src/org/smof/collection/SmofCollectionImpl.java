@@ -2,6 +2,7 @@ package org.smof.collection;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -18,7 +19,10 @@ import org.smof.parsers.SmofParser;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Lists;
+import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReturnDocument;
@@ -43,7 +47,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		this.name = name;
 		this.parser = parser;
 		this.type = type;
-		this.indexes = loadIndexes();
+		this.indexes = parser.getIndexes(type);
 		cache = CacheBuilder.newBuilder()
 				.maximumSize(CACHE_SIZE)
 				.expireAfterAccess(5, TimeUnit.MINUTES)
@@ -51,14 +55,14 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		updateIndexes();
 	}
 
-	private Set<InternalIndex> loadIndexes() {
-		final Set<InternalIndex> indexes = new LinkedHashSet<>();
-		//		final ListIndexesIterable<BsonDocument> bsonIndexes = collection.listIndexes(BsonDocument.class);
-		//		for(BsonDocument bsonIndex : bsonIndexes) {
-		//			indexes.add(InternalIndex.fromBson(bsonIndex));
-		//		}
-		return indexes;
-	}
+//	private Set<InternalIndex> loadIndexes() {
+//		final Set<InternalIndex> indexes = new LinkedHashSet<>();
+//		final ListIndexesIterable<BsonDocument> bsonIndexes = collection.listIndexes(BsonDocument.class);
+//		for(BsonDocument bsonIndex : bsonIndexes) {
+//			indexes.add(InternalIndex.fromBson(bsonIndex));
+//		}
+//		return indexes;
+//	}
 
 	private void updateIndexes() {
 		final Collection<InternalIndex> newIndexes = CollectionUtils.removeAll(parser.getIndexes(type), indexes);
@@ -108,11 +112,35 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	@Override
 	public void replace(T element, SmofUpdateOptions options) {
 		if(options.isBypassCache() || !cache.asMap().containsValue(element)) {
-			final Bson query = Filters.eq(Element.ID, element.getId());
 			final BsonDocument document = parser.toBson(element);
+			final Bson query = createUniquenessQuery(document);
+			System.out.println(query);
 			collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
 			cache.put(element.getId(), element);
 		}
+	}
+
+	private Bson createUniquenessQuery(BsonDocument element) {
+		final List<Bson> filters = Lists.newArrayList();
+		filters.add(Filters.eq(Element.ID, element.get(Element.ID)));
+		indexes.stream()
+		.peek(System.out::println)
+		.filter(i -> i.getOptions().isUnique())
+		.map(i -> createFilterFromIndex(i, element))
+		.forEach(filters::add);
+
+		return Filters.or(filters);
+	}
+
+	private Bson createFilterFromIndex(InternalIndex index, BsonDocument element) {
+		final List<Bson> filters = Lists.newArrayList();
+		final BsonDocument indexDoc = index.getIndex().toBsonDocument(BsonDocument.class, MongoClient.getDefaultCodecRegistry());
+
+		for(String key : indexDoc.keySet()) {
+			filters.add(Filters.eq(key, element.get(key)));
+		}
+		System.out.println(filters);
+		return Filters.and(filters);
 	}
 
 	@Override
