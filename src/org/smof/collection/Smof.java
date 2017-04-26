@@ -64,14 +64,22 @@ public class Smof {
 		parser.registerType(type, factory);
 	}
 
-	public <T extends Element> void createCollection(String collectionName, Class<T> elClass) throws SmofException {
+	public <T extends Element> void createCollection(String collectionName, Class<T> elClass) {
+		createCollection(collectionName, elClass, CollectionOptions.create());
+	}
+	
+	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, CollectionOptions<T> options) {
 		database.createCollection(collectionName);
-		loadCollection(collectionName, elClass);
+		loadCollection(collectionName, elClass, options);
 	}
 
-	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, Object factory) throws SmofException {
+	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, Object factory) {
+		createCollection(collectionName, elClass, factory, CollectionOptions.create());
+	}
+	
+	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, Object factory, CollectionOptions<T> options) {
 		database.createCollection(collectionName);
-		loadCollection(collectionName, elClass, factory);
+		loadCollection(collectionName, elClass, factory, options);
 	}
 
 	public boolean dropCollection(String collectionName) {
