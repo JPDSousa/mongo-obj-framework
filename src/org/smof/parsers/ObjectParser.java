@@ -77,9 +77,9 @@ class ObjectParser extends AbstractBsonParser {
 	}
 
 	private BsonObjectId fromElement(Element value, SerializationContext serContext) {
+		dispatcher.insertChild(value);
 		final BsonObjectId id = toBsonObjectId(value);
 		serContext.put(value, SmofType.OBJECT, id);
-		dispatcher.insertChild(value);
 		return id;
 	}
 
