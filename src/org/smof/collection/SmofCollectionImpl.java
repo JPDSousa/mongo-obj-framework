@@ -19,8 +19,10 @@ import org.smof.parsers.SmofParser;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReturnDocument;
@@ -46,28 +48,29 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		this.name = name;
 		this.parser = parser;
 		this.type = type;
-		this.indexes = parser.getIndexes(type);
+		this.indexes = loadDBIndexes();
+		updateIndexes();
 		cache = CacheBuilder.newBuilder()
 				.maximumSize(CACHE_SIZE)
 				.expireAfterAccess(5, TimeUnit.MINUTES)
 				.build();
-		updateIndexes();
 		this.options = options;
 	}
 
-//	private Set<InternalIndex> loadIndexes() {
-//		final Set<InternalIndex> indexes = new LinkedHashSet<>();
-//		final ListIndexesIterable<BsonDocument> bsonIndexes = collection.listIndexes(BsonDocument.class);
-//		for(BsonDocument bsonIndex : bsonIndexes) {
-//			indexes.add(InternalIndex.fromBson(bsonIndex));
-//		}
-//		return indexes;
-//	}
+	private Set<InternalIndex> loadDBIndexes() {
+		final Set<InternalIndex> indexes = Sets.newLinkedHashSet();
+		final ListIndexesIterable<BsonDocument> bsonIndexes = collection.listIndexes(BsonDocument.class);
+		for(BsonDocument bsonIndex : bsonIndexes) {
+			indexes.add(InternalIndex.fromBson(bsonIndex));
+		}
+		return indexes;
+	}
 
 	private void updateIndexes() {
 		final Collection<InternalIndex> newIndexes = CollectionUtils.removeAll(parser.getIndexes(type), indexes);
 		for(InternalIndex index : newIndexes) {
 			collection.createIndex(index.getIndex(), index.getOptions());
+			indexes.add(index);
 		}
 	}
 
