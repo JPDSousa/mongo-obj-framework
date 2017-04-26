@@ -5,7 +5,12 @@ import org.bson.types.ObjectId;
 @SuppressWarnings("javadoc")
 public interface Element {
 
-	static final String ID = "_id";
+	String ID = "_id";
+	String OID = "$oid";
+	
+	static String dotted(String... fields) {
+		return String.join(".", fields);
+	}
 
 	ObjectId getId();
 	
