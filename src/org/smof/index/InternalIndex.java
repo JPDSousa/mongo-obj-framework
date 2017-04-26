@@ -96,10 +96,17 @@ public class InternalIndex {
 	}
 
 	private static Bson nextIndex(StringTokenizer tokens) {
-		final String indexName = tokens.nextToken();
-		final String indexType = tokens.nextToken();
 		final Bson index;
-		switch(IndexType.parse(indexType)) {
+		String indexName = tokens.nextToken();
+		String indexTypeStr = tokens.nextToken();
+		IndexType indexT;
+		
+		while((indexT = IndexType.parse(indexTypeStr)) == null) {
+			indexName+= "_" + indexTypeStr;
+			indexTypeStr = tokens.nextToken();
+		}
+		
+		switch(indexT) {
 		case ASCENDING:
 			index = Indexes.ascending(indexName);
 			break;
