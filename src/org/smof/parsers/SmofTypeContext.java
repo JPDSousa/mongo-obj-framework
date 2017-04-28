@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.smof.annnotations.ForceInspection;
 import org.smof.element.Element;
 import org.smof.exception.InvalidTypeException;
 import org.smof.exception.SmofException;
@@ -36,6 +37,7 @@ class SmofTypeContext {
 	}
 	
 	private <T> TypeParser<T> handleTypeParser(Class<T> type, TypeStructure<?> typeStructure, SmofParserPool parsers) {
+		handleForceInspection(type, typeStructure, parsers);
 		if(!type.isInterface()) {
 			final TypeParser<T> typeParser = TypeParser.create(type);
 			validateParserFields(typeParser, parsers);
@@ -43,6 +45,17 @@ class SmofTypeContext {
 			return typeParser;
 		}
 		return null;
+	}
+
+	private <T> void handleForceInspection(Class<T> type, TypeStructure<?> typeStructure, SmofParserPool parsers) {
+		final ForceInspection annot = type.getAnnotation(ForceInspection.class);
+		if(annot != null) {
+			for(Class<?> subType : annot.value()) {
+				if(type.isAssignableFrom(type)) {
+					handleTypeParser(subType, typeStructure, parsers);
+				}
+			}
+		}
 	}
 
 	<T> void putWithFactory(Class<T> type, Object factory, SmofParserPool parsers) {
