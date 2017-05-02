@@ -76,6 +76,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public void insert(final T element) {
+		checkContraints(element);
 		if(!cache.asMap().containsKey(element.getId())) {
 			final BsonDocument document = parser.toBson(element);
 			collection.insertOne(document);
