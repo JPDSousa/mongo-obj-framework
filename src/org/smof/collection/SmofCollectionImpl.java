@@ -75,9 +75,8 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	@Override
-	public void insert(final T element) {
-		checkContraints(element);
-		if(!cache.asMap().containsKey(element.getId())) {
+	public void insert(T element) {
+		if(options.isValid(element) && !cache.asMap().containsKey(element.getId())) {
 			final BsonDocument document = parser.toBson(element);
 			collection.insertOne(document);
 			cache.put(element.getId(), element);
@@ -114,8 +113,8 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public void replace(T element, SmofUpdateOptions options) {
-		checkContraints(element);
-		if(options.isBypassCache() || !cache.asMap().containsValue(element)) {
+		if(this.options.isValid(element) 
+				&& (options.isBypassCache() || !cache.asMap().containsValue(element))) {
 			final BsonDocument document = parser.toBson(element);
 			final Bson query = createUniquenessQuery(document);
 			options.setReturnDocument(ReturnDocument.AFTER);
@@ -123,12 +122,6 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 			final BsonDocument result = collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
 			element.setId(result.get(Element.ID).asObjectId().getValue());
 			cache.put(element.getId(), element);
-		}
-	}
-
-	private void checkContraints(T element) {
-		if(!options.isValid(element)) {
-			throw new SmofException(new IllegalArgumentException(element + " breaks one or more constraints."));
 		}
 	}
 

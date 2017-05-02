@@ -16,5 +16,7 @@ public interface CollectionOptions<E extends Element> {
 	Iterable<Predicate<E>> getConstraints();
 	
 	boolean isValid(E element);
+	
+	void throwOnConstraintBreach(boolean throu);
 
 }
