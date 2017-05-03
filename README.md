@@ -2,6 +2,8 @@
 
 Simple Mongo Object Framework (SMOF) is an ORM built in Java for [MongoDB](https://www.mongodb.com/). Smof relieves the burden of dealing with object serialization and deserialization, as well as managing such objects in a data store. Furthermore, in order to achieve optimal performance, Smof caches objects through the [Guava cache](https://github.com/google/guava/wiki/CachesExplained) and uses [ByteBuddy](http://bytebuddy.net) to lazy load objects from the database. Unlike other MongoDB ORMs, Smof is able to deal with complex object hierarchy schemas.
 
+## Example
+
 So, consider this simple Bottle class:
 ```java
 public static class Bottle extends AbstractElement {
@@ -45,7 +47,7 @@ public static class Bottle extends AbstractElement {
 			this.amount += amount;
 			return left-amount;
 		}
-	}
+}
 ```
 
 In order to perform some write operations (insert, update), all we have to do is:
@@ -65,7 +67,7 @@ public static void main(String[] args) {
 		smof.update(Bottle.class).fromElement(bottle);
 
 		smof.close();
-	}
+}
 ```
 
 The API is quite straightforward as this example shows. Check the Getting Started section for further information.
