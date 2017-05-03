@@ -34,6 +34,7 @@ public class SmofUpdate<T extends Element> {
 		this.collection = collection;
 		fields = parser.getTypeStructure(type).getAllFields();
 		options = SmofUpdateOptions.create();
+		options.bypassCache(true);
 	}
 	
 	private SmofField validateFieldName(String fieldName) {
