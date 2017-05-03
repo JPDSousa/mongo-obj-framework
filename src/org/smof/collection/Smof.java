@@ -1,32 +1,38 @@
 package org.smof.collection;
 
+import java.io.Closeable;
+
 import org.bson.BsonDocument;
 
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
 import org.smof.parsers.SmofParser;
 
+import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 @SuppressWarnings("javadoc")
-public class Smof {
+public class Smof implements Closeable {
 
-	private static Smof singleton;
-
+	@Deprecated
 	public static Smof create(MongoDatabase database) {
-		if(database != null) {
-			singleton = new Smof(database);	
-		}
-		return singleton;
+		return new Smof(null, database);
+	}
+	
+	public static Smof create(String host, int port, String database) {
+		final MongoClient client = new MongoClient(host, port);
+		return new Smof(client, client.getDatabase(database));
 	}
 
 	private final MongoDatabase database;
 	private final CollectionsPool collections;
 	private final SmofParser parser;
 	private final SmofDispatcher dispatcher;
+	private final MongoClient client;
 
-	private Smof(MongoDatabase database) {
+	private Smof(MongoClient client, MongoDatabase database) {
+		this.client = client;
 		this.database = database;
 		this.collections = new CollectionsPool();
 		this.dispatcher = new SmofDispatcher(collections);
@@ -111,6 +117,13 @@ public class Smof {
 	public <T extends Element> SmofQuery<T> find(Class<T> elementClass) {
 		final SmofCollection<T> collection = collections.getCollection(elementClass);
 		return collection.query();
+	}
+
+	@Override
+	public void close() {
+		if(client != null) {
+			client.close();
+		}
 	}
 
 }
