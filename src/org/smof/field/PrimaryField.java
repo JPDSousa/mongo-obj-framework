@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import org.smof.annnotations.SmofArray;
+import org.smof.annnotations.SmofBoolean;
 import org.smof.annnotations.SmofByte;
 import org.smof.annnotations.SmofDate;
 import org.smof.annnotations.SmofNumber;
@@ -33,6 +34,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		final SmofObjectId smofObjectId;
 		final SmofString smofString;
 		final SmofByte smofByte;
+		final SmofBoolean smofBoolean;
 		boolean external = false;
 
 		switch(type) {
@@ -79,6 +81,11 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 			required = smofByte.required();
 			annotation = smofByte;
 			break;
+		case BOOLEAN:
+			smofBoolean = field.getAnnotation(SmofBoolean.class);
+			name = smofBoolean.name();
+			required = smofBoolean.required();
+			annotation = smofBoolean;
 		default:
 			throw new InvalidSmofTypeException("Type not valid.");
 		}

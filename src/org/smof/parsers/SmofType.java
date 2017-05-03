@@ -3,6 +3,7 @@ package org.smof.parsers;
 import java.lang.annotation.Annotation;
 
 import org.smof.annnotations.SmofArray;
+import org.smof.annnotations.SmofBoolean;
 import org.smof.annnotations.SmofByte;
 import org.smof.annnotations.SmofDate;
 import org.smof.annnotations.SmofNumber;
@@ -19,7 +20,8 @@ public enum SmofType {
 	OBJECT(SmofObject.class),
 	OBJECT_ID(SmofObjectId.class),
 	ARRAY(SmofArray.class),
-	BYTE(SmofByte.class);
+	BYTE(SmofByte.class),
+	BOOLEAN(SmofBoolean.class);
 
 	private final Class<? extends Annotation> annotClass;
 
