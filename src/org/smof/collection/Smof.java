@@ -220,6 +220,13 @@ public class Smof implements Closeable {
 		loadCollection(collectionName, elClass, factory, options);
 	}
 
+	/**
+	 * Drops a collection. Returns {@code true} if the collection is successfully dropped and {@code false} if it
+	 * could not be found.
+	 * 
+	 * @param collectionName collection name
+	 * @return {@code true} if the collection was dropped or {@code false} otherwise
+	 */
 	public boolean dropCollection(String collectionName) {
 		SmofCollection<?> toDrop = null;
 		for(SmofCollection<?> collection : collections) {
