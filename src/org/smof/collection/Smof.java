@@ -6,6 +6,7 @@ import org.bson.BsonDocument;
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofObject;
 import org.smof.element.Element;
+import org.smof.exception.NoSuchCollection;
 import org.smof.parsers.SmofParser;
 
 import com.mongodb.MongoClient;
@@ -243,11 +244,36 @@ public class Smof implements Closeable {
 		return false;
 	}
 
+	/**
+	 * Inserts a new element in the database. The element's type must be mapped to an already
+	 * existent collection, otherwise {@link NoSuchCollection} will be thrown. If the element
+	 * already exists (i.e. a unique constraint is violated), mongoDB will throw an exception.
+	 * 
+	 * @param element element to insert
+	 */
 	public <T extends Element> void insert(T element) {
 		dispatcher.insert(element);
 		parser.reset();
 	}
 	
+	/**
+	 * Creates an returns a new {@link SmofUpdate} that allows the user to perform updates to
+	 * one or multiple elements. If the element is not mapped to a collection, {@link NoSuchCollection}
+	 * will be thrown.
+	 * 
+	 * The update process in Smof is inspired in the UPDATE..SET..WHERE SQL query:
+	 * <ol>
+	 * 	<li> Invoke this method to generate an update</li>
+	 * 	<li> Use the {@link SmofUpdate} generated to set the updates</li>
+	 * 	<li> From the {@link SmofUpdate}, use {@link SmofUpdate#where()} generate a {@link SmofUpdateQuery} 
+	 * 	that will allow you to specify which elements the updated will be applied to.</li>
+	 * </ol>
+	 * <b>Note:</b> {@link SmofUpdate} also comes with methods that simplify this process for certain use
+	 * cases. Check the documentation for further details.
+	 * 
+	 * @param elementClass element class
+	 * @return a new {@link SmofUpdate} object
+	 */
 	public <T extends Element> SmofUpdate<T> update(Class<T> elementClass) {
 		final SmofCollection<T> collection = collections.getCollection(elementClass);
 		return collection.update();
