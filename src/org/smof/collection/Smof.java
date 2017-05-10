@@ -158,19 +158,63 @@ public class Smof implements Closeable {
 		parser.registerType(type, factory);
 	}
 
+	/**
+	 * Creates a new mongo collection on the current database. Same as calling {@link #loadCollection(String, Class)} on 
+	 * a non-existent collection. An exception will be thrown if the collection already exists. The element class (and all
+	 * sub-types) will be mapped to the newly created collection.
+	 * 
+	 * Same as calling {@link #createCollection(String, Class, CollectionOptions)} with empty {@link CollectionOptions}.
+	 * 
+	 * @param collectionName collection name
+	 * @param elClass element class 
+	 */
 	public <T extends Element> void createCollection(String collectionName, Class<T> elClass) {
 		createCollection(collectionName, elClass, CollectionOptions.create());
 	}
 	
+	/**
+	 * Creates a new mongo collection on the current database. Same as calling {@link #loadCollection(String, Class, CollectionOptions))} on 
+	 * a non-existent collection. An exception will be thrown if the collection already exists. The element class (and all
+	 * sub-types) will be mapped to the newly created collection.
+	 * 
+	 * @param collectionName collection name
+	 * @param elClass element class
+	 * @param options collection options
+	 */
 	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, CollectionOptions<T> options) {
 		database.createCollection(collectionName);
 		loadCollection(collectionName, elClass, options);
 	}
 
+	/**
+	 * Creates a new mongo collection on the current database. Same as calling {@link #loadCollection(String, Class, Object))} on 
+	 * a non-existent collection. An exception will be thrown if the collection already exists. The element class (and all
+	 * sub-types) will be mapped to the newly created collection. This method is useful when the element class'
+	 * {@link SmofBuilder} is located in another type (e.g. factory pattern). The factory parameter can be either an
+	 * instance of a class or even the type itself, in case the {@link SmofBuilder} is referencing a static method.
+	 * 
+	 * Same as calling {@link #createCollection(String, Class, Object, CollectionOptions)} with empty {@link CollectionOptions}.
+	 * 
+	 * @param collectionName collection name
+	 * @param elClass element class
+	 * @param factory third-party object with element class' {@link SmofBuilder}
+	 */
 	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, Object factory) {
 		createCollection(collectionName, elClass, factory, CollectionOptions.create());
 	}
 	
+	/**
+	 * Creates a new mongo collection on the current database. Same as calling {@link #loadCollection(String, Class, Object))} on 
+	 * a non-existent collection. An exception will be thrown if the collection already exists. The element class (and all
+	 * sub-types) will be mapped to the newly created collection. This method is useful when the element class'
+	 * {@link SmofBuilder} is located in another type (e.g. factory pattern). The factory parameter can be either an
+	 * instance of a class or even the type itself, in case the {@link SmofBuilder} is referencing a static method.
+	 * 
+	 * @param collectionName collection name
+	 * @param elClass element class
+	 * @param factory third-party object with element class' {@link SmofBuilder}
+	 * @param options additional collection options
+	 */
 	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, Object factory, CollectionOptions<T> options) {
 		database.createCollection(collectionName);
 		loadCollection(collectionName, elClass, factory, options);
