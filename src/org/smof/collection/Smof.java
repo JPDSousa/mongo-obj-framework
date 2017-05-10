@@ -257,7 +257,7 @@ public class Smof implements Closeable {
 	}
 	
 	/**
-	 * Creates an returns a new {@link SmofUpdate} that allows the user to perform updates to
+	 * Creates and returns a new {@link SmofUpdate} that allows the user to perform updates to
 	 * one or multiple elements. If the element is not mapped to a collection, {@link NoSuchCollection}
 	 * will be thrown.
 	 * 
@@ -279,6 +279,14 @@ public class Smof implements Closeable {
 		return collection.update();
 	}
 
+	/**
+	 * Creates and returns a new {@link SmofQuery} that allows the user to perform a read operation.
+	 * The element class passed as parameter must be previously registered to a mongo collection,
+	 * otherwise {@link NoSuchCollection} is thrown.
+	 * 
+	 * @param elementClass element class
+	 * @return a new {@link SmofQuery} object
+	 */
 	public <T extends Element> SmofQuery<T> find(Class<T> elementClass) {
 		final SmofCollection<T> collection = collections.getCollection(elementClass);
 		return collection.query();
