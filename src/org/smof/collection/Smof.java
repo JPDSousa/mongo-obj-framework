@@ -13,8 +13,18 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-@SuppressWarnings("javadoc")
-public class Smof implements Closeable {
+/**
+ * Main object of the API. Represents the layer between the database an the application.
+ * Use this object to manage collections, insertions, updates, etc. Use {@link #create(String, int, String)}
+ * to create a new connection. (<b>Note:</b> One connection per database is advised.)
+ * 
+ * <p>This object implements {@link Closeable}, as the database client needs to be closed when
+ * it outlives its usefulness.
+ * 
+ * @author Joao Sousa
+ *
+ */
+public final class Smof implements Closeable {
 
 	/**
 	 * Creates a new smof connection.
@@ -174,7 +184,7 @@ public class Smof implements Closeable {
 	}
 	
 	/**
-	 * Creates a new mongo collection on the current database. Same as calling {@link #loadCollection(String, Class, CollectionOptions))} on 
+	 * Creates a new mongo collection on the current database. Same as calling {@link #loadCollection(String, Class, CollectionOptions)} on 
 	 * a non-existent collection. An exception will be thrown if the collection already exists. The element class (and all
 	 * sub-types) will be mapped to the newly created collection.
 	 * 
@@ -188,7 +198,7 @@ public class Smof implements Closeable {
 	}
 
 	/**
-	 * Creates a new mongo collection on the current database. Same as calling {@link #loadCollection(String, Class, Object))} on 
+	 * Creates a new mongo collection on the current database. Same as calling {@link #loadCollection(String, Class, Object)} on 
 	 * a non-existent collection. An exception will be thrown if the collection already exists. The element class (and all
 	 * sub-types) will be mapped to the newly created collection. This method is useful when the element class'
 	 * {@link SmofBuilder} is located in another type (e.g. factory pattern). The factory parameter can be either an
@@ -205,7 +215,7 @@ public class Smof implements Closeable {
 	}
 	
 	/**
-	 * Creates a new mongo collection on the current database. Same as calling {@link #loadCollection(String, Class, Object))} on 
+	 * Creates a new mongo collection on the current database. Same as calling {@link #loadCollection(String, Class, Object)} on 
 	 * a non-existent collection. An exception will be thrown if the collection already exists. The element class (and all
 	 * sub-types) will be mapped to the newly created collection. This method is useful when the element class'
 	 * {@link SmofBuilder} is located in another type (e.g. factory pattern). The factory parameter can be either an
