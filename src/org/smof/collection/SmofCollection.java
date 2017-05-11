@@ -29,6 +29,12 @@ public interface SmofCollection<T extends Element> {
 	 */
 	MongoCollection<BsonDocument> getMongoCollection();
 	
+	/**
+	 * Inserts {@code element} into the collection. The element must not violate
+	 * any unique index constraints
+	 * 
+	 * @param element element to insert
+	 */
 	void insert(T element);
 
 	void execUpdate(Bson filter, Bson updates, SmofUpdateOptions options);
