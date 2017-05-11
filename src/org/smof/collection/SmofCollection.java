@@ -12,6 +12,11 @@ import com.mongodb.client.MongoCollection;
 @SuppressWarnings("javadoc")
 public interface SmofCollection<T extends Element> {
 	
+	/**
+	 * Returns the mongoDB collection name
+	 * 
+	 * @return collection name
+	 */
 	String getCollectionName();
 	MongoCollection<BsonDocument> getMongoCollection();
 	
