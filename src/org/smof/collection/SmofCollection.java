@@ -18,6 +18,15 @@ public interface SmofCollection<T extends Element> {
 	 * @return collection name
 	 */
 	String getCollectionName();
+	
+	/**
+	 * Returns the original mongoDB collection associated with this
+	 * collection.
+	 * 
+	 * <p>Using this method requires importing the mongoDB-Java-driver
+	 * 
+	 * @return mongoDB collection
+	 */
 	MongoCollection<BsonDocument> getMongoCollection();
 	
 	void insert(T element);
