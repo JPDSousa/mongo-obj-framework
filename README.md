@@ -72,6 +72,22 @@ public static void main(String[] args) {
 
 The API is quite straightforward as this example shows. Check the Getting Started section for further information.
 
+### That's how crazy it can get?
+
+Not at all! This is by far the simplest scenario. With smof you can:
+* Have multiple subtypes pointing to the same collection 
+	* `Aa` and `Ab`both implement `A`
+	* You map `A` to collection `ColA`
+	* objects of type `Aa` and `Ab` are automatically saved to `ColA`
+* Use referencing
+	* Type `A` is mapped to `ColA` and `B` is mapped to `ColB`
+	* `A` has a reference to `B`
+	* When you store `A`, `B` is automatically stored in `ColB` (how cool/useful is that?)
+* Lazy-load
+	* Crazy models like: `A` references `B` that references `C` that references `D` .... that references `Z`
+	* When you load `A` from the database, `B` (and so forth) will only be loaded the first time you access it!
+* So much more! (see [Wiki](https://github.com/JPDSousa/mongo-obj-framework/wiki))
+
 ## More information
 
 Despite being simple, Smof carries a lot of elaborate features that need to be documented in great detail, so i added a [Wiki](https://github.com/JPDSousa/mongo-obj-framework/wiki) which is encouraged if your planning in using the framework.
