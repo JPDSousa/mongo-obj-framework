@@ -71,3 +71,11 @@ public static void main(String[] args) {
 ```
 
 The API is quite straightforward as this example shows. Check the Getting Started section for further information.
+
+## More information
+
+Despite being simple, Smof carries a lot of elaborate features that need to be documented in great detail, so i added a [Wiki](https://github.com/JPDSousa/mongo-obj-framework/wiki) which is encouraged if your planning in using the framework.
+
+## Contributing
+
+Smof is an open project, thus it welcomes new collaborators. Follow the general [Github Flow](https://guides.github.com/introduction/flow/index.html) to contribute to the project! Also, feel free to contact me :)
