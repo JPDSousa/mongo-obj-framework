@@ -4,6 +4,7 @@ jdk:
   - oraclejdk8
 before_script:
   - sleep 15
+  - mongo mytest
 
 script: mvn clean verify
 
