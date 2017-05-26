@@ -4,7 +4,7 @@ jdk:
   - oraclejdk8
 before_script:
   - mkdir -p data/db
-  - numactl --interleave=all mongod
+  - mongod
   - sleep 15
 
 script: mvn clean verify
