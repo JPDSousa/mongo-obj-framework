@@ -1,10 +1,8 @@
 language: java
-sudo: false
 install: true
 jdk:
   - oraclejdk8
 before_script:
-  - mongod --fork --syslog
   - sleep 15
 
 script: mvn clean verify
