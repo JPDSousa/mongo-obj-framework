@@ -3,11 +3,7 @@ install: true
 jdk:
   - oraclejdk8
 before_script:
+  - mongod
   - sleep 15
-  - mongo mytest
-
+	
 script: mvn clean verify
-
-addons:
-  services:
-    - mongod
