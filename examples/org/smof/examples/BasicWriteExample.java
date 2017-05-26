@@ -7,9 +7,19 @@ import org.smof.annnotations.SmofString;
 import org.smof.collection.Smof;
 import org.smof.element.AbstractElement;
 
-@SuppressWarnings("javadoc")
+/**
+ * Smof example on how to perform basic write (insert/update) operations
+ * with a single element
+ *  
+ * @author Joao
+ *
+ */
 public final class BasicWriteExample {
 
+	/**
+	 * Main
+	 * @param args args
+	 */
 	public static void main(String[] args) {
 		//create the smof object with host, port and database name
 		final Smof smof = Smof.create("localhost", 27017, "myDB");
@@ -74,10 +84,22 @@ public final class BasicWriteExample {
 			this.amount = amount;
 		}
 		
+		/**
+		 * Tests if the bottle is full
+		 * 
+		 * @return {@code true} if the bottle has reached its full capacity an {@code false} otherwise
+		 */
 		public boolean isFull() {
 			return capacity == amount;
 		}
 		
+		/**
+		 * Fills the bottle with the amount passed as parameter
+		 * If the amount is greater than the bottle's capacity the excess is ignored
+		 * 
+		 * @param amount amount to fill
+		 * @return the bottle's new amount of liquid
+		 */
 		public double fill(Double amount) {
 			final double left = capacity-amount; 
 			if(left < amount) {
