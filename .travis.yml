@@ -1,0 +1,10 @@
+language: java
+sudo: false
+
+before_script:
+	- sleep 15
+
+script: mvn clean verify
+
+services:
+	-mongodb
