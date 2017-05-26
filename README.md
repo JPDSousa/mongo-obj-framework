@@ -92,6 +92,10 @@ Not at all! This is by far the simplest scenario. With smof you can:
 
 Despite being simple, Smof carries a lot of elaborate features that need to be documented in great detail, so i added a [Wiki](https://github.com/JPDSousa/mongo-obj-framework/wiki) which is encouraged if your planning in using the framework.
 
+Also, checkout the [examples](https://github.com/JPDSousa/mongo-obj-framework/tree/master/examples/org/smof/examples) package for common uses of this project.
+
+And by all means, feel free to ask me any question :)
+
 ## Contributing
 
 Smof is an open project, thus it welcomes new collaborators. Follow the general [Github Flow](https://guides.github.com/introduction/flow/index.html) to contribute to the project! Also, feel free to contact me :)
