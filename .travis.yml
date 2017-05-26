@@ -3,7 +3,8 @@ install: true
 jdk:
   - oraclejdk8
 before_script:
-  - mongod
+  - mkdir -p data/db
+  - numactl --interleave=all mongod
   - sleep 15
 
 script: mvn clean verify
