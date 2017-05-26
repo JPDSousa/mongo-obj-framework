@@ -3,9 +3,9 @@ install: true
 jdk:
   - oraclejdk8
 before_script:
-  - mkdir -p data/db
+  - mkdir db
   - ls
-  - mongod
+  - mongod --dbpath db
   - sleep 15
 
 script: mvn clean verify
