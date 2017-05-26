@@ -31,7 +31,6 @@ import org.smof.test.dataModel.Model;
 import org.smof.test.dataModel.TypeGuitar;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoDatabase;
 
 @SuppressWarnings("javadoc")
@@ -45,6 +44,7 @@ public class BasicSmofTest {
 	private static MongoClient client;
 	private static MongoDatabase database;
 	
+	@SuppressWarnings("deprecation")
 	@BeforeClass
 	public static void setUpBeforeClass() {
 		client = new MongoClient("localhost", 27017);
@@ -139,6 +139,15 @@ public class BasicSmofTest {
 		for(Guitar g : guitars) {
 			smof.insert(g);
 		}
+	}
+	
+	@Test
+	public void testRedundantInsert() {
+		final Brand brand = Brand.create("Gibson", new Location("Here", "Now"), Arrays.asList("This guy"));
+		smof.insert(brand);
+		smof.insert(brand);
+		final long count = smof.find(Brand.class).results().count();
+		assertEquals(1, count);
 	}
 	
 	@Test
