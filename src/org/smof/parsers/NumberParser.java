@@ -134,7 +134,7 @@ class NumberParser extends AbstractBsonParser {
 	}
 
 	private void validateFloat(double value) {
-		if(value > Float.MAX_VALUE || value < Float.MIN_VALUE) {
+		if(value != 0.0 && (value > Float.MAX_VALUE || value < Float.MIN_VALUE)) {
 			handleError(new IllegalArgumentException(value + " is not valid value for a float."));
 		}
 	}
