@@ -8,5 +8,6 @@ before_script:
 
 script: mvn clean verify
 
-services:
-  -mongodb
+addons:
+  services:
+    - mongod
