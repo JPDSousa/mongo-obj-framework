@@ -3,7 +3,8 @@ install: true
 jdk:
   - oraclejdk8
 before_script:
-  - mkdir -p /data/db
+  - mkdir -p data/db
+  - ls
   - mongod
   - sleep 15
 
