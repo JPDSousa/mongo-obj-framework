@@ -5,7 +5,7 @@ jdk:
 before_script:
   - mkdir db
   - ls
-  - mongod --dbpath db
+  - mongod --dbpath db --fork --logpath mongodb.log
   - sleep 15
 
 script: mvn clean verify
