@@ -1,4 +1,4 @@
-package org.smof.test.dataModel;
+package org.smof.examples.dataModel;
 
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofIndex;

@@ -1,4 +1,4 @@
-package org.smof.test.dataModel;
+package org.smof.examples.dataModel;
 
 import java.util.List;
 

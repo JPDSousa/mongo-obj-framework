@@ -23,12 +23,12 @@ import org.smof.annnotations.SmofIndexes;
 import org.smof.collection.Smof;
 import org.smof.element.AbstractElement;
 import org.smof.element.Element;
+import org.smof.examples.dataModel.Brand;
+import org.smof.examples.dataModel.Guitar;
+import org.smof.examples.dataModel.Location;
+import org.smof.examples.dataModel.Model;
+import org.smof.examples.dataModel.TypeGuitar;
 import org.smof.index.InternalIndex;
-import org.smof.test.dataModel.Brand;
-import org.smof.test.dataModel.Guitar;
-import org.smof.test.dataModel.Location;
-import org.smof.test.dataModel.Model;
-import org.smof.test.dataModel.TypeGuitar;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
