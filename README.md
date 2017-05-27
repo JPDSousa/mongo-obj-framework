@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/JPDSousa/mongo-obj-framework.svg?branch=master)](https://travis-ci.org/JPDSousa/mongo-obj-framework)
+[![codecov](https://codecov.io/gh/JPDSousa/mongo-obj-framework/branch/master/graph/badge.svg)](https://codecov.io/gh/JPDSousa/mongo-obj-framework)
 # Simple Mongo Object Framework
 
 Simple Mongo Object Framework (SMOF) is an ORM built in Java for [MongoDB](https://www.mongodb.com/). Smof relieves the burden of dealing with object serialization and deserialization, as well as managing such objects in a data store. Furthermore, in order to achieve optimal performance, Smof caches objects through the [Guava cache](https://github.com/google/guava/wiki/CachesExplained) and uses [ByteBuddy](http://bytebuddy.net) to lazy load objects from the database. Unlike other MongoDB ORMs, Smof is able to deal with complex object hierarchy schemas.
