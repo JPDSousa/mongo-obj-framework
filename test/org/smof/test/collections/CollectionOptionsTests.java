@@ -43,6 +43,7 @@ public class CollectionOptionsTests {
 	public void testIsValid() {
 		final long capital = 10;
 		brand.setCapital(capital+2);
+		guineaPig.throwOnConstraintBreach(false);
 		guineaPig.addConstraint(b -> b.getCapital() > 10);
 		assertTrue(guineaPig.isValid(brand));
 		guineaPig.addConstraint(b -> !b.getName().equals(NAME));
