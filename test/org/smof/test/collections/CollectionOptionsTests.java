@@ -28,6 +28,11 @@ public class CollectionOptionsTests {
 		guineaPig = CollectionOptions.create();
 		brand = Brand.create(NAME, new Location("here", "not there"), Arrays.asList("owner"));
 	}
+	
+	@Test
+	public void testCreate() {
+		assertNotNull(CollectionOptions.create());
+	}
 
 	@Test
 	public void testConstraints() {
