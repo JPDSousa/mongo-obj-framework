@@ -19,29 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof.collection;
+package org.smof.test.collections;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+import org.junit.Test;
+import org.smof.collection.Operators;
 
 @SuppressWarnings("javadoc")
-public enum Operators {
-	
-	INCREASE("inc"),
-	MULTIPLY("mul"),
-	RENAME("rename"),
-	SET_ON_INSERT("setOnInsert"),
-	SET("set"),
-	UNSET("unset"),
-	MINIMUM("min"),
-	MAXIMUM("miax"),
-	CURRENT_DATE("currentDate");
-	
-	private final String operator;
-	
-	private Operators(String operator) {
-		this.operator = "$" + operator;
+public class OperatorsTest {
+
+	@Test
+	public final void testNotNullGetOperator() {
+		Arrays.stream(Operators.values())
+		.map(Operators::getOperator)
+		.forEach(o -> assertTrue(o != null && o.length() > 0));
 	}
 
-	public String getOperator() {
-		return operator;
-	}
-	
 }
