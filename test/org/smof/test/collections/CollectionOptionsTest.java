@@ -38,7 +38,7 @@ import org.smof.test.dataModel.Location;
 import com.google.common.collect.Lists;
 
 @SuppressWarnings("javadoc")
-public class CollectionOptionsTests {
+public class CollectionOptionsTest {
 
 	private static CollectionOptions<Brand> guineaPig;
 	private static Brand brand;

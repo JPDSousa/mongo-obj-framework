@@ -27,7 +27,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @SuppressWarnings("javadoc")
 @RunWith(Suite.class)
-@SuiteClasses({ BasicSmofTest.class, ElementTypeFactoryTests.class, ObjectInheritanceTest.class })
+@SuiteClasses({ BasicSmofTest.class, ElementTypeFactoryTest.class, ObjectInheritanceTest.class })
 public class AllTests {
 	//no code necessary
 }

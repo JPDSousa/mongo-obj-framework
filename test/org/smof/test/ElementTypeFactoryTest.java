@@ -53,7 +53,7 @@ import org.smof.parsers.SmofParser;
 import org.smof.parsers.SmofType;
 
 @SuppressWarnings("javadoc")
-public class ElementTypeFactoryTests {
+public class ElementTypeFactoryTest {
 	
 	private static SmofParser parser;
 	
