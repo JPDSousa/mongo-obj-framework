@@ -59,13 +59,13 @@ public class SmofResults<T extends Element> {
 		this.cache = cache;
 		this.collection = collection;
 		this.filter = filter;
-		results = filter == null ? collection.find() : collection.find(filter);
+		results = collection.find(filter);
 	}
 	
 	public Stream<T> stream() {
 		return StreamSupport.stream(results.spliterator(), false)
-				.map(d -> parse(d))
-				.filter(d -> d != null);
+				.filter(d -> d != null)
+				.map(d -> parse(d));
 	}
 
 	private T parse(BsonDocument d) {
