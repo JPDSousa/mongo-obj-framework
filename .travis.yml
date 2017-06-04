@@ -10,6 +10,12 @@ addons:
     packages:
       - mongodb-org-server
       - mongodb-org-shell
+notifications:
+  email:
+    recipients:
+      - jpd.sousa@campus.fct.unl.pt
+    on_success: never # default: change
+    on_failure: always # default: always
 before_script:
   - mkdir db
   - ls
