@@ -171,7 +171,7 @@ public class BasicSmofTest {
 		assertEquals(1, count);
 	}
 	
-	@Test
+	//@Test
 	public void testQueryAll() {
 		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
 		final Model model1 = Model.create("Manhattan", "Tyler", 1000, brand, Arrays.asList("red", "blue"));
