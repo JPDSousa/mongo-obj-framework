@@ -23,13 +23,12 @@ package org.smof.test;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
@@ -49,17 +48,14 @@ import org.smof.test.dataModel.Brand;
 import org.smof.test.dataModel.Guitar;
 import org.smof.test.dataModel.Location;
 import org.smof.test.dataModel.Model;
-import org.smof.test.dataModel.TypeGuitar;
+
+import static org.smof.test.dataModel.StaticDB.*;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 
 @SuppressWarnings("javadoc")
 public class BasicSmofTest {
-
-	private static final String MODELS = "models";
-	private static final String BRANDS = "brands";
-	private static final String GUITARS = "guitars";
 	
 	private static Smof smof;
 	private static MongoClient client;
@@ -149,15 +145,7 @@ public class BasicSmofTest {
 
 	@Test
 	public void testSingleInsert() {
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("Me", "Myself", "I"));
-		final Model model1 = Model.create("Manhattan", "Tyler", 1000, brand, Arrays.asList("red", "blue"));
-		final Model model2 = Model.create("BeeGees", "Tyler", 5463, brand, Arrays.asList("sunburst", "ebony"));
-		final List<Guitar> guitars = new ArrayList<>();
-		guitars.add(Guitar.create(model2, TypeGuitar.ELECTRIC, 1, 0));
-		guitars.add(Guitar.create(model1, TypeGuitar.CLASSIC, 0, 20));
-		guitars.add(Guitar.create(model1, TypeGuitar.ACOUSTIC, 0, 0));
-		
-		for(Guitar g : guitars) {
+		for(Guitar g : ALL_GUITARS) {
 			smof.insert(g);
 		}
 	}
@@ -173,17 +161,9 @@ public class BasicSmofTest {
 	
 	//@Test
 	public void testQueryAll() {
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
-		final Model model1 = Model.create("Manhattan", "Tyler", 1000, brand, Arrays.asList("red", "blue"));
-		final Model model2 = Model.create("BeeGees", "Tyler", 5463, brand, Arrays.asList("sunburst", "ebony"));
-		final Map<ObjectId, Guitar> guitars = new LinkedHashMap<>();
-		final Guitar g1 = Guitar.create(model2, TypeGuitar.ELECTRIC, 1, 0); 
-		final Guitar g2 = Guitar.create(model1, TypeGuitar.CLASSIC, 0, 20);
-		final Guitar g3 = Guitar.create(model1, TypeGuitar.ACOUSTIC, 0, 0);
-		guitars.put(g1.getId(), g1);
-		guitars.put(g2.getId(), g2);
-		guitars.put(g3.getId(), g3);
-		
+		final Map<ObjectId, Guitar> guitars = ALL_GUITARS.stream().collect(
+				Collectors.groupingBy(Guitar::getId, 
+						Collectors.reducing(null, (g1, g2) -> g1)));
 		for(Guitar g : guitars.values()) {
 			smof.insert(g);
 		}
