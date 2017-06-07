@@ -107,6 +107,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 			name = smofBoolean.name();
 			required = smofBoolean.required();
 			annotation = smofBoolean;
+			break;
 		default:
 			throw new InvalidSmofTypeException("Type not valid.");
 		}
@@ -159,4 +160,48 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	public void setBuilder(boolean builder) {
 		this.builder = builder;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((field == null) ? 0 : field.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		PrimaryField other = (PrimaryField) obj;
+		if (field == null) {
+			if (other.field != null) {
+				return false;
+			}
+		} else if (!field.equals(other.field)) {
+			return false;
+		}
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+		if (type != other.type) {
+			return false;
+		}
+		return true;
+	}
+	
+	
 }

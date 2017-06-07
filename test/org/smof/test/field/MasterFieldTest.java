@@ -19,47 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof.parsers;
+package org.smof.test.field;
 
-import org.bson.BsonBoolean;
-import org.bson.BsonValue;
-import org.smof.collection.SmofDispatcher;
-import org.smof.field.SmofField;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import org.smof.element.Element;
+import org.smof.field.MasterField;
+import org.smof.parsers.SmofType;
 
 @SuppressWarnings("javadoc")
-public class BooleanParser extends AbstractBsonParser {
+public class MasterFieldTest {
 
-	private static final Class<?>[] VALID_TYPES = {boolean.class, Boolean.class};
-
-	protected BooleanParser(SmofParser bsonParser, SmofDispatcher dispatcher) {
-		super(dispatcher, bsonParser, VALID_TYPES);
+	@Test
+	public final void testGetType() {
+		assertEquals(SmofType.OBJECT, new MasterField(Element.class).getType());
 	}
 
-	@Override
-	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
-		if(isBoolean(value.getClass())) {
-			return fromBoolean((Boolean) value);
-		}
-		return null;
+	@Test
+	public final void testGetFieldClass() {
+		final Class<?> elClass = Element.class;
+		final MasterField field = new MasterField(elClass);
+		assertEquals(elClass, field.getFieldClass());
 	}
 
-	private BsonValue fromBoolean(Boolean value) {
-		return new BsonBoolean(value);
-	}
-
-	private boolean isBoolean(Class<?> type) {
-		return type.equals(boolean.class) || type.equals(Boolean.class);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
-		return (T) new Boolean(value.asBoolean().getValue());
-	}
-
-	@Override
-	public boolean isValidBson(BsonValue value) {
-		return super.isValidBson(value) || value.isBoolean();
+	@Test
+	public final void testGetName() {
+		final Class<?> elClass = Element.class;
+		final MasterField field = new MasterField(elClass);
+		assertEquals(elClass.getName(), field.getName());
 	}
 
 }

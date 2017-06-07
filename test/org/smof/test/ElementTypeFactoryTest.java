@@ -39,6 +39,7 @@ import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.smof.annnotations.SmofArray;
+import org.smof.annnotations.SmofBoolean;
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofByte;
 import org.smof.annnotations.SmofDate;
@@ -69,6 +70,8 @@ public class ElementTypeFactoryTest {
 		parser.registerType(ElObjTest.ElObjTestB.class);
 		parser.registerType(ElObjTest.ElObjTestA.class);
 		parser.registerType(ElArrTest.class);	
+		parser.registerType(ElByteTest.class);
+		parser.registerType(ElBoolTest.class);
 	}
 
 	@Test
@@ -143,6 +146,14 @@ public class ElementTypeFactoryTest {
 		final BsonDocument doc = parser.toBson(test);
 		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElByteTest.class));
+	}
+	
+	@Test
+	public final void testBoolean() {
+		final ElBoolTest test = new ElBoolTest(true, false);
+		final BsonDocument doc = parser.toBson(test);
+		System.out.println(doc.toJson());
+		assertEquals(test, parser.fromBson(doc, ElBoolTest.class));
 	}
 	
 	private static enum EnumTest {
@@ -619,6 +630,63 @@ public class ElementTypeFactoryTest {
 			}
 			return true;
 		}
+	}
+	
+	private static class ElBoolTest extends AbstractElement {
+		
+		private static final String BOOL1 = "bool1";
+		private static final String BOOL2 = "bool2";
+		
+		@SmofBoolean(name = BOOL1)
+		private final Boolean bool1;
+		
+		@SmofBoolean(name = BOOL2)
+		private final boolean bool2;
+		
+		@SmofBuilder
+		ElBoolTest(
+				@SmofParam(name = BOOL1) Boolean bool1, 
+				@SmofParam(name = BOOL2) Boolean bool2) {
+			super();
+			this.bool1 = bool1;
+			this.bool2 = bool2;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + ((bool1 == null) ? 0 : bool1.hashCode());
+			result = prime * result + (bool2 ? 1231 : 1237);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!super.equals(obj)) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			ElBoolTest other = (ElBoolTest) obj;
+			if (bool1 == null) {
+				if (other.bool1 != null) {
+					return false;
+				}
+			} else if (!bool1.equals(other.bool1)) {
+				return false;
+			}
+			if (bool2 != other.bool2) {
+				return false;
+			}
+			return true;
+		}
+		
+		
 	}
 
 }
