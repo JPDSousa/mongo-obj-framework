@@ -187,7 +187,6 @@ class ObjectParser extends AbstractBsonParser {
 		final Map<Object, Object> map = new LinkedHashMap<>();
 		final Pair<SecondaryField, SecondaryField> mapClass = getMapFields(fieldOpts);
 
-
 		for(String bsonKey : document.keySet()) {
 			final BsonValue bsonValue = document.get(bsonKey);
 			final Object key = toMapKey(bsonKey, mapClass.getKey());
@@ -223,15 +222,17 @@ class ObjectParser extends AbstractBsonParser {
 		setElementMetadata(document, obj);
 	}
 
-	private <T> void handleField(BsonDocument document, final BsonBuilder<T> builder, PrimaryField field) {
+	private <T> void handleField(BsonDocument document, BsonBuilder<T> builder, PrimaryField field) {
 		final BsonValue fieldValue = document.get(field.getName());
 		final Object parsedObj;
-		if(fieldValue.isObjectId()) {
-			builder.append2LazyElements(field, fieldValue.asObjectId().getValue());
-		}
-		else {
-			parsedObj = bsonParser.fromBson(fieldValue, field);
-			builder.append2AdditionalFields(field.getRawField(), parsedObj);
+		if(fieldValue != null) {
+			if(fieldValue.isObjectId()) {
+				builder.append2LazyElements(field, fieldValue.asObjectId().getValue());
+			}
+			else {
+				parsedObj = bsonParser.fromBson(fieldValue, field);
+				builder.append2AdditionalFields(field.getRawField(), parsedObj);
+			}
 		}
 	}
 
