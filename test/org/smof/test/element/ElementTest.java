@@ -27,6 +27,7 @@ import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.smof.element.AbstractElement;
 import org.smof.element.Element;
+import org.smof.exception.SmofException;
 
 @SuppressWarnings("javadoc")
 public class ElementTest {
@@ -36,6 +37,16 @@ public class ElementTest {
 	public final void testElementDotted() {
 		final String dotted = Element.dotted("a", "b", "c");
 		assertEquals("a.b.c", dotted);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void testNullId() throws Throwable {
+		try {
+			DummyElement dummyElement = new DummyElement(null);
+			dummyElement.setId(null);
+		} catch (SmofException e) {
+			throw e.getCause();
+		}
 	}
 	
 	/**
