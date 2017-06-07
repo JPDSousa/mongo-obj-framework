@@ -26,10 +26,18 @@ import static org.junit.Assert.*;
 import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.smof.element.AbstractElement;
+import org.smof.element.Element;
 
 @SuppressWarnings("javadoc")
 public class ElementTest {
 
+	
+	@Test
+	public final void testElementDotted() {
+		final String dotted = Element.dotted("a", "b", "c");
+		assertEquals("a.b.c", dotted);
+	}
+	
 	/**
 	 * Test method for {@link org.smof.element.AbstractElement#AbstractElement()}.
 	 */
@@ -79,6 +87,8 @@ public class ElementTest {
 		final AbstractElement el3 = new AbstractElement(id) {
 			//nothing to add
 		};
+		assertEquals(el1, el1);
+		assertNotEquals(el1, null);
 		assertEquals(el4, el2);
 		assertNotEquals(el1, el2);
 		assertNotEquals(el1, el4);
