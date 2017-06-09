@@ -27,10 +27,24 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-@SuppressWarnings("javadoc")
+import org.smof.collection.Smof;
+import org.smof.element.Element;
+
+/**
+ * @author Joao
+ * 
+ * Smof annotation. This annotation is used on java types that are mapped into collections, and therefore implement {@link Element}. 
+ * Since smof works with lazy loading, all the sub-classes included in this annotation will be loaded as soon as 
+ * {@link Smof#loadCollection(String, Class)} (or variants) or {@link Smof#createCollection(String, Class)} (or variants) are called.
+ * Intuitively, all classes mentioned in {@link ForceInspection#value()} must sub-type the type that is marked with this annotation.
+ *
+ */
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface ForceInspection {
 
+	/**
+	 * @return list of sub-types that are to be loaded as soon as the type is mapped to a collection
+	 */
 	Class<?>[] value();
 }
