@@ -41,6 +41,8 @@ public class ParameterFieldTest {
 	@Test
 	public final void testGetType() {
 		assertEquals(SmofType.STRING, guineaPig.getType());
+		guineaPig.setPrimaryField(null);
+		assertNull(guineaPig.getType());
 	}
 
 	@Test
