@@ -33,21 +33,21 @@ import org.smof.annnotations.SmofObject;
 import org.smof.annnotations.SmofObjectId;
 import org.smof.annnotations.SmofString;
 import org.smof.element.Element;
-import org.smof.exception.InvalidSmofTypeException;
 import org.smof.parsers.SmofType;
 
 @SuppressWarnings("javadoc")
 public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 
 	private final SmofType type;
-	private final String name;
-	private final boolean required;
-	private final Annotation annotation;
+	private String name;
+	private boolean required;
+	private Annotation annotation;
 	private final Field field;
 	private final boolean external;
 	private boolean builder;
 	
-	public PrimaryField(Field field, SmofType type) throws InvalidSmofTypeException {
+	public PrimaryField(Field field, SmofType type) {
+		checkValidField(field);
 		final SmofArray smofArray;
 		final SmofDate smofDate;
 		final SmofNumber smofNumber;
@@ -108,12 +108,16 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 			required = smofBoolean.required();
 			annotation = smofBoolean;
 			break;
-		default:
-			throw new InvalidSmofTypeException("Type not valid.");
 		}
 		this.field = field;
 		this.type = type;
 		this.external = external;
+	}
+
+	private void checkValidField(Field field) {
+		if (field == null) {
+			throw new IllegalArgumentException("The field cannot be null");
+		}
 	}
 
 	@Override
@@ -140,7 +144,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 
 	@Override
 	public int compareTo(PrimaryField o) {
-		final int boolCompare = Boolean.compare(this.isRequired(), o.isRequired());
+		final int boolCompare = this.type.compareTo(o.type);
 		return boolCompare == 0 ? String.CASE_INSENSITIVE_ORDER.compare(this.name, o.name) : boolCompare;
 	}
 
@@ -165,9 +169,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((field == null) ? 0 : field.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + field.hashCode();
 		return result;
 	}
 
@@ -188,16 +190,6 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 				return false;
 			}
 		} else if (!field.equals(other.field)) {
-			return false;
-		}
-		if (name == null) {
-			if (other.name != null) {
-				return false;
-			}
-		} else if (!name.equals(other.name)) {
-			return false;
-		}
-		if (type != other.type) {
 			return false;
 		}
 		return true;
