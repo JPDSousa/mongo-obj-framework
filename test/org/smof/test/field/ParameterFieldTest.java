@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.smof.annnotations.SmofParam;
 import org.smof.annnotations.SmofString;
-import org.smof.exception.InvalidSmofTypeException;
 import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 import org.smof.parsers.SmofType;
@@ -29,7 +28,7 @@ public class ParameterFieldTest {
 	}
 	
 	@Before
-	public final void setUp() throws NoSuchMethodException, SecurityException, NoSuchFieldException, InvalidSmofTypeException {
+	public final void setUp() throws NoSuchMethodException, SecurityException, NoSuchFieldException {
 		final Method method = ParameterFieldTest.class.getDeclaredMethod("guineaPig", String.class);
 		final Parameter param = method.getParameters()[0];
 		final Field field = ParameterFieldTest.class.getDeclaredField("paramA");

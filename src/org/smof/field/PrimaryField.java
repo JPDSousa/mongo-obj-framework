@@ -185,14 +185,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 			return false;
 		}
 		PrimaryField other = (PrimaryField) obj;
-		if (field == null) {
-			if (other.field != null) {
-				return false;
-			}
-		} else if (!field.equals(other.field)) {
-			return false;
-		}
-		return true;
+		return field.equals(other.field);
 	}
 	
 	

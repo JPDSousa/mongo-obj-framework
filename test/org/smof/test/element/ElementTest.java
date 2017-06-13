@@ -49,6 +49,16 @@ public class ElementTest {
 		}
 	}
 	
+	@Test(expected = IllegalArgumentException.class)
+	public final void testSetNullId() throws Throwable {
+		try {
+			DummyElement dummyElement = new DummyElement();
+			dummyElement.setId(null);
+		} catch (SmofException e) {
+			throw e.getCause();
+		}
+	}
+	
 	/**
 	 * Test method for {@link org.smof.element.AbstractElement#AbstractElement()}.
 	 */

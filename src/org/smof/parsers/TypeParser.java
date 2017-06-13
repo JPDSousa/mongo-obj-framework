@@ -31,37 +31,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.smof.exception.InvalidSmofTypeException;
-import org.smof.exception.SmofException;
 import org.smof.field.PrimaryField;
 
 @SuppressWarnings("javadoc")
 public class TypeParser<T> {
 
-	private static void handleError(Throwable cause) {
-		throw new SmofException(cause);
-	}
-	
 	static <T> TypeParser<T> create(Class<T> type) {
-		try {
-			return new TypeParser<>(type);
-		} catch (InvalidSmofTypeException e) {
-			handleError(e);
-			return null;
-		}
+		return new TypeParser<>(type);
 	}
 
 	private final Class<T> type;
 
 	private final Map<String, PrimaryField> fields;
 
-	private TypeParser(Class<T> type) throws InvalidSmofTypeException {
+	private TypeParser(Class<T> type) {
 		this.type = type;
 		this.fields = new LinkedHashMap<>();
 		fillFields();
 	}
 
-	private void fillFields() throws InvalidSmofTypeException {
+	private void fillFields() {
 		PrimaryField current;
 		for(Field field : getDeclaredFields(type)) {
 			for(SmofType fieldType : SmofType.values()) {
