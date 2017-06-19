@@ -44,4 +44,10 @@ public enum IndexType {
 		return null;
 	}
 
+
+
+	public String getMongoToken() {
+		return mongoToken;
+	}
+
 }

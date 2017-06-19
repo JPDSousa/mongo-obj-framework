@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.math.BigDecimal;
+
 import org.bson.BsonDouble;
 import org.bson.BsonInt32;
 import org.bson.BsonInt64;
@@ -95,9 +97,8 @@ class NumberParser extends AbstractBsonParser {
 			retValue = writeShort(value);
 		}
 		else if(isFloat(type)) {
-			final double value = numVal.asDouble().getValue();
-			validateFloat(value);
-			retValue = readFloat(value);
+			final BigDecimal value = new BigDecimal(numVal.asDouble().getValue());
+			retValue = value.floatValue();
 		}
 		else if(isDouble(type)) {
 			retValue = readDouble(numVal);
@@ -117,10 +118,6 @@ class NumberParser extends AbstractBsonParser {
 
 	private short writeShort(final int value) {
 		return (short) value;
-	}
-
-	private Float readFloat(double value) {
-		return (float) value;
 	}
 
 	private Double readDouble(BsonNumber value) {
@@ -152,12 +149,6 @@ class NumberParser extends AbstractBsonParser {
 
 	private boolean isFloat(Class<?> type) {
 		return type.equals(Float.class) || type.equals(float.class);
-	}
-
-	private void validateFloat(double value) {
-		if(value > Float.MAX_VALUE || value < Float.MIN_VALUE) {
-			handleError(new IllegalArgumentException(value + " is not valid value for a float."));
-		}
 	}
 
 	private boolean isDouble(Class<?> type) {

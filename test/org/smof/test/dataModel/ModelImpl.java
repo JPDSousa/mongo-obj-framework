@@ -137,5 +137,10 @@ class ModelImpl extends AbstractElement implements Model {
 	public String getCreator() {
 		return creator;
 	}
+	
+	@Override
+	public String toString() {
+		return new StringBuilder(name).append("-").append(brand).toString();
+	}
 
 }

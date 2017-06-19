@@ -121,5 +121,10 @@ class BrandImpl extends AbstractElement implements Brand {
 	public Location getLocation() {
 		return headQuarters;
 	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 
 }
