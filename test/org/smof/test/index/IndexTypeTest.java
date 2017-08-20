@@ -19,19 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof.exception;
+package org.smof.test.index;
 
-@SuppressWarnings("javadoc")
-public class UnsupportedBsonException extends Exception {
+import static org.junit.Assert.*;
 
-	private static final long serialVersionUID = 1L;
-	
-	public UnsupportedBsonException(String message) {
-		super(message);
-	}
-	
-	public UnsupportedBsonException() {
-		super("This functionality is not supported.");
+import org.junit.Test;
+import org.smof.index.IndexType;
+
+/**
+ * @author Joao
+ *
+ */
+public class IndexTypeTest {
+
+	/**
+	 * Test method for {@link org.smof.index.IndexType#parse(java.lang.String)}.
+	 */
+	@Test
+	public final void testParse() {
+		for(IndexType type : IndexType.values()) {
+			assertEquals(type, IndexType.parse(type.getMongoToken()));
+		}
+		assertNull(IndexType.parse("randomNonExistantToken"));
 	}
 
 }

@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.bson.BsonDocument;
@@ -52,6 +53,8 @@ import org.smof.element.AbstractElement;
 import org.smof.exception.SmofException;
 import org.smof.parsers.SmofParser;
 import org.smof.parsers.SmofType;
+
+import com.google.common.collect.Sets;
 
 @SuppressWarnings("javadoc")
 public class ElementTypeFactoryTest {
@@ -129,7 +132,8 @@ public class ElementTypeFactoryTest {
 	
 	@Test
 	public void testArray() throws SmofException {
-		final ElArrTest test = new ElArrTest(Arrays.asList(500), Arrays.asList(LocalDate.now(), LocalDate.now()));
+		final List<LocalDate> localDateList = Arrays.asList(LocalDate.now(), LocalDate.now());
+		final ElArrTest test = new ElArrTest(Arrays.asList(500), Sets.newLinkedHashSet(localDateList));
 		final BsonDocument doc = parser.toBson(test);
 		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElArrTest.class));
@@ -535,10 +539,10 @@ public class ElementTypeFactoryTest {
 		private final List<Integer> arr1;
 		
 		@SmofArray(name = "arr2", type = SmofType.DATETIME)
-		private final List<LocalDate> arr2;
+		private final Set<LocalDate> arr2;
 		
 		@SmofBuilder
-		public ElArrTest(@SmofParam(name="arr1")List<Integer> dates1, @SmofParam(name="arr2") List<LocalDate> dates2) {
+		public ElArrTest(@SmofParam(name="arr1")List<Integer> dates1, @SmofParam(name="arr2") Set<LocalDate> dates2) {
 			this.arr1 = dates1;
 			this.arr2 = dates2;
 		}
