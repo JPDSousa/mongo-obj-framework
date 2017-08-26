@@ -42,6 +42,8 @@ import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 import org.smof.field.SecondaryField;
 import org.smof.field.SmofField;
+import org.smof.gridfs.SmofGridRef;
+import org.smof.gridfs.SmofGridRefFactory;
 
 class ObjectParser extends AbstractBsonParser {
 
@@ -62,6 +64,9 @@ class ObjectParser extends AbstractBsonParser {
 
 		if(isMaster(fieldOpts)) {
 			return fromMasterField((Element) value, fieldOpts, serContext);
+		}
+		else if(isSmofGridRef(type)) {
+			return fromGridRef((SmofGridRef) value, (PrimaryField) fieldOpts);
 		}
 		else if(isElement(type)) {
 			return fromElement((Element) value, serContext);
@@ -85,6 +90,19 @@ class ObjectParser extends AbstractBsonParser {
 	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
 		// unused
 		return null;
+	}
+	
+	private BsonObjectId fromGridRef(SmofGridRef fileRef, PrimaryField fieldOpts) {
+		if(fileRef.getId() == null) {
+			if(fileRef.getBucketName() == null) {
+				final SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
+				fileRef.setBucketName(annotation.bucketName());
+			}
+			//TODO test if upload file adds id to fileRef
+			dispatcher.uploadFile(fileRef);
+		}
+		return new BsonObjectId(fileRef.getId());
+		
 	}
 
 	private BsonDocument fromMasterField(Element value, SmofField fieldOpts, SerializationContext serContext) {
@@ -166,6 +184,9 @@ class ObjectParser extends AbstractBsonParser {
 		if(isMaster(fieldOpts) && isElement(type)) {
 			return toObject(value.asDocument(), type);
 		}
+		else if(isSmofGridRef(type)) {
+			return (T) toSmofGridRef(value.asObjectId(), (PrimaryField) fieldOpts);
+		}
 		else if(isElement(type)) {
 			return (T) toElement(value, (Class<Element>) type);
 		}
@@ -175,6 +196,13 @@ class ObjectParser extends AbstractBsonParser {
 		else {
 			return toObject(value.asDocument(), type);
 		}
+	}
+	
+	private SmofGridRef toSmofGridRef(BsonObjectId idBson, PrimaryField fieldOpts) {
+		final SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
+		final String bucketName = annotation.bucketName();
+		final ObjectId id = idBson.getValue();
+		return SmofGridRefFactory.newFromDB(id, bucketName);
 	}
 
 	private <T extends Element> T toElement(BsonValue value, Class<T> type) {
