@@ -2,6 +2,7 @@ package org.smof.gridfs;
 
 import java.nio.file.Path;
 
+import org.bson.Document;
 import org.bson.types.ObjectId;
 
 class SmofGridRefImpl implements SmofGridRef {
@@ -9,10 +10,12 @@ class SmofGridRefImpl implements SmofGridRef {
 	private Path attachedFile;
 	private String bucketName;
 	private ObjectId id;
+	private Document metadata;
 	
 	SmofGridRefImpl(ObjectId id, String bucketName) {
 		this.id = id;
 		this.bucketName = bucketName;
+		this.metadata = new Document();
 	}
 	
 	@Override
@@ -43,6 +46,21 @@ class SmofGridRefImpl implements SmofGridRef {
 	@Override
 	public void setBucketName(String bucketName) {
 		this.bucketName = bucketName;
+	}
+
+	@Override
+	public void putMetadataEntry(String key, Object value) {
+		metadata.put(key, value);
+	}
+
+	@Override
+	public void putMetadata(Document document) {
+		metadata = document;
+	}
+
+	@Override
+	public Document getMetadata() {
+		return metadata;
 	}
 
 }

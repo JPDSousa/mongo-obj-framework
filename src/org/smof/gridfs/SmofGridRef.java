@@ -2,6 +2,7 @@ package org.smof.gridfs;
 
 import java.nio.file.Path;
 
+import org.bson.Document;
 import org.bson.types.ObjectId;
 
 @SuppressWarnings("javadoc")
@@ -15,5 +16,9 @@ public interface SmofGridRef {
 	
 	public void attachFile(Path path);
 	public Path getAttachedFile();
+	
+	public void putMetadataEntry(String key, Object value);
+	public void putMetadata(Document document);
+	public Document getMetadata();
 
 }

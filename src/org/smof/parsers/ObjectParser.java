@@ -102,7 +102,6 @@ class ObjectParser extends AbstractBsonParser {
 			dispatcher.uploadFile(fileRef);
 		}
 		return new BsonObjectId(fileRef.getId());
-		
 	}
 
 	private BsonDocument fromMasterField(Element value, SmofField fieldOpts, SerializationContext serContext) {

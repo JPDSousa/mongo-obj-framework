@@ -11,6 +11,7 @@ import org.smof.collection.CollectionsPool;
 
 import com.google.common.base.Preconditions;
 import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 
 class SmofGridStreamManagerImpl implements SmofGridStreamManager {
 
@@ -39,8 +40,9 @@ class SmofGridStreamManagerImpl implements SmofGridStreamManager {
 		final ObjectId id;
 		final GridFSBucket bucket;
 		Preconditions.checkNotNull(bucketName, "No bucket specified");
+		final GridFSUploadOptions options = new GridFSUploadOptions().metadata(ref.getMetadata());
 		bucket = pool.getBucket(bucketName);
-		id = bucket.uploadFromStream(name, stream);
+		id = bucket.uploadFromStream(name, stream, options);
 		ref.setId(id);
 	}
 
