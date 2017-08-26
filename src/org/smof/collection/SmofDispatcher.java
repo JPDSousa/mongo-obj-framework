@@ -21,10 +21,16 @@
  ******************************************************************************/
 package org.smof.collection;
 
+import java.io.IOException;
+
 import org.bson.types.ObjectId;
+
 import org.smof.element.Element;
 import org.smof.exception.NoSuchCollection;
 import org.smof.exception.SmofException;
+import org.smof.gridfs.SmofGridRef;
+import org.smof.gridfs.SmofGridStreamManager;
+
 
 @SuppressWarnings("javadoc")
 public class SmofDispatcher {
@@ -34,9 +40,11 @@ public class SmofDispatcher {
 	}
 
 	private final CollectionsPool collections;
+	private final SmofGridStreamManager streamManager;
 
-	public SmofDispatcher(CollectionsPool collections) {
+	public SmofDispatcher(CollectionsPool collections, SmofGridStreamManager streamManager) {
 		this.collections = collections;
+		this.streamManager = streamManager;
 	}
 
 	public <T extends Element> void insert(T element) {
@@ -72,4 +80,13 @@ public class SmofDispatcher {
 		}
 		return validSuperType;
 	}
+
+	public void uploadFile(SmofGridRef fileRef) {
+		try {
+			streamManager.uploadFile(fileRef);
+		} catch (IOException e) {
+			handleError(e);
+		}
+	}
+	
 }
