@@ -28,11 +28,14 @@ import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofObject;
 import org.smof.element.Element;
 import org.smof.exception.NoSuchCollection;
+import org.smof.gridfs.SmofGridStreamManager;
 import org.smof.parsers.SmofParser;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
 
 /**
  * Main object of the API. Represents the layer between the database an the application.
@@ -47,6 +50,8 @@ import com.mongodb.client.MongoDatabase;
  */
 public final class Smof implements Closeable {
 
+	public static final String DEFAULT_BUCKET = "fs";
+	
 	/**
 	 * Creates a new smof connection.
 	 * 
@@ -78,6 +83,7 @@ public final class Smof implements Closeable {
 	private final SmofParser parser;
 	private final SmofDispatcher dispatcher;
 	private final MongoClient client;
+	private final SmofGridStreamManager gridStreamManager;
 
 	/**
 	 * Private constructor. This constructor is only accessed through the {@link #create(String, int, String)}
@@ -91,10 +97,26 @@ public final class Smof implements Closeable {
 		this.client = client;
 		this.database = database;
 		this.collections = new CollectionsPool();
-		this.dispatcher = new SmofDispatcher(collections);
+		this.gridStreamManager = SmofGridStreamManager.newStreamManager(collections);
+		this.dispatcher = new SmofDispatcher(collections, gridStreamManager);
 		this.parser = new SmofParser(dispatcher);
+		loadBucket(DEFAULT_BUCKET);
 	}
 
+	public void loadBucket(String bucketName) {
+		final GridFSBucket bucket = GridFSBuckets.create(database, bucketName);
+		collections.put(bucketName, bucket);
+	}
+	
+	public void dropBucket(String bucketName) {
+		final GridFSBucket bucket = collections.getBucket(bucketName);
+		bucket.drop();
+	}
+
+	public SmofGridStreamManager getGridStreamManager() {
+		return gridStreamManager;
+	}
+	
 	/**
 	 * Loads a new collection into the API. If the database has no collection with the name passed
 	 * as parameter, one will be created. The element class (elClass) is the type mapped to this collection.

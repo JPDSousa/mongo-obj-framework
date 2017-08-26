@@ -27,6 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.smof.collection.Smof;
 import org.smof.parsers.SmofType;
 
 @SuppressWarnings("javadoc")
@@ -36,4 +37,5 @@ public @interface SmofObject {
 	String name();
 	boolean required() default false;
 	SmofType mapValueType() default SmofType.OBJECT;
+	String bucketName() default Smof.DEFAULT_BUCKET;
 }

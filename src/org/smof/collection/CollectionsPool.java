@@ -22,19 +22,26 @@
 package org.smof.collection;
 
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.smof.element.Element;
+
+import com.google.common.collect.Maps;
+import com.mongodb.client.gridfs.GridFSBucket;
 
 @SuppressWarnings("javadoc")
 public class CollectionsPool implements Iterable<SmofCollection<?>>{
 	
 	private final Map<Class<? extends Element>, SmofCollection<? extends Element>> collections;
-	
+	private final Map<String, GridFSBucket> fsBuckets;
 	
 	public CollectionsPool() {
-		collections = new LinkedHashMap<>();
+		collections = Maps.newLinkedHashMap();
+		fsBuckets = Maps.newLinkedHashMap();
+	}
+	
+	public void put(String bucketName, GridFSBucket bucket) {
+		fsBuckets.put(bucketName, bucket);
 	}
 	
 	public <T extends Element> void put(Class<T> elClass, SmofCollection<T> collection) {
@@ -44,6 +51,10 @@ public class CollectionsPool implements Iterable<SmofCollection<?>>{
 	@SuppressWarnings("unchecked")
 	public <T extends Element> SmofCollection<T> getCollection(Class<T> elClass) {
 		return (SmofCollection<T>) collections.get(elClass);
+	}
+	
+	public GridFSBucket getBucket(String bucketName) {
+		return fsBuckets.get(bucketName);
 	}
 
 	@Override

@@ -33,6 +33,7 @@ import org.smof.field.MasterField;
 import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
+import org.smof.gridfs.SmofGridRef;
 
 abstract class AbstractBsonParser implements BsonParser {
 	
@@ -107,6 +108,10 @@ abstract class AbstractBsonParser implements BsonParser {
 
 	protected boolean isElement(Class<?> type) {
 		return Element.class.isAssignableFrom(type);
+	}
+	
+	protected boolean isSmofGridRef(Class<?> type) {
+		return SmofGridRef.class.isAssignableFrom(type);
 	}
 	
 	protected boolean isPrimaryField(SmofField fieldOpts) {
