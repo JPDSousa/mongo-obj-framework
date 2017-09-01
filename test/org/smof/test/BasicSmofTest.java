@@ -49,6 +49,7 @@ import org.smof.test.dataModel.Guitar;
 import org.smof.test.dataModel.Location;
 import org.smof.test.dataModel.Model;
 
+import static org.smof.test.TestUtils.*;
 import static org.smof.test.dataModel.StaticDB.*;
 
 import com.mongodb.MongoClient;
@@ -64,8 +65,8 @@ public class BasicSmofTest {
 	@SuppressWarnings("deprecation")
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		client = new MongoClient("localhost", 27017);
-		database = client.getDatabase("test");
+		client = new MongoClient(TEST_HOST, TEST_PORT);
+		database = client.getDatabase(TEST_DB);
 		smof = Smof.create(database);
 	}
 

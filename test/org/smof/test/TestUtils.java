@@ -12,7 +12,11 @@ public class TestUtils {
 	public static final Path RESOURCES_4MB = RESOURCES.resolve("test4mb.jpg");
 	public static final Path RESOURCES_1MB = RESOURCES.resolve("test1mb.jpg");
 	
+	public static final String TEST_HOST = "localhost";
+	public static final String TEST_DB = "test";
+	public static final int TEST_PORT = 27020;
+	
 	public static final Smof createTestConnection() {
-		return Smof.create("localhost", 27017, "test");
+		return Smof.create(TEST_HOST, TEST_PORT, TEST_DB);
 	}
 }

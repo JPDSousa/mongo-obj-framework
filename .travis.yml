@@ -19,7 +19,7 @@ notifications:
 before_script:
   - mkdir db
   - ls
-  - mongod --dbpath db --fork --logpath mongodb.log
+  - mongod --dbpath db --fork --logpath mongodb.log --port 27020
   - sleep 15
 
 script: 

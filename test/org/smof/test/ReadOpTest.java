@@ -37,6 +37,7 @@ import org.smof.test.dataModel.Guitar;
 import org.smof.test.dataModel.Model;
 
 import static org.smof.test.dataModel.StaticDB.*;
+import static org.smof.test.TestUtils.*;
 
 @SuppressWarnings("javadoc")
 public class ReadOpTest {
@@ -45,7 +46,7 @@ public class ReadOpTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		smof = Smof.create("localhost", 27017, "test");
+		smof = createTestConnection();
 	}
 	
 	@AfterClass
