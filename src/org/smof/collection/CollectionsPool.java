@@ -86,5 +86,9 @@ public class CollectionsPool implements Iterable<SmofCollection<?>>{
 	public void remove(SmofCollection<?> collection) {
 		collections.remove(collection.getType());
 	}
+	
+	public void clearCollections() {
+		collections.clear();
+	}
 
 }
