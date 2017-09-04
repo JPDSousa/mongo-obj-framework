@@ -111,6 +111,14 @@ public final class Smof implements Closeable {
 	public void dropBucket(String bucketName) {
 		final GridFSBucket bucket = collections.getBucket(bucketName);
 		bucket.drop();
+		collections.removeBucket(bucketName);
+	}
+	
+	public void dropAllBuckets() {
+		for(String bucketName : collections.getAllBuckets()) {
+			collections.getBucket(bucketName).drop();
+		}
+		collections.clearBuckets();
 	}
 
 	public SmofGridStreamManager getGridStreamManager() {
@@ -295,6 +303,13 @@ public final class Smof implements Closeable {
 			return true;
 		}
 		return false;
+	}
+	
+	public void dropAllCollections() {
+		for(SmofCollection<?> collection : collections) {
+			collection.getMongoCollection().drop();
+		}
+		collections.clearCollections();
 	}
 
 	/**
