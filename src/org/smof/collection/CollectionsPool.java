@@ -56,6 +56,18 @@ public class CollectionsPool implements Iterable<SmofCollection<?>>{
 	public GridFSBucket getBucket(String bucketName) {
 		return fsBuckets.get(bucketName);
 	}
+	
+	public Iterable<String> getAllBuckets() {
+		return fsBuckets.keySet();
+	}
+	
+	public void removeBucket(String bucketName) {
+		fsBuckets.remove(bucketName);
+	}
+	
+	public void clearBuckets() {
+		fsBuckets.clear();
+	}
 
 	@Override
 	public Iterator<SmofCollection<?>> iterator() {
