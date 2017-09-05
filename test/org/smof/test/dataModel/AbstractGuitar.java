@@ -1,9 +1,13 @@
 package org.smof.test.dataModel;
 
+import java.nio.file.Path;
+
 import org.smof.annnotations.SmofNumber;
 import org.smof.annnotations.SmofObject;
 import org.smof.annnotations.SmofString;
 import org.smof.element.AbstractElement;
+import org.smof.gridfs.SmofGridRef;
+import org.smof.gridfs.SmofGridRefFactory;
 
 @SuppressWarnings("javadoc")
 public abstract class AbstractGuitar extends AbstractElement implements Guitar{
@@ -23,11 +27,15 @@ public abstract class AbstractGuitar extends AbstractElement implements Guitar{
 	@SmofNumber(name=PRICE)
 	private int price;
 	
+	@SmofObject(name = PICTURE, bucketName = StaticDB.GUITARS_PIC_BUCKET)
+	private SmofGridRef picture;
+	
 	protected AbstractGuitar(Model model, TypeGuitar type) {
 		super();
 		this.model = model;
 		this.type = type;
 		price = model.getFactoryPrice();
+		picture = SmofGridRefFactory.newEmptyRef();
 	}
 
 	@Override
@@ -127,6 +135,16 @@ public abstract class AbstractGuitar extends AbstractElement implements Guitar{
 	@Override
 	public String toString() {
 		return new StringBuilder(type.toString()).append("-").append(model).toString();
+	}
+
+	@Override
+	public SmofGridRef getPicture() {
+		return picture;
+	}
+
+	@Override
+	public void setPicture(Path picture) {
+		this.picture.attachFile(picture);
 	}
 
 }

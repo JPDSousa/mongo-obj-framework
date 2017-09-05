@@ -1,11 +1,14 @@
 package org.smof.test.dataModel;
 
+import java.nio.file.Path;
+
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofIndex;
 import org.smof.annnotations.SmofIndexField;
 import org.smof.annnotations.SmofIndexes;
 import org.smof.annnotations.SmofParam;
 import org.smof.element.Element;
+import org.smof.gridfs.SmofGridRef;
 import org.smof.index.IndexType;
 
 @SuppressWarnings("javadoc")
@@ -27,6 +30,7 @@ public interface Guitar extends Element{
 	String PRICE = "price";
 	String COLOR = "color";
 	String OWNER = "owner";
+	String PICTURE = "pic";
 
 	@SmofBuilder
 	static Guitar create(
@@ -61,5 +65,9 @@ public interface Guitar extends Element{
 	void setPrice(int price);
 
 	int getPrice();
+	
+	SmofGridRef getPicture();
+	
+	void setPicture(Path picture);
 
 }

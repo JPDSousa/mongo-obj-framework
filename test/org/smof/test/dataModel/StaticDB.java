@@ -11,6 +11,8 @@ public final class StaticDB {
 	public static final String BRANDS = "brands";
 	public static final String GUITARS = "guitars";
 	
+	public static final String GUITARS_PIC_BUCKET = "guitarsPics";
+	
 	public static final Brand BRAND_1 = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("Me", "Myself", "I"));
 	
 	public static final Model MODEL_1 = Model.create("Manhattan", "Tyler", 1000, BRAND_1, Arrays.asList("red", "blue"));
