@@ -23,6 +23,8 @@ package org.smof.test;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
 import org.junit.After;
@@ -43,11 +46,13 @@ import org.smof.annnotations.SmofIndexes;
 import org.smof.collection.Smof;
 import org.smof.element.AbstractElement;
 import org.smof.element.Element;
+import org.smof.gridfs.SmofGridStreamManager;
 import org.smof.index.InternalIndex;
 import org.smof.test.dataModel.Brand;
 import org.smof.test.dataModel.Guitar;
 import org.smof.test.dataModel.Location;
 import org.smof.test.dataModel.Model;
+import org.smof.test.dataModel.TypeGuitar;
 
 import static org.smof.test.TestUtils.*;
 import static org.smof.test.dataModel.StaticDB.*;
@@ -80,6 +85,7 @@ public class BasicSmofTest {
 		smof.createCollection(GUITARS, Guitar.class);
 		smof.createCollection(BRANDS, Brand.class);
 		smof.createCollection(MODELS, Model.class);
+		smof.loadBucket(GUITARS_PIC_BUCKET);
 	}
 	
 	@After
@@ -87,6 +93,7 @@ public class BasicSmofTest {
 		smof.dropCollection(GUITARS);
 		smof.dropCollection(BRANDS);
 		smof.dropCollection(MODELS);
+		smof.dropBucket(GUITARS_PIC_BUCKET);
 	}
 	
 	public void testIndexUpdating() {
@@ -204,6 +211,23 @@ public class BasicSmofTest {
 			.setUpsert(true)
 			.fromElement(brand);
 		assertEquals(brand, smof.find(Brand.class).byElement(brand));
+	}
+	
+	@Test
+	public void testSmofGridRef() throws IOException {
+		final SmofGridStreamManager gridStream = smof.getGridStreamManager();
+		final byte[] guitar1Pic = Files.readAllBytes(RECOURCES_EL_GUITAR);
+		final byte[] guitar2Pic = Files.readAllBytes(RECOURCES_AC_GUITAR);
+		final Guitar guitar1 = Guitar.create(MODEL_1, TypeGuitar.ELECTRIC, 1, 1995);
+		final Guitar guitar2 = Guitar.create(MODEL_2, TypeGuitar.ACOUSTIC, 1, 1965);
+		guitar1.setPicture(TestUtils.RECOURCES_EL_GUITAR);
+		guitar2.setPicture(RECOURCES_AC_GUITAR);
+		smof.insert(guitar1);
+		smof.insert(guitar2);
+		final byte[] actualEl = IOUtils.toByteArray(gridStream.download(guitar1.getPicture()));
+		final byte[] actualAc = IOUtils.toByteArray(gridStream.download(guitar2.getPicture()));
+		assertArrayEquals(guitar1Pic, actualEl);
+		assertArrayEquals(guitar2Pic, actualAc);
 	}
 
 	@Test

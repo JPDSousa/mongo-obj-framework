@@ -92,7 +92,10 @@ class ObjectParser extends AbstractBsonParser {
 		return null;
 	}
 	
-	private BsonObjectId fromGridRef(SmofGridRef fileRef, PrimaryField fieldOpts) {
+	private BsonValue fromGridRef(SmofGridRef fileRef, PrimaryField fieldOpts) {
+		if(fileRef.getAttachedFile() == null) {
+			return new BsonNull();
+		}
 		if(fileRef.getId() == null) {
 			if(fileRef.getBucketName() == null) {
 				final SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
