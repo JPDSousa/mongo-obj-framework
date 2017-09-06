@@ -134,6 +134,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public void replace(T element, SmofUpdateOptions options) {
+		options.upsert(this.options.isUpsert());
 		if(this.options.isValid(element) 
 				&& (options.isBypassCache() || !cache.asMap().containsValue(element))) {
 			final BsonDocument document = parser.toBson(element);

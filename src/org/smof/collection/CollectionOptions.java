@@ -39,5 +39,8 @@ public interface CollectionOptions<E extends Element> {
 	boolean isValid(E element);
 	
 	void throwOnConstraintBreach(boolean throu);
+	
+	void upsert(boolean upsert);
+	boolean isUpsert();
 
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
@@ -69,6 +70,11 @@ class SmofGridStreamManagerImpl implements SmofGridStreamManager {
 		Preconditions.checkArgument(bucketName != null, "No bucket specified");
 		final GridFSBucket bucket = pool.getBucket(bucketName);
 		bucket.delete(id);
+	}
+
+	@Override
+	public long count(String bucketName) {
+		return StreamSupport.stream(pool.getBucket(bucketName).find().spliterator(), false).count();
 	}
 	
 	

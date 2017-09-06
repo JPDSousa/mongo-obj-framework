@@ -20,4 +20,6 @@ public interface SmofGridStreamManager {
 	public void downloadToFile(SmofGridRef ref, Path path) throws IOException;
 	
 	void drop(SmofGridRef ref);
+	
+	long count(String bucketName);
 }

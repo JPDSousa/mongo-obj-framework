@@ -33,10 +33,12 @@ class CollectionOptionsImpl<E extends Element> implements CollectionOptions<E> {
 
 	private final List<Predicate<E>> constraints;
 	private boolean throwOnConstraintBreach;
+	private boolean upsert;
 	
 	CollectionOptionsImpl() {
 		constraints = Lists.newArrayList();
 		throwOnConstraintBreach = true;
+		upsert = true;
 	}
 
 	@Override
@@ -62,6 +64,16 @@ class CollectionOptionsImpl<E extends Element> implements CollectionOptions<E> {
 	@Override
 	public void throwOnConstraintBreach(boolean throu) {
 		this.throwOnConstraintBreach = throu;
+	}
+
+	@Override
+	public void upsert(boolean upsert) {
+		this.upsert = upsert;
+	}
+
+	@Override
+	public boolean isUpsert() {
+		return upsert;
 	}
 	
 	

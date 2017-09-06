@@ -49,14 +49,12 @@ public class SmofDispatcher {
 
 	public <T extends Element> void insert(T element) {
 		final SmofUpdateOptions options = SmofUpdateOptions.create();
-		options.upsert(true);
 		options.bypassCache(true);
 		insert(element, options);
 	}
 	
 	public <T extends Element> void insertChild(T element) {
 		final SmofUpdateOptions options = SmofUpdateOptions.create();
-		options.upsert(true);
 		insert(element, options);
 	}
 	
