@@ -3,6 +3,7 @@ package org.smof.gridfs;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import org.smof.collection.CollectionsPool;
 
@@ -21,5 +22,5 @@ public interface SmofGridStreamManager {
 	
 	void drop(SmofGridRef ref);
 	
-	long count(String bucketName);
+	Stream<SmofGridRef> stream(String bucketName);
 }

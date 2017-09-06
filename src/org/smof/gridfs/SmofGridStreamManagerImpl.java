@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -73,8 +74,9 @@ class SmofGridStreamManagerImpl implements SmofGridStreamManager {
 	}
 
 	@Override
-	public long count(String bucketName) {
-		return StreamSupport.stream(pool.getBucket(bucketName).find().spliterator(), false).count();
+	public Stream<SmofGridRef> stream(String bucketName) {
+		return StreamSupport.stream(pool.getBucket(bucketName).find().spliterator(), false)
+				.map(file -> SmofGridRefFactory.newFromDB(file.getId().asObjectId().getValue(), bucketName));
 	}
 	
 	
