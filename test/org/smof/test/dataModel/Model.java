@@ -50,4 +50,10 @@ public interface Model extends Element {
 	
 	float getPopularity();
 	void setPopularity(float popularity);
+	
+	@Override
+	boolean equals(Object model);
+	
+	@Override
+	int hashCode();
 }

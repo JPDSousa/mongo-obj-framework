@@ -81,11 +81,9 @@ public abstract class AbstractGuitar extends AbstractElement implements Guitar{
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((color == null) ? 0 : color.hashCode());
 		result = prime * result + ((model == null) ? 0 : model.hashCode());
-		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
-		result = prime * result + price;
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
@@ -95,7 +93,7 @@ public abstract class AbstractGuitar extends AbstractElement implements Guitar{
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (!super.equals(obj)) {
 			return false;
 		}
 		if (getClass() != obj.getClass()) {
@@ -114,16 +112,6 @@ public abstract class AbstractGuitar extends AbstractElement implements Guitar{
 				return false;
 			}
 		} else if (!model.equals(other.model)) {
-			return false;
-		}
-		if (owner == null) {
-			if (other.owner != null) {
-				return false;
-			}
-		} else if (!owner.equals(other.owner)) {
-			return false;
-		}
-		if (price != other.price) {
 			return false;
 		}
 		if (type != other.type) {
