@@ -32,10 +32,10 @@ import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.model.UpdateOptions;
 
 @SuppressWarnings("javadoc")
-public class SmofUpdateOptions {
+public class SmofOpOptions {
 	
-	public static SmofUpdateOptions create() {
-		return new SmofUpdateOptions();
+	public static SmofOpOptions create() {
+		return new SmofOpOptions();
 	}
 	
 	private boolean upsert;
@@ -46,7 +46,7 @@ public class SmofUpdateOptions {
 	private ReturnDocument ret;
 	private boolean bypassCache;
 	
-	private SmofUpdateOptions() {
+	private SmofOpOptions() {
 		upsert = false;
 		validateDocuments = true;
 		ret = ReturnDocument.AFTER;

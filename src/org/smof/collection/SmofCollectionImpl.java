@@ -42,6 +42,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
@@ -96,11 +97,30 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	@Override
-	public void insert(T element) {
-		if(options.isValid(element) && !cache.asMap().containsKey(element.getId())) {
+	public boolean insert(T element, SmofOpOptions options) {
+		final boolean isValid = this.options.isValid(element);
+		if(isValid) {
+			if(this.options.isUpsert()) {
+				return replace(element, options);
+			}
+			else if(!cache.asMap().containsKey(element.getId())) {
+				return insert(element);
+			}
+		}
+		return isValid;
+	}
+
+	private boolean insert(T element) {
+		try {
 			final BsonDocument document = parser.toBson(element);
 			collection.insertOne(document);
 			cache.put(element.getId(), element);
+			return true;
+		} catch(MongoWriteException e) {
+			if(this.options.isThrowOnInsertDuplicate()) {
+				throw e;
+			}
+			return false;
 		}
 	}
 
@@ -120,7 +140,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	@Override
-	public void execUpdate(Bson filter, Bson update, SmofUpdateOptions options) {
+	public void execUpdate(Bson filter, Bson update, SmofOpOptions options) {
 		options.setReturnDocument(ReturnDocument.AFTER);
 		final BsonDocument result = collection.findOneAndUpdate(filter, update, options.toFindOneAndUpdateOptions());
 		final T element = parser.fromBson(result, type);
@@ -132,11 +152,9 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		return new SmofUpdate<>(this);
 	}
 
-	@Override
-	public void replace(T element, SmofUpdateOptions options) {
+	private boolean replace(T element, SmofOpOptions options) {
 		options.upsert(true);
-		if(this.options.isValid(element) 
-				&& (options.isBypassCache() || !cache.asMap().containsValue(element))) {
+		if(options.isBypassCache() || !cache.asMap().containsValue(element)) {
 			final BsonDocument document = parser.toBson(element);
 			final Bson query = createUniquenessQuery(document);
 			options.setReturnDocument(ReturnDocument.AFTER);
@@ -145,6 +163,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 			element.setId(result.get(Element.ID).asObjectId().getValue());
 			cache.put(element.getId(), element);
 		}
+		return true;
 	}
 
 	private Bson createUniquenessQuery(BsonDocument element) {

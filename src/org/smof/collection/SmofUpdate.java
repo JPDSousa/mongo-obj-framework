@@ -46,7 +46,7 @@ public class SmofUpdate<T extends Element> {
 	private final Map<String, PrimaryField> fields;
 	private final Class<T> type;
 	private final SmofCollection<T> collection;
-	private final SmofUpdateOptions options;
+	private final SmofOpOptions options;
 	
 	SmofUpdate(SmofCollection<T> collection) {
 		update = new BsonDocument();
@@ -54,7 +54,7 @@ public class SmofUpdate<T extends Element> {
 		this.type = collection.getType();
 		this.collection = collection;
 		fields = parser.getTypeStructure(type).getAllFields();
-		options = SmofUpdateOptions.create();
+		options = SmofOpOptions.create();
 		options.bypassCache(true);
 	}
 	
@@ -76,7 +76,7 @@ public class SmofUpdate<T extends Element> {
 	}
 	
 	public void fromElement(T element) {
-		collection.replace(element, options);
+		collection.insert(element, options);
 		parser.reset();
 	}
 

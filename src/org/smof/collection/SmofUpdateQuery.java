@@ -42,12 +42,12 @@ public class SmofUpdateQuery<T extends Element> {
 	private final BsonDocument update;
 	private final SmofCollection<T> collection;
 	private BsonDocument filter;
-	private final SmofUpdateOptions options;
+	private final SmofOpOptions options;
 	private final SmofParser parser;
 	private final Map<String, PrimaryField> fields;
 	private final Class<T> type;
 	
-	SmofUpdateQuery(BsonDocument update, SmofCollection<T> collection, SmofUpdateOptions options, Map<String, PrimaryField> fields) {
+	SmofUpdateQuery(BsonDocument update, SmofCollection<T> collection, SmofOpOptions options, Map<String, PrimaryField> fields) {
 		super();
 		this.update = update;
 		this.collection = collection;

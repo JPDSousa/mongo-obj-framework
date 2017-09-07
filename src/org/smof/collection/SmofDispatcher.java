@@ -48,20 +48,20 @@ public class SmofDispatcher {
 	}
 
 	public <T extends Element> void insert(T element) {
-		final SmofUpdateOptions options = SmofUpdateOptions.create();
+		final SmofOpOptions options = SmofOpOptions.create();
 		options.bypassCache(true);
 		insert(element, options);
 	}
 	
 	public <T extends Element> void insertChild(T element) {
-		final SmofUpdateOptions options = SmofUpdateOptions.create();
+		final SmofOpOptions options = SmofOpOptions.create();
 		insert(element, options);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T extends Element> void insert(T element, SmofUpdateOptions options) {		
+	private <T extends Element> void insert(T element, SmofOpOptions options) {		
 		final Class<? extends Element> type = getValidCollectionType(element.getClass());
-		((SmofCollection<T>) collections.getCollection(type)).replace(element, options);
+		((SmofCollection<T>) collections.getCollection(type)).insert(element, options);
 	}
 
 	@SuppressWarnings("cast")

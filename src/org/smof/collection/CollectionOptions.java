@@ -40,6 +40,9 @@ public interface CollectionOptions<E extends Element> {
 	
 	void throwOnConstraintBreach(boolean throu);
 	
+	void throwOnInsertDuplicate(boolean throu);
+	boolean isThrowOnInsertDuplicate();
+	
 	void upsert(boolean upsert);
 	boolean isUpsert();
 
