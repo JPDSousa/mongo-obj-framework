@@ -29,17 +29,14 @@ import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.smof.element.Element;
-import org.smof.exception.SmofException;
 import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
 import org.smof.parsers.SmofParser;
 
+import com.google.common.base.Preconditions;
+
 @SuppressWarnings("javadoc")
 public class SmofUpdate<T extends Element> {
-	
-	private static void handleError(Throwable cause) {
-		throw new SmofException(cause);
-	}
 	
 	private BsonDocument update;
 	private final SmofParser parser;
@@ -60,9 +57,7 @@ public class SmofUpdate<T extends Element> {
 	
 	private SmofField validateFieldName(String fieldName) {
 		final PrimaryField field = fields.get(fieldName);
-		if(field == null) {
-			handleError(new IllegalArgumentException(fieldName + " is not a valid field name for type " + type.getName()));
-		}
+		Preconditions.checkArgument(field != null, fieldName + " is not a valid field name for type " + type.getName());
 		return field;
 	}
 	
