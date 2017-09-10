@@ -28,13 +28,10 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.bson.BsonDocument;
-import org.bson.types.ObjectId;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -90,12 +87,11 @@ public class BasicSmofTest {
 	
 	@After
 	public final void tearDown() {
-		smof.dropCollection(GUITARS);
-		smof.dropCollection(BRANDS);
-		smof.dropCollection(MODELS);
-		smof.dropBucket(GUITARS_PIC_BUCKET);
+		smof.dropAllBuckets();
+		smof.dropAllCollections();
 	}
 	
+	@Test
 	public void testIndexUpdating() {
 		final Set<InternalIndex> before = new LinkedHashSet<>();
 		final Set<InternalIndex> after = new LinkedHashSet<>();
@@ -167,17 +163,14 @@ public class BasicSmofTest {
 		assertEquals(1, count);
 	}
 	
-	//@Test
+	@Test
 	public void testQueryAll() {
-		final Map<ObjectId, Guitar> guitars = ALL_GUITARS.stream().collect(
-				Collectors.groupingBy(Guitar::getId, 
-						Collectors.reducing(null, (g1, g2) -> g1)));
-		for(Guitar g : guitars.values()) {
-			smof.insert(g);
+		for(Guitar g : ALL_GUITARS) {
+			assertTrue(smof.insert(g));
 		}
 		final List<Guitar> results = smof.find(Guitar.class).results().asList();
 		for(Guitar g : results) {
-			assertEquals(g, guitars.get(g.getId()));
+			assertTrue(ALL_GUITARS.contains(g));
 		}
 	}
 	
@@ -205,15 +198,6 @@ public class BasicSmofTest {
 	}
 	
 	@Test
-	public void testUpsert() {
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
-		smof.update(Brand.class)
-			.setUpsert(true)
-			.fromElement(brand);
-		assertEquals(brand, smof.find(Brand.class).byElement(brand));
-	}
-	
-	@Test
 	public void testSmofGridRef() throws IOException {
 		final SmofGridStreamManager gridStream = smof.getGridStreamManager();
 		final byte[] guitar1Pic = Files.readAllBytes(RECOURCES_EL_GUITAR);
@@ -231,7 +215,7 @@ public class BasicSmofTest {
 	}
 
 	@Test
-	public void testDrop() {
+	public final void testDrop() {
 		final String name = "drop";
 		smof.createCollection(name, ToDrop.class);
 		smof.dropCollection(name);
