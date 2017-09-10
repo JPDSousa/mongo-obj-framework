@@ -38,4 +38,5 @@ public @interface SmofObject {
 	boolean required() default false;
 	SmofType mapValueType() default SmofType.OBJECT;
 	String bucketName() default Smof.DEFAULT_BUCKET;
+	boolean preInsert() default true;
 }

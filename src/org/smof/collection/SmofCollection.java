@@ -56,16 +56,17 @@ public interface SmofCollection<T extends Element> {
 	 * 
 	 * @param element element to insert
 	 */
-	void insert(T element);
+	SmofInsertResult insert(T element, SmofOpOptions options);
 
-	void execUpdate(Bson filter, Bson updates, SmofUpdateOptions options);
+	void execUpdate(Bson filter, Bson updates, SmofOpOptions options);
 	SmofUpdate<T> update();
-	void replace(T element, SmofUpdateOptions options);
 
 	SmofQuery<T> query();
 	T findById(ObjectId id);
 	
 	SmofParser getParser();
 	Class<T> getType();
+	
+	CollectionOptions<T> getCollectionOptions();
 	
 }

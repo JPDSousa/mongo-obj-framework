@@ -23,7 +23,7 @@ class ModelImpl extends AbstractElement implements Model {
 	@SmofNumber(name = PRICE)
 	private final int price;
 	
-	@SmofObject(name = BRAND)
+	@SmofObject(name = BRAND, preInsert = false)
 	private final Brand brand;
 	
 	@SmofNumber(name = POPULARITY)
@@ -81,12 +81,10 @@ class ModelImpl extends AbstractElement implements Model {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((brand == null) ? 0 : brand.hashCode());
-		result = prime * result + ((colors == null) ? 0 : colors.hashCode());
-		result = prime * result + Float.floatToIntBits(popularity);
-		result = prime * result + price;
-		result = prime * result + units;
+		result = prime * result + ((creator == null) ? 0 : creator.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -95,7 +93,7 @@ class ModelImpl extends AbstractElement implements Model {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (!super.equals(obj)) {
 			return false;
 		}
 		if (getClass() != obj.getClass()) {
@@ -109,20 +107,18 @@ class ModelImpl extends AbstractElement implements Model {
 		} else if (!brand.equals(other.brand)) {
 			return false;
 		}
-		if (colors == null) {
-			if (other.colors != null) {
+		if (creator == null) {
+			if (other.creator != null) {
 				return false;
 			}
-		} else if (!colors.equals(other.colors)) {
+		} else if (!creator.equals(other.creator)) {
 			return false;
 		}
-		if (Float.floatToIntBits(popularity) != Float.floatToIntBits(other.popularity)) {
-			return false;
-		}
-		if (price != other.price) {
-			return false;
-		}
-		if (units != other.units) {
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
 			return false;
 		}
 		return true;

@@ -34,13 +34,18 @@ class SmofGridRefImpl implements SmofGridRef {
 	}
 
 	@Override
-	public String getBucketName() {
-		return bucketName;
+	public String getIdAsString() {
+		return id.toHexString();
 	}
 
 	@Override
 	public void setId(ObjectId id) {
 		this.id = id;
+	}
+
+	@Override
+	public String getBucketName() {
+		return bucketName;
 	}
 
 	@Override

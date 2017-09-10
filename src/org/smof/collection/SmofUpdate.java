@@ -29,24 +29,21 @@ import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.smof.element.Element;
-import org.smof.exception.SmofException;
 import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
 import org.smof.parsers.SmofParser;
 
+import com.google.common.base.Preconditions;
+
 @SuppressWarnings("javadoc")
 public class SmofUpdate<T extends Element> {
-	
-	private static void handleError(Throwable cause) {
-		throw new SmofException(cause);
-	}
 	
 	private BsonDocument update;
 	private final SmofParser parser;
 	private final Map<String, PrimaryField> fields;
 	private final Class<T> type;
 	private final SmofCollection<T> collection;
-	private final SmofUpdateOptions options;
+	private final SmofOpOptions options;
 	
 	SmofUpdate(SmofCollection<T> collection) {
 		update = new BsonDocument();
@@ -54,15 +51,13 @@ public class SmofUpdate<T extends Element> {
 		this.type = collection.getType();
 		this.collection = collection;
 		fields = parser.getTypeStructure(type).getAllFields();
-		options = SmofUpdateOptions.create();
+		options = SmofOpOptions.create();
 		options.bypassCache(true);
 	}
 	
 	private SmofField validateFieldName(String fieldName) {
 		final PrimaryField field = fields.get(fieldName);
-		if(field == null) {
-			handleError(new IllegalArgumentException(fieldName + " is not a valid field name for type " + type.getName()));
-		}
+		Preconditions.checkArgument(field != null, fieldName + " is not a valid field name for type " + type.getName());
 		return field;
 	}
 	
@@ -76,7 +71,7 @@ public class SmofUpdate<T extends Element> {
 	}
 	
 	public void fromElement(T element) {
-		collection.replace(element, options);
+		collection.insert(element, options);
 		parser.reset();
 	}
 
@@ -85,16 +80,15 @@ public class SmofUpdate<T extends Element> {
 		final BsonValue number = parser.toBson(value, field);
 		final BsonDocument doc = new BsonDocument();
 		doc.put(fieldName, number);
-		putOrAppend(INCREASE.getOperator(), doc);
+		putOrAppend(INCREASE, doc);
 		return this;
 	}
 	
 	public SmofUpdate<T> multiply(Number value, String fieldName) {
 		final SmofField field = validateFieldName(fieldName);
 		final BsonValue number = parser.toBson(value, field);
-		final BsonDocument doc = new BsonDocument();
-		doc.put(fieldName, number);
-		putOrAppend(MULTIPLY.getOperator(), doc);
+		final BsonDocument doc = new BsonDocument(fieldName, number);
+		putOrAppend(MULTIPLY, doc);
 		return this;
 	}
 	
@@ -102,8 +96,24 @@ public class SmofUpdate<T extends Element> {
 		validateFieldName(fieldName);
 		final BsonDocument doc = new BsonDocument();
 		doc.put(fieldName, new BsonString(newName));
-		putOrAppend(RENAME.getOperator(), doc);
+		putOrAppend(RENAME, doc);
 		return this;
+	}
+	
+	public SmofUpdate<T> set(BsonValue bson, String fieldName) {
+		final BsonDocument doc = new BsonDocument(fieldName, bson);
+		putOrAppend(SET, doc);
+		return this;
+	}
+	
+	public SmofUpdate<T> set(Object obj, String fieldName) {
+		final SmofField field = validateFieldName(fieldName);
+		final BsonValue value = parser.toBson(obj, field);
+		return set(value, fieldName);
+	}
+	
+	private void putOrAppend(Operators op, BsonDocument doc) {
+		putOrAppend(op.getOperator(), doc);
 	}
 
 	private void putOrAppend(String key, BsonDocument doc) {

@@ -24,11 +24,13 @@ package org.smof.collection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -36,6 +38,7 @@ import org.smof.element.Element;
 import org.smof.exception.SmofException;
 import org.smof.index.InternalIndex;
 import org.smof.parsers.SmofParser;
+import org.smof.utils.BsonUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -96,12 +99,33 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	@Override
-	public void insert(T element) {
-		if(options.isValid(element) && !cache.asMap().containsKey(element.getId())) {
-			final BsonDocument document = parser.toBson(element);
-			collection.insertOne(document);
-			cache.put(element.getId(), element);
+	public SmofInsertResult insert(T element, SmofOpOptions options) {
+		final SmofInsertResult result;
+		final boolean isValid = this.options.isValid(element);
+		if(isValid) {
+			if(this.options.isUpsert()) {
+				return replace(element, options);
+			}
+			else if(options.isBypassCache() || !cache.asMap().containsKey(element.getId())) {
+				return insert(element);
+			}
 		}
+		result = new SmofInsertResult();
+		result.setSuccess(isValid);
+		return result;
+	}
+
+	private SmofInsertResult insert(T element) {
+		final BsonDocument document;
+		final SmofInsertResult result = new SmofInsertResult();
+		final Stack<Pair<String, Element>> posInsertions;
+		document = parser.toBson(element);
+		posInsertions = BsonUtils.extrackPosInsertions(document);
+		collection.insertOne(document);
+		cache.put(element.getId(), element);
+		result.setSuccess(true);
+		result.setPostInserts(posInsertions);
+		return result;
 	}
 
 	@Override
@@ -120,7 +144,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	@Override
-	public void execUpdate(Bson filter, Bson update, SmofUpdateOptions options) {
+	public void execUpdate(Bson filter, Bson update, SmofOpOptions options) {
 		options.setReturnDocument(ReturnDocument.AFTER);
 		final BsonDocument result = collection.findOneAndUpdate(filter, update, options.toFindOneAndUpdateOptions());
 		final T element = parser.fromBson(result, type);
@@ -132,19 +156,21 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		return new SmofUpdate<>(this);
 	}
 
-	@Override
-	public void replace(T element, SmofUpdateOptions options) {
+	private SmofInsertResult replace(T element, SmofOpOptions options) {
+		final SmofInsertResult result = new SmofInsertResult();
+		result.setSuccess(true);
 		options.upsert(true);
-		if(this.options.isValid(element) 
-				&& (options.isBypassCache() || !cache.asMap().containsValue(element))) {
+		if(options.isBypassCache() || !cache.asMap().containsValue(element)) {
 			final BsonDocument document = parser.toBson(element);
 			final Bson query = createUniquenessQuery(document);
+			result.setPostInserts(BsonUtils.extrackPosInsertions(document));
 			options.setReturnDocument(ReturnDocument.AFTER);
 			document.remove(Element.ID);
-			final BsonDocument result = collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
-			element.setId(result.get(Element.ID).asObjectId().getValue());
+			final BsonDocument resDoc = collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
+			element.setId(resDoc.get(Element.ID).asObjectId().getValue());
 			cache.put(element.getId(), element);
 		}
+		return result;
 	}
 
 	private Bson createUniquenessQuery(BsonDocument element) {
@@ -204,6 +230,11 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 			return parser.fromBson(query.first(), type);
 		}
 
+	}
+
+	@Override
+	public CollectionOptions<T> getCollectionOptions() {
+		return options;
 	}
 
 }

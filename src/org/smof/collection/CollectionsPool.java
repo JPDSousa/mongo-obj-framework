@@ -25,12 +25,18 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.smof.element.Element;
+import org.smof.exception.NoSuchCollection;
+import org.smof.exception.SmofException;
 
 import com.google.common.collect.Maps;
 import com.mongodb.client.gridfs.GridFSBucket;
 
 @SuppressWarnings("javadoc")
 public class CollectionsPool implements Iterable<SmofCollection<?>>{
+	
+	private static void handleError(Throwable cause) {
+		throw new SmofException(cause);
+	}
 	
 	private final Map<Class<? extends Element>, SmofCollection<? extends Element>> collections;
 	private final Map<String, GridFSBucket> fsBuckets;
@@ -50,7 +56,12 @@ public class CollectionsPool implements Iterable<SmofCollection<?>>{
 	
 	@SuppressWarnings("unchecked")
 	public <T extends Element> SmofCollection<T> getCollection(Class<T> elClass) {
-		return (SmofCollection<T>) collections.get(elClass);
+		final Class<? extends Element> validSuperType = getValidSuperType(elClass);
+		if(validSuperType == null) {
+			handleError(new NoSuchCollection(elClass));
+			return null;
+		}
+		return (SmofCollection<T>) collections.get(validSuperType);
 	}
 	
 	public GridFSBucket getBucket(String bucketName) {
@@ -74,7 +85,7 @@ public class CollectionsPool implements Iterable<SmofCollection<?>>{
 		return collections.values().iterator();
 	}
 
-	public Class<? extends Element> getValidSuperType(Class<? extends Element> elClass) {
+	private Class<? extends Element> getValidSuperType(Class<? extends Element> elClass) {
 		for(Class<? extends Element> type : collections.keySet()) {
 			if(type.isAssignableFrom(elClass)) {
 				return type;

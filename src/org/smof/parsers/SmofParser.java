@@ -37,6 +37,8 @@ import org.smof.index.InternalIndex;
 
 @SuppressWarnings("javadoc")
 public class SmofParser {
+	
+	public static final String ON_INSERT = "onInsert";
 
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
@@ -85,6 +87,9 @@ public class SmofParser {
 	}
 
 	Object fromBson(BsonValue value, SmofField field) {
+		if(value.isNull()) {
+			return null;
+		}
 		checkValidBson(value, field);
 		final BsonParser parser = parsers.get(field.getType());
 		final Class<?> type = field.getFieldClass();

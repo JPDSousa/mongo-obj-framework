@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.bson.BsonArray;
 import org.bson.BsonDocument;
 import org.bson.BsonNull;
 import org.bson.BsonObjectId;
@@ -35,6 +36,7 @@ import org.bson.BsonValue;
 import org.bson.types.ObjectId;
 import org.smof.annnotations.SmofObject;
 import org.smof.collection.SmofDispatcher;
+import org.smof.collection.SmofOpOptions;
 import org.smof.element.Element;
 import org.smof.exception.MissingRequiredFieldException;
 import org.smof.field.MasterField;
@@ -44,6 +46,7 @@ import org.smof.field.SecondaryField;
 import org.smof.field.SmofField;
 import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridRefFactory;
+import org.smof.utils.BsonUtils;
 
 class ObjectParser extends AbstractBsonParser {
 
@@ -69,7 +72,7 @@ class ObjectParser extends AbstractBsonParser {
 			return fromGridRef((SmofGridRef) value, (PrimaryField) fieldOpts);
 		}
 		else if(isElement(type)) {
-			return fromElement((Element) value, serContext);
+			return fromElement((Element) value, (PrimaryField) fieldOpts, serContext);
 		}
 		else if(isMap(type) && isPrimaryField(fieldOpts)) {
 			return fromMap((Map<?, ?>) value, (PrimaryField) fieldOpts, serContext);
@@ -91,42 +94,47 @@ class ObjectParser extends AbstractBsonParser {
 		// unused
 		return null;
 	}
-	
+
 	private BsonValue fromGridRef(SmofGridRef fileRef, PrimaryField fieldOpts) {
 		if(fileRef.getAttachedFile() == null) {
 			return new BsonNull();
 		}
 		if(fileRef.getId() == null) {
+			final SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
 			if(fileRef.getBucketName() == null) {
-				final SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
 				fileRef.setBucketName(annotation.bucketName());
 			}
 			//TODO test if upload file adds id to fileRef
-			dispatcher.uploadFile(fileRef);
+			if(!annotation.preInsert()) {
+				return new BsonLazyObjectId(fieldOpts.getName(), fileRef);
+			}
+			dispatcher.insert(fileRef);
 		}
 		return new BsonObjectId(fileRef.getId());
 	}
 
 	private BsonDocument fromMasterField(Element value, SmofField fieldOpts, SerializationContext serContext) {
-		serContext.put(value, fieldOpts.getType(), toBsonObjectId(value));
+		serContext.put(value, fieldOpts.getType(), BsonUtils.toBsonObjectId(value));
 		return fromObject(value);
 	}
 
-	private BsonObjectId toBsonObjectId(Element value) {
-		final ObjectId id = value.getId();
-		return new BsonObjectId(id);
-	}
-
-	private BsonObjectId fromElement(Element value, SerializationContext serContext) {
-		dispatcher.insertChild(value);
-		final BsonObjectId id = toBsonObjectId(value);
-		serContext.put(value, SmofType.OBJECT, id);
-		return id;
+	private BsonValue fromElement(Element value, PrimaryField fieldOpts, SerializationContext serContext) {
+		SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
+		if(annotation.preInsert()) {
+			final SmofOpOptions options = SmofOpOptions.create();
+			options.bypassCache(true);
+			dispatcher.insert(value, options);
+			final BsonObjectId id = BsonUtils.toBsonObjectId(value);
+			serContext.put(value, SmofType.OBJECT, id);
+			return id;
+		}
+		return new BsonLazyObjectId(fieldOpts.getName(), value);
 	}
 
 	private BsonDocument fromObject(Object value) {
 		final BsonDocument document = new BsonDocument();
 		final TypeParser<?> metadata = getTypeParser(value.getClass());
+		final BsonArray lazyStack = new BsonArray();
 
 		for(PrimaryField field : metadata.getAllFields()) {
 			final Object fieldValue = extractValue(value, field);
@@ -134,8 +142,14 @@ class ObjectParser extends AbstractBsonParser {
 
 			checkRequired(field, fieldValue);
 			parsedValue = bsonParser.toBson(fieldValue, field);
-			document.put(field.getName(), parsedValue);
+			if(parsedValue instanceof BsonLazyObjectId) {
+				lazyStack.add(parsedValue);
+			}
+			else {
+				document.put(field.getName(), parsedValue);
+			}
 		}
+		document.append(SmofParser.ON_INSERT, lazyStack);
 		return document;
 	}
 
@@ -199,7 +213,7 @@ class ObjectParser extends AbstractBsonParser {
 			return toObject(value.asDocument(), type);
 		}
 	}
-	
+
 	private SmofGridRef toSmofGridRef(BsonObjectId idBson, PrimaryField fieldOpts) {
 		final SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
 		final String bucketName = annotation.bucketName();

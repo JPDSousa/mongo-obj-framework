@@ -27,7 +27,7 @@ public abstract class AbstractGuitar extends AbstractElement implements Guitar{
 	@SmofNumber(name=PRICE)
 	private int price;
 	
-	@SmofObject(name = PICTURE, bucketName = StaticDB.GUITARS_PIC_BUCKET)
+	@SmofObject(name = PICTURE, bucketName = StaticDB.GUITARS_PIC_BUCKET, preInsert=false)
 	private SmofGridRef picture;
 	
 	protected AbstractGuitar(Model model, TypeGuitar type) {

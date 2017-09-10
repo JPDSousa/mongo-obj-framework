@@ -22,14 +22,17 @@
 package org.smof.collection;
 
 import java.io.IOException;
+import java.util.Stack;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.bson.BsonObjectId;
 import org.bson.types.ObjectId;
 
 import org.smof.element.Element;
-import org.smof.exception.NoSuchCollection;
 import org.smof.exception.SmofException;
 import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridStreamManager;
+import org.smof.utils.BsonUtils;
 
 
 @SuppressWarnings("javadoc")
@@ -46,44 +49,56 @@ public class SmofDispatcher {
 		this.collections = collections;
 		this.streamManager = streamManager;
 	}
-
-	public <T extends Element> void insert(T element) {
-		final SmofUpdateOptions options = SmofUpdateOptions.create();
-		options.bypassCache(true);
-		insert(element, options);
-	}
 	
-	public <T extends Element> void insertChild(T element) {
-		final SmofUpdateOptions options = SmofUpdateOptions.create();
-		insert(element, options);
+	public final <T extends Element> boolean insert(T element) {
+		return insert(element, SmofOpOptions.create());
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T extends Element> void insert(T element, SmofUpdateOptions options) {		
-		final Class<? extends Element> type = getValidCollectionType(element.getClass());
-		((SmofCollection<T>) collections.getCollection(type)).replace(element, options);
+	public <T extends Element> boolean insert(T element, SmofOpOptions options) {
+		if(SmofGridRef.class.isAssignableFrom(element.getClass())) {
+			return uploadFile((SmofGridRef) element);
+		}
+		final SmofCollection<T> collection = (SmofCollection<T>) collections.getCollection(element.getClass());
+		final SmofInsertResult result = collection.insert(element, options);
+		final boolean success = result.isSuccess();
+		if(success) {
+			return onInsertSuccess(element, collection, result);
+		}
+		return success;
+	}
+
+	private <T extends Element> boolean onInsertSuccess(T element, SmofCollection<T> collection, SmofInsertResult result) {
+		final Stack<Pair<String, Element>> stack = result.getPostInserts();
+		if(!stack.isEmpty()) {
+			final SmofUpdate<T> update = new SmofUpdate<>(collection);
+			boolean updateSuccess = true;
+			while(!stack.isEmpty() && updateSuccess) {
+				final Pair<String, Element> current = stack.pop();
+				final Element currentElement = current.getRight();
+				final BsonObjectId id;
+				updateSuccess = insert(currentElement);
+				id = BsonUtils.toBsonObjectId(currentElement);
+				update.set(id, current.getLeft());
+			}
+			update.where().idEq(element.getId());
+			return updateSuccess;
+		}
+		return true;
 	}
 
 	@SuppressWarnings("cast")
 	public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
-		getValidCollectionType(elementClass);
 		return ((SmofCollection<T>) collections.getCollection(elementClass)).findById(id);
 	}
 
-	private Class<? extends Element> getValidCollectionType(Class<? extends Element> elementClass) {
-		final Class<? extends Element> validSuperType = collections.getValidSuperType(elementClass);
-		if(validSuperType == null) {
-			handleError(new NoSuchCollection(elementClass));
-			return null;
-		}
-		return validSuperType;
-	}
-
-	public void uploadFile(SmofGridRef fileRef) {
+	private boolean uploadFile(SmofGridRef fileRef) {
 		try {
 			streamManager.uploadFile(fileRef);
+			return true;
 		} catch (IOException e) {
 			handleError(e);
+			return false;
 		}
 	}
 	

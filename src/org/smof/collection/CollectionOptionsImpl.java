@@ -34,11 +34,13 @@ class CollectionOptionsImpl<E extends Element> implements CollectionOptions<E> {
 	private final List<Predicate<E>> constraints;
 	private boolean throwOnConstraintBreach;
 	private boolean upsert;
+	private boolean throwOnInsertDuplicate;
 	
 	CollectionOptionsImpl() {
 		constraints = Lists.newArrayList();
 		throwOnConstraintBreach = true;
 		upsert = true;
+		throwOnInsertDuplicate = false;
 	}
 
 	@Override
@@ -74,6 +76,16 @@ class CollectionOptionsImpl<E extends Element> implements CollectionOptions<E> {
 	@Override
 	public boolean isUpsert() {
 		return upsert;
+	}
+
+	@Override
+	public void throwOnInsertDuplicate(boolean throu) {
+		this.throwOnInsertDuplicate = throu;
+	}
+
+	@Override
+	public boolean isThrowOnInsertDuplicate() {
+		return throwOnInsertDuplicate;
 	}
 	
 	
