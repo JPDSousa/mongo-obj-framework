@@ -18,8 +18,8 @@ public final class StaticDB {
 	public static final Model MODEL_1 = Model.create("Manhattan", "Tyler", 1000, BRAND_1, Arrays.asList("red", "blue"));
 	public static final Model MODEL_2 = Model.create("BeeGees", "Tyler", 5463, BRAND_1, Arrays.asList("sunburst", "ebony"));
 	
-	public static final Guitar GUITAR_3 = Guitar.create(MODEL_1, TypeGuitar.ACOUSTIC, 0, 0);
-	public static final Guitar GUITAR_2 = Guitar.create(MODEL_1, TypeGuitar.CLASSIC, 0, 20);
+	public static final Guitar GUITAR_3 = Guitar.create(MODEL_1, TypeGuitar.ACOUSTIC, 0, 1989);
+	public static final Guitar GUITAR_2 = Guitar.create(MODEL_1, TypeGuitar.CLASSIC, 0, 1960);
 	public static final Guitar GUITAR_1 = Guitar.create(MODEL_2, TypeGuitar.ELECTRIC, 1, 0);
 	public static final List<Guitar> ALL_GUITARS = new ArrayList<>();
 	
