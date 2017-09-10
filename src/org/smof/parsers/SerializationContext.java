@@ -21,11 +21,12 @@
  ******************************************************************************/
 package org.smof.parsers;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.BsonValue;
+
+import com.google.common.collect.Maps;
 
 class SerializationContext {
 	
@@ -36,7 +37,7 @@ class SerializationContext {
 	private final Map<Pair<Object, SmofType>, BsonValue> serializationStack;
 	
 	private SerializationContext() {
-		serializationStack = new LinkedHashMap<>();
+		serializationStack = Maps.newLinkedHashMap();
 	}
 	
 	void put(Object object, SmofType type, BsonValue serializedValue) {
@@ -53,5 +54,6 @@ class SerializationContext {
 	
 	void clear() {
 		serializationStack.clear();
-	}
+	}	
+	
 }
