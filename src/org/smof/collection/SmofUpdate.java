@@ -80,16 +80,15 @@ public class SmofUpdate<T extends Element> {
 		final BsonValue number = parser.toBson(value, field);
 		final BsonDocument doc = new BsonDocument();
 		doc.put(fieldName, number);
-		putOrAppend(INCREASE.getOperator(), doc);
+		putOrAppend(INCREASE, doc);
 		return this;
 	}
 	
 	public SmofUpdate<T> multiply(Number value, String fieldName) {
 		final SmofField field = validateFieldName(fieldName);
 		final BsonValue number = parser.toBson(value, field);
-		final BsonDocument doc = new BsonDocument();
-		doc.put(fieldName, number);
-		putOrAppend(MULTIPLY.getOperator(), doc);
+		final BsonDocument doc = new BsonDocument(fieldName, number);
+		putOrAppend(MULTIPLY, doc);
 		return this;
 	}
 	
@@ -97,8 +96,24 @@ public class SmofUpdate<T extends Element> {
 		validateFieldName(fieldName);
 		final BsonDocument doc = new BsonDocument();
 		doc.put(fieldName, new BsonString(newName));
-		putOrAppend(RENAME.getOperator(), doc);
+		putOrAppend(RENAME, doc);
 		return this;
+	}
+	
+	public SmofUpdate<T> set(BsonValue bson, String fieldName) {
+		final BsonDocument doc = new BsonDocument(fieldName, bson);
+		putOrAppend(SET, doc);
+		return this;
+	}
+	
+	public SmofUpdate<T> set(Object obj, String fieldName) {
+		final SmofField field = validateFieldName(fieldName);
+		final BsonValue value = parser.toBson(obj, field);
+		return set(value, fieldName);
+	}
+	
+	private void putOrAppend(Operators op, BsonDocument doc) {
+		putOrAppend(op.getOperator(), doc);
 	}
 
 	private void putOrAppend(String key, BsonDocument doc) {
