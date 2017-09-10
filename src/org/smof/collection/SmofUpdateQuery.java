@@ -73,7 +73,11 @@ public class SmofUpdateQuery<T extends Element> {
 	}
 	
 	public void idEq(ObjectId id) {
-		filter = new BsonDocument(Element.ID, new BsonObjectId(id));
+		idEq(new BsonObjectId(id));
+	}
+	
+	public void idEq(BsonObjectId id) {
+		filter = new BsonDocument(Element.ID, id);
 		execute();
 	}
 	
