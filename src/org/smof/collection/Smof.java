@@ -31,7 +31,9 @@ import org.smof.exception.NoSuchCollection;
 import org.smof.gridfs.SmofGridStreamManager;
 import org.smof.parsers.SmofParser;
 
+import com.google.common.base.Preconditions;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
@@ -319,9 +321,22 @@ public final class Smof implements Closeable {
 	 * 
 	 * @param element element to insert
 	 */
-	public <T extends Element> void insert(T element) {
-		dispatcher.insert(element);
+	@SuppressWarnings("unchecked")
+	public <T extends Element> boolean insert(T element) {
+		Preconditions.checkArgument(element != null, "Cannot insert a null element");
+		final SmofCollection<T> collection = (SmofCollection<T>) collections.getCollection(element.getClass());
+		final CollectionOptions<T> options = collection.getCollectionOptions();
+		boolean success = false;
+		try {
+			success = dispatcher.insert(element);
+		} catch(MongoWriteException e) {
+			if(options.isThrowOnInsertDuplicate()) {
+				parser.reset();
+				throw e;
+			}
+		}
 		parser.reset();
+		return success;
 	}
 	
 	/**
