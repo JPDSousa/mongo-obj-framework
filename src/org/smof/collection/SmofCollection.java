@@ -56,7 +56,7 @@ public interface SmofCollection<T extends Element> {
 	 * 
 	 * @param element element to insert
 	 */
-	boolean insert(T element, SmofOpOptions options);
+	SmofInsertResult insert(T element, SmofOpOptions options);
 
 	void execUpdate(Bson filter, Bson updates, SmofOpOptions options);
 	SmofUpdate<T> update();

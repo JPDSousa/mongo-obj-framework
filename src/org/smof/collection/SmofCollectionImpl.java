@@ -24,11 +24,13 @@ package org.smof.collection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -36,13 +38,13 @@ import org.smof.element.Element;
 import org.smof.exception.SmofException;
 import org.smof.index.InternalIndex;
 import org.smof.parsers.SmofParser;
+import org.smof.utils.BsonUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoWriteException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
@@ -97,31 +99,33 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	@Override
-	public boolean insert(T element, SmofOpOptions options) {
+	public SmofInsertResult insert(T element, SmofOpOptions options) {
+		final SmofInsertResult result;
 		final boolean isValid = this.options.isValid(element);
 		if(isValid) {
 			if(this.options.isUpsert()) {
 				return replace(element, options);
 			}
-			else if(!cache.asMap().containsKey(element.getId())) {
+			else if(options.isBypassCache() || !cache.asMap().containsKey(element.getId())) {
 				return insert(element);
 			}
 		}
-		return isValid;
+		result = new SmofInsertResult();
+		result.setSuccess(isValid);
+		return result;
 	}
 
-	private boolean insert(T element) {
-		try {
-			final BsonDocument document = parser.toBson(element);
-			collection.insertOne(document);
-			cache.put(element.getId(), element);
-			return true;
-		} catch(MongoWriteException e) {
-			if(this.options.isThrowOnInsertDuplicate()) {
-				throw e;
-			}
-			return false;
-		}
+	private SmofInsertResult insert(T element) {
+		final BsonDocument document;
+		final SmofInsertResult result = new SmofInsertResult();
+		final Stack<Pair<String, Element>> posInsertions;
+		document = parser.toBson(element);
+		posInsertions = BsonUtils.extrackPosInsertions(document);
+		collection.insertOne(document);
+		cache.put(element.getId(), element);
+		result.setSuccess(true);
+		result.setPostInserts(posInsertions);
+		return result;
 	}
 
 	@Override
@@ -152,18 +156,21 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		return new SmofUpdate<>(this);
 	}
 
-	private boolean replace(T element, SmofOpOptions options) {
+	private SmofInsertResult replace(T element, SmofOpOptions options) {
+		final SmofInsertResult result = new SmofInsertResult();
+		result.setSuccess(true);
 		options.upsert(true);
 		if(options.isBypassCache() || !cache.asMap().containsValue(element)) {
 			final BsonDocument document = parser.toBson(element);
 			final Bson query = createUniquenessQuery(document);
+			result.setPostInserts(BsonUtils.extrackPosInsertions(document));
 			options.setReturnDocument(ReturnDocument.AFTER);
 			document.remove(Element.ID);
-			final BsonDocument result = collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
-			element.setId(result.get(Element.ID).asObjectId().getValue());
+			final BsonDocument resDoc = collection.findOneAndReplace(query, document, options.toFindOneAndReplace());
+			element.setId(resDoc.get(Element.ID).asObjectId().getValue());
 			cache.put(element.getId(), element);
 		}
-		return true;
+		return result;
 	}
 
 	private Bson createUniquenessQuery(BsonDocument element) {
