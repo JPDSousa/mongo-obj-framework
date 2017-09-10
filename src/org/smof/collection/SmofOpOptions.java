@@ -50,6 +50,7 @@ public class SmofOpOptions {
 		upsert = false;
 		validateDocuments = true;
 		ret = ReturnDocument.AFTER;
+		bypassCache = false;
 	}
 	
 	public FindOneAndReplaceOptions toFindOneAndReplace() {
