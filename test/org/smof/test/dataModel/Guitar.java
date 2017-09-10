@@ -18,7 +18,12 @@ import org.smof.index.IndexType;
 	}),
 	@SmofIndex(fields = {
 			@SmofIndexField(name = "price", type = IndexType.ASCENDING) 
-	})
+	}),
+	@SmofIndex(fields = {
+			@SmofIndexField(name = "model", type = IndexType.ASCENDING),
+			@SmofIndexField(name = "type", type = IndexType.ASCENDING),
+			@SmofIndexField(name = "age", type = IndexType.ASCENDING)
+	}, unique = true)
 })
 public interface Guitar extends Element{
 
