@@ -137,4 +137,17 @@ public class SmofOpOptions {
 	public boolean isBypassCache() {
 		return bypassCache;
 	}
+
+	@Override
+	public String toString() {
+		return "SmofOpOptions [upsert=" + upsert 
+				+ ", validateDocuments=" + validateDocuments 
+				+ ", maxTime=" + maxTime
+				+ ", projection=" + projection 
+				+ ", sort=" + sort 
+				+ ", ret=" + ret 
+				+ ", bypassCache=" + bypassCache
+				+ "]";
+	}
+	
 }
