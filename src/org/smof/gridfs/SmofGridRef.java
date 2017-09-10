@@ -3,13 +3,10 @@ package org.smof.gridfs;
 import java.nio.file.Path;
 
 import org.bson.Document;
-import org.bson.types.ObjectId;
+import org.smof.element.Element;
 
 @SuppressWarnings("javadoc")
-public interface SmofGridRef {
-	
-	public ObjectId getId();
-	public void setId(ObjectId id);
+public interface SmofGridRef extends Element {
 	
 	public String getBucketName();
 	public void setBucketName(String bucketName);
