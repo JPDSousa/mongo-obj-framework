@@ -66,17 +66,7 @@ public class SmofDispatcher {
 
 	@SuppressWarnings("cast")
 	public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
-		getValidCollectionType(elementClass);
 		return ((SmofCollection<T>) collections.getCollection(elementClass)).findById(id);
-	}
-
-	private Class<? extends Element> getValidCollectionType(Class<? extends Element> elementClass) {
-		final Class<? extends Element> validSuperType = collections.getValidSuperType(elementClass);
-		if(validSuperType == null) {
-			handleError(new NoSuchCollection(elementClass));
-			return null;
-		}
-		return validSuperType;
 	}
 
 	public void uploadFile(SmofGridRef fileRef) {
