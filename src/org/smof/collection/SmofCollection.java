@@ -67,4 +67,6 @@ public interface SmofCollection<T extends Element> {
 	SmofParser getParser();
 	Class<T> getType();
 	
+	CollectionOptions<T> getCollectionOptions();
+	
 }

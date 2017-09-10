@@ -225,4 +225,9 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	}
 
+	@Override
+	public CollectionOptions<T> getCollectionOptions() {
+		return options;
+	}
+
 }
