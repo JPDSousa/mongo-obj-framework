@@ -111,8 +111,8 @@ public class ElementTest {
 		assertEquals(el1, el1);
 		assertNotEquals(el1, null);
 		assertEquals(el4, el2);
-		assertNotEquals(el1, el2);
-		assertNotEquals(el1, el4);
+		assertEquals(el1, el2);
+		assertEquals(el1, el4);
 		assertNotEquals(el1, el3);
 		assertNotEquals(el3, el4);
 	}

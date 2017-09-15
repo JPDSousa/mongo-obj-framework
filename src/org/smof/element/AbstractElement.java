@@ -64,8 +64,7 @@ public abstract class AbstractElement implements Element {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + id.hashCode();
-		return result;
+		return result * prime;
 	}
 
 	@Override
@@ -77,10 +76,6 @@ public abstract class AbstractElement implements Element {
 			return false;
 		}
 		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		AbstractElement other = (AbstractElement) obj;
-		if (!id.equals(other.id)) {
 			return false;
 		}
 		return true;
