@@ -9,6 +9,8 @@ import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridRefFactory;
 
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @SuppressWarnings("javadoc")
 public class SmofGridRefTest {
@@ -59,6 +61,16 @@ public class SmofGridRefTest {
 		final SmofGridRef ref = SmofGridRefFactory.newEmptyRef();
 		ref.attachFile(TEST_PATH);
 		assertEquals(TEST_PATH, ref.getAttachedFile());
+	}
+	
+	@Test
+	public final void testStorageTime() {
+		final ObjectId id = new ObjectId();
+		final LocalDateTime expected = LocalDateTime.ofInstant(id.getDate().toInstant(), ZoneId.systemDefault());
+		final SmofGridRef ref = SmofGridRefFactory.newEmptyRef();
+		assertNull(ref.getStorageTime());
+		ref.setId(id);
+		assertEquals(expected, ref.getStorageTime());
 	}
 	
 	@Test

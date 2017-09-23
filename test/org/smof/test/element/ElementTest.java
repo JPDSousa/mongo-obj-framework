@@ -23,6 +23,9 @@ package org.smof.test.element;
 
 import static org.junit.Assert.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.smof.element.AbstractElement;
@@ -85,6 +88,14 @@ public class ElementTest {
 		final DummyElement element = new DummyElement();
 		element.setId(id);
 		assertEquals(id, element.getId());
+	}
+	
+	@Test
+	public final void testStorageTime() {
+		final ObjectId id = new ObjectId();
+		final Element element = new DummyElement(id);
+		final LocalDateTime expected = LocalDateTime.ofInstant(id.getDate().toInstant(), ZoneId.systemDefault());
+		assertEquals(expected, element.getStorageTime());
 	}
 
 	/**
