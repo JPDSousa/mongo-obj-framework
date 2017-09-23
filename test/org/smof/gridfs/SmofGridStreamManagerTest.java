@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.smof.TestUtils.*;
 
 import org.apache.commons.io.IOUtils;
+import org.bson.Document;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import org.smof.gridfs.SmofGridRefFactory;
 import org.smof.gridfs.SmofGridStreamManager;
 
 import com.mongodb.MongoGridFSException;
+import com.mongodb.client.gridfs.model.GridFSFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -50,6 +52,15 @@ public class SmofGridStreamManagerTest {
 		assertEquals(content.length, actual.length);
 		assertArrayEquals(content, actual);
 		streamManager.drop(ref);
+	}
+	
+	public final void testMetadata() throws IOException {
+		final Document metadata = new Document("randomkey", 45);
+		ref.putMetadata(metadata);
+		streamManager.uploadFile(ref);
+		ref.putMetadata(new Document());
+		final GridFSFile file = streamManager.loadFileMetadata(ref);
+		assertEquals(metadata, file.getMetadata());
 	}
 	
 	@Test

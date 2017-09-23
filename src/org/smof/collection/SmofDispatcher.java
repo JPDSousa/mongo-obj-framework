@@ -34,6 +34,8 @@ import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridStreamManager;
 import org.smof.utils.BsonUtils;
 
+import com.mongodb.client.gridfs.model.GridFSFile;
+
 
 @SuppressWarnings("javadoc")
 public class SmofDispatcher {
@@ -90,6 +92,10 @@ public class SmofDispatcher {
 	@SuppressWarnings("cast")
 	public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
 		return ((SmofCollection<T>) collections.getCollection(elementClass)).findById(id);
+	}
+	
+	public GridFSFile loadMetadata(SmofGridRef ref) {
+		return streamManager.loadFileMetadata(ref);
 	}
 
 	private boolean uploadFile(SmofGridRef fileRef) {

@@ -48,6 +48,8 @@ import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridRefFactory;
 import org.smof.utils.BsonUtils;
 
+import com.mongodb.client.gridfs.model.GridFSFile;
+
 class ObjectParser extends AbstractBsonParser {
 
 	private static final String ENUM_NAME = "_enumValue";
@@ -218,7 +220,10 @@ class ObjectParser extends AbstractBsonParser {
 		final SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
 		final String bucketName = annotation.bucketName();
 		final ObjectId id = idBson.getValue();
-		return SmofGridRefFactory.newFromDB(id, bucketName);
+		final SmofGridRef ref = SmofGridRefFactory.newFromDB(id, bucketName);
+		final GridFSFile file = dispatcher.loadMetadata(ref);
+		ref.putMetadata(file.getMetadata());
+		return ref;
 	}
 
 	private <T extends Element> T toElement(BsonValue value, Class<T> type) {

@@ -7,6 +7,8 @@ import java.util.stream.Stream;
 
 import org.smof.collection.CollectionsPool;
 
+import com.mongodb.client.gridfs.model.GridFSFile;
+
 @SuppressWarnings("javadoc")
 public interface SmofGridStreamManager {
 
@@ -23,4 +25,6 @@ public interface SmofGridStreamManager {
 	void drop(SmofGridRef ref);
 	
 	Stream<SmofGridRef> stream(String bucketName);
+	
+	GridFSFile loadFileMetadata(SmofGridRef ref);
 }
