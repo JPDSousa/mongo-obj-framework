@@ -36,8 +36,8 @@ import org.smof.test.dataModel.Brand;
 import org.smof.test.dataModel.Guitar;
 import org.smof.test.dataModel.Model;
 
-import static org.smof.test.dataModel.StaticDB.*;
 import static org.smof.test.TestUtils.*;
+import static org.smof.test.dataModel.StaticDB.*;
 
 @SuppressWarnings("javadoc")
 public class ReadOpTest {

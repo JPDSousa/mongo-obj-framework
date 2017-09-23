@@ -21,12 +21,15 @@
  ******************************************************************************/
 package org.smof.element;
 
+import java.time.LocalDateTime;
+
 import org.bson.types.ObjectId;
 
 @SuppressWarnings("javadoc")
 public interface Element {
 
 	String ID = "_id";
+	String STORAGE_TIME = "st_time";
 	String OID = "$oid";
 	
 	static String dotted(String... fields) {
@@ -38,4 +41,6 @@ public interface Element {
 	String getIdAsString();
 
 	void setId(final ObjectId id);
+	
+	LocalDateTime getStorageTime();
 }
