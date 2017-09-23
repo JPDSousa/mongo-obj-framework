@@ -1,12 +1,12 @@
 package org.smof.test.gridfs;
 
 import static org.junit.Assert.*;
+import static org.smof.test.TestUtils.*;
 
 import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridRefFactory;
-import static org.smof.test.TestUtils.*;
 
 import java.nio.file.Path;
 

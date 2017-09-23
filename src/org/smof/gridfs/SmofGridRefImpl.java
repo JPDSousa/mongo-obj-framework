@@ -1,6 +1,8 @@
 package org.smof.gridfs;
 
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -66,6 +68,14 @@ class SmofGridRefImpl implements SmofGridRef {
 	@Override
 	public Document getMetadata() {
 		return metadata;
+	}
+
+	@Override
+	public LocalDateTime getStorageTime() {
+		if(id != null) {
+			return LocalDateTime.ofInstant(id.getDate().toInstant(), ZoneId.systemDefault());
+		}
+		return null;
 	}
 
 }

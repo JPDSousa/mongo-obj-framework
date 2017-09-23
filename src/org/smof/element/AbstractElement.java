@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.smof.element;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import org.bson.types.ObjectId;
 import org.smof.annnotations.SmofObjectId;
 import org.smof.exception.SmofException;
@@ -28,7 +31,7 @@ import org.smof.exception.SmofException;
 @SuppressWarnings("javadoc")
 public abstract class AbstractElement implements Element {
 	
-	@SmofObjectId(name = Element.ID, ref = "")
+	@SmofObjectId(name = ID, ref = "")
 	private ObjectId id;
 	
 	protected AbstractElement() {
@@ -80,6 +83,11 @@ public abstract class AbstractElement implements Element {
 		}
 		return true;
 	}
+
+	@Override
+	public LocalDateTime getStorageTime() {
+		return LocalDateTime.ofInstant(id.getDate().toInstant(), ZoneId.systemDefault());
+	}	
 	
 	
 }

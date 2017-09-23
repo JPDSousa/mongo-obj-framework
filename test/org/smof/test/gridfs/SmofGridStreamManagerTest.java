@@ -1,6 +1,7 @@
 package org.smof.test.gridfs;
 
 import static org.junit.Assert.*;
+import static org.smof.test.TestUtils.*;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.AfterClass;
@@ -13,8 +14,6 @@ import org.smof.gridfs.SmofGridStreamManager;
 import org.smof.test.TestUtils;
 
 import com.mongodb.MongoGridFSException;
-
-import static org.smof.test.TestUtils.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
