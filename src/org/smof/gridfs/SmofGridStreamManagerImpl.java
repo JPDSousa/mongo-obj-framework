@@ -10,10 +10,13 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
 import org.smof.collection.CollectionsPool;
+import org.smof.element.Element;
 
 import com.google.common.base.Preconditions;
 import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
+import com.mongodb.client.model.Filters;
 
 class SmofGridStreamManagerImpl implements SmofGridStreamManager {
 
@@ -79,6 +82,10 @@ class SmofGridStreamManagerImpl implements SmofGridStreamManager {
 				.map(file -> SmofGridRefFactory.newFromDB(file.getId().asObjectId().getValue(), bucketName));
 	}
 	
-	
+	@Override
+	public GridFSFile loadFileMetadata(SmofGridRef ref) {
+		final GridFSBucket bucket = pool.getBucket(ref.getBucketName());
+		return bucket.find(Filters.eq(Element.ID, ref.getId())).first();
+	}
 
 }
