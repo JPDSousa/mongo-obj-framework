@@ -16,6 +16,7 @@ import org.smof.dataModel.Brand;
 import org.smof.dataModel.Guitar;
 import org.smof.dataModel.Location;
 import org.smof.dataModel.Model;
+import org.smof.dataModel.Owner;
 import org.smof.dataModel.TypeGuitar;
 import org.smof.gridfs.SmofGridStreamManager;
 
@@ -44,11 +45,14 @@ public class UpsertTest {
 		final CollectionOptions<Guitar> guitarOpts = CollectionOptions.create();
 		final CollectionOptions<Model> modelOpts = CollectionOptions.create();
 		final CollectionOptions<Brand> brandOpts = CollectionOptions.create();
+		final CollectionOptions<Owner> ownerOpts = CollectionOptions.create();
 		guitarOpts.upsert(upsertGuitar);
 		modelOpts.upsert(upsertModel);
 		brandOpts.upsert(upsertBrand);
+		ownerOpts.upsert(true);
 		connection.createCollection(GUITARS, Guitar.class, guitarOpts);
 		connection.createCollection(MODELS, Model.class, modelOpts);
+		connection.createCollection(OWNERS, Owner.class, ownerOpts);
 		connection.createCollection(BRANDS, Brand.class, brandOpts);
 		connection.loadBucket(GUITARS_PIC_BUCKET);
 	}
@@ -56,7 +60,7 @@ public class UpsertTest {
 	@Test
 	public void testUpsert() {
 		createCollections(true, true, true);
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList(OWNER_1));
 		connection.update(Brand.class)
 			.setUpsert(true)
 			.fromElement(brand);
@@ -91,7 +95,6 @@ public class UpsertTest {
 	
 	@Test
 	public final void testGridRefPosInsertNoUpsert() {
-		System.out.println("hereherehereherehereherehere");
 		createCollections(false, true, true);
 		final SmofGridStreamManager gridStream = connection.getGridStreamManager();
 		final Guitar guitar1 = Guitar.create(MODEL_1, TypeGuitar.ELECTRIC, 1, 1995);

@@ -45,6 +45,7 @@ import org.smof.dataModel.Brand;
 import org.smof.dataModel.Guitar;
 import org.smof.dataModel.Location;
 import org.smof.dataModel.Model;
+import org.smof.dataModel.Owner;
 import org.smof.dataModel.TypeGuitar;
 import org.smof.element.AbstractElement;
 import org.smof.element.Element;
@@ -82,6 +83,7 @@ public class BasicSmofTest {
 		smof.createCollection(GUITARS, Guitar.class);
 		smof.createCollection(BRANDS, Brand.class);
 		smof.createCollection(MODELS, Model.class);
+		smof.createCollection(OWNERS, Owner.class);
 		smof.loadBucket(GUITARS_PIC_BUCKET);
 	}
 	
@@ -156,7 +158,7 @@ public class BasicSmofTest {
 	
 	@Test
 	public void testRedundantInsert() {
-		final Brand brand = Brand.create("Gibson", new Location("Here", "Now"), Arrays.asList("This guy"));
+		final Brand brand = Brand.create("Gibson", new Location("Here", "Now"), Arrays.asList(OWNER_1));
 		smof.insert(brand);
 		smof.insert(brand);
 		final long count = smof.find(Brand.class).results().count();
@@ -176,7 +178,7 @@ public class BasicSmofTest {
 	
 	@Test
 	public void testUpdateReplace() {
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList(OWNER_1));
 		smof.insert(brand);
 		brand.setCapital(1000);
 		smof.update(Brand.class).fromElement(brand);
@@ -185,7 +187,7 @@ public class BasicSmofTest {
 	
 	@Test
 	public void testUpdateIncrease() {
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList("You"));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList(OWNER_1));
 		final long inc = 75l;
 		smof.insert(brand);
 		smof.update(Brand.class)
@@ -194,7 +196,8 @@ public class BasicSmofTest {
 		.fieldEq(Brand.NAME, "Gibson")
 		.execute();
 		brand.increaseCapital(inc);
-		assertEquals(brand, smof.find(Brand.class).byElement(brand));
+		final Brand actual = smof.find(Brand.class).byElement(brand);
+		assertEquals(brand, actual);
 	}
 	
 	@Test
