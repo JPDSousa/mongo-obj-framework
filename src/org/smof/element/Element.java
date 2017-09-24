@@ -29,7 +29,6 @@ import org.bson.types.ObjectId;
 public interface Element {
 
 	String ID = "_id";
-	String STORAGE_TIME = "st_time";
 	String OID = "$oid";
 	
 	static String dotted(String... fields) {
