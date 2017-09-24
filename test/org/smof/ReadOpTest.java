@@ -35,6 +35,7 @@ import org.smof.collection.SmofResults;
 import org.smof.dataModel.Brand;
 import org.smof.dataModel.Guitar;
 import org.smof.dataModel.Model;
+import org.smof.dataModel.Owner;
 
 import static org.smof.TestUtils.*;
 import static org.smof.dataModel.StaticDB.*;
@@ -59,15 +60,15 @@ public class ReadOpTest {
 		smof.loadCollection(GUITARS, Guitar.class);
 		smof.loadCollection(BRANDS, Brand.class);
 		smof.loadCollection(MODELS, Model.class);
+		smof.loadCollection(OWNERS, Owner.class);
 		
 		ALL_GUITARS.forEach(g -> smof.insert(g));
 	}
 	
 	@After
 	public void tearDown() {
-		smof.dropCollection(GUITARS);
-		smof.dropCollection(BRANDS);
-		smof.dropCollection(MODELS);
+		smof.dropAllCollections();
+		smof.dropAllBuckets();
 	}
 
 	@Test

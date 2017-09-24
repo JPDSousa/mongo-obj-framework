@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.smof.collection.CollectionOptions;
 import org.smof.dataModel.Brand;
 import org.smof.dataModel.Location;
+import org.smof.dataModel.StaticDB;
 import org.smof.exception.SmofException;
 
 import com.google.common.collect.Lists;
@@ -47,7 +48,7 @@ public class CollectionOptionsTest {
 	@Before
 	public void setUp() {
 		guineaPig = CollectionOptions.create();
-		brand = Brand.create(NAME, new Location("here", "not there"), Arrays.asList("owner"));
+		brand = Brand.create(NAME, new Location("here", "not there"), Arrays.asList(StaticDB.OWNER_1));
 	}
 	
 	@Test
