@@ -74,7 +74,10 @@ class ObjectParser extends AbstractBsonParser {
 			return fromGridRef((SmofGridRef) value, (PrimaryField) fieldOpts);
 		}
 		else if(isElement(type)) {
-			return fromElement((Element) value, (PrimaryField) fieldOpts, serContext);
+			if(fieldOpts instanceof PrimaryField) {
+				return fromElement((Element) value, (PrimaryField) fieldOpts, serContext);				
+			}
+			return fromElement((Element) value, serContext);
 		}
 		else if(isMap(type) && isPrimaryField(fieldOpts)) {
 			return fromMap((Map<?, ?>) value, (PrimaryField) fieldOpts, serContext);
@@ -123,14 +126,18 @@ class ObjectParser extends AbstractBsonParser {
 	private BsonValue fromElement(Element value, PrimaryField fieldOpts, SerializationContext serContext) {
 		SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
 		if(annotation.preInsert()) {
-			final SmofOpOptions options = SmofOpOptions.create();
-			options.bypassCache(true);
-			dispatcher.insert(value, options);
-			final BsonObjectId id = BsonUtils.toBsonObjectId(value);
-			serContext.put(value, SmofType.OBJECT, id);
-			return id;
+			return fromElement(value, serContext);
 		}
 		return new BsonLazyObjectId(fieldOpts.getName(), value);
+	}
+	
+	private BsonValue fromElement(Element value, SerializationContext serContext) {
+		final SmofOpOptions options = SmofOpOptions.create();
+		options.bypassCache(true);
+		dispatcher.insert(value, options);
+		final BsonObjectId id = BsonUtils.toBsonObjectId(value);
+		serContext.put(value, SmofType.OBJECT, id);
+		return id;
 	}
 
 	private BsonDocument fromObject(Object value) {
