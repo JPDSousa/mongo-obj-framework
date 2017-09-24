@@ -213,6 +213,9 @@ class ObjectParser extends AbstractBsonParser {
 			return (T) toSmofGridRef(value.asObjectId(), (PrimaryField) fieldOpts);
 		}
 		else if(isElement(type)) {
+			if(fieldOpts instanceof SecondaryField) {
+				return (T) dispatcher.findById(value.asObjectId().getValue(), (Class<Element>)type);
+			}
 			return (T) toElement(value, (Class<Element>) type);
 		}
 		else if(isPrimaryField(fieldOpts) && isMap(type)) {
