@@ -67,9 +67,8 @@ public class ReadOpTest {
 	
 	@After
 	public void tearDown() {
-		smof.dropCollection(GUITARS);
-		smof.dropCollection(BRANDS);
-		smof.dropCollection(MODELS);
+		smof.dropAllCollections();
+		smof.dropAllBuckets();
 	}
 
 	@Test
