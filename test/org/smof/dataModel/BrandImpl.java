@@ -16,8 +16,8 @@ class BrandImpl extends AbstractElement implements Brand {
 	@SmofString(name = NAME)
 	private final String name;
 	
-	@SmofArray(name = OWNERS, type = SmofType.STRING)
-	private final List<String> owners;
+	@SmofArray(name = OWNERS, type = SmofType.OBJECT)
+	private final List<Owner> owners;
 	
 	@SmofDate(name = FOUNDING)
 	private final LocalDate founding;
@@ -28,7 +28,7 @@ class BrandImpl extends AbstractElement implements Brand {
 	@SmofNumber(name = CAPITAL)
 	private long capital;
 
-	BrandImpl(String name, Location headQuarters, List<String> owners) {
+	BrandImpl(String name, Location headQuarters, List<Owner> owners) {
 		super();
 		this.name = name;
 		this.owners = owners;
@@ -43,7 +43,7 @@ class BrandImpl extends AbstractElement implements Brand {
 	}
 
 	@Override
-	public List<String> getOwners() {
+	public List<Owner> getOwners() {
 		return owners;
 	}
 

@@ -1,7 +1,6 @@
 package org.smof.dataModel;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofIndex;
@@ -15,33 +14,20 @@ import org.smof.index.IndexType;
 @SmofIndexes({
 	@SmofIndex(fields = {@SmofIndexField(name = "name", type = IndexType.TEXT)}, unique = true)
 })
-public interface Brand extends Element{
-
+public interface Owner extends Element {
+	
 	String NAME = "name";
-	String OWNERS = "owners";
-	String FOUNDING = "founding";
-	String CAPITAL = "capital";
-	String LOCATION = "location";
+	String BIRTHDAY = "b_day";
 	
 	@SmofBuilder
-	static Brand create(
+	static Owner create(
 			@SmofParam(name = NAME) String name,
-			@SmofParam(name = LOCATION) Location headQuarters,
-			@SmofParam(name = OWNERS) List<Owner> owners) {
-		return new BrandImpl(name, headQuarters, owners);
+			@SmofParam(name = BIRTHDAY) LocalDate birthday) {
+		return new OwnerImpl(name, birthday);
 	}
 	
 	String getName();
 	
-	List<Owner> getOwners();
-	
-	LocalDate getFoundingDate();
-	
-	long getCapital();
-	
-	void setCapital(long value);
-	
-	void increaseCapital(long value);
-	
-	Location getLocation();
+	LocalDate getBirthday();
+
 }
