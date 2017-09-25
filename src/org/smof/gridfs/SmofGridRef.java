@@ -1,5 +1,6 @@
 package org.smof.gridfs;
 
+import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
 
 import org.bson.Document;
@@ -14,8 +15,13 @@ public interface SmofGridRef extends Element {
 	public void attachFile(Path path);
 	public Path getAttachedFile();
 	
+	public void attachByteArray(ByteArrayInputStream byteStream);
+	public ByteArrayInputStream getAttachedByteArray();
+	
 	public void putMetadataEntry(String key, Object value);
 	public void putMetadata(Document document);
 	public Document getMetadata();
+	
+	public boolean isEmpty();
 
 }

@@ -1,48 +1,36 @@
 package org.smof.gridfs;
 
+import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.smof.element.AbstractElement;
 
-class SmofGridRefImpl implements SmofGridRef {
+import com.google.common.base.Preconditions;
+
+class SmofGridRefImpl extends AbstractElement implements SmofGridRef {
 
 	private Path attachedFile;
+	private ByteArrayInputStream byteStream;
 	private String bucketName;
-	private ObjectId id;
 	private Document metadata;
 	
 	SmofGridRefImpl(ObjectId id, String bucketName) {
-		this.id = id;
+		super(id);
 		this.bucketName = bucketName;
 		this.metadata = new Document();
 	}
 	
 	@Override
 	public void attachFile(Path path) {
+		Preconditions.checkArgument(byteStream != null ^ attachedFile != null, "A SmofGridRef cannot be attached with both a file and a byte array");
 		attachedFile = path;
 	}
 
 	@Override
 	public Path getAttachedFile() {
 		return attachedFile;
-	}
-
-	@Override
-	public ObjectId getId() {
-		return id;
-	}
-
-	@Override
-	public String getIdAsString() {
-		return id.toHexString();
-	}
-
-	@Override
-	public void setId(ObjectId id) {
-		this.id = id;
 	}
 
 	@Override
@@ -71,11 +59,19 @@ class SmofGridRefImpl implements SmofGridRef {
 	}
 
 	@Override
-	public LocalDateTime getStorageTime() {
-		if(id != null) {
-			return LocalDateTime.ofInstant(id.getDate().toInstant(), ZoneId.systemDefault());
-		}
-		return null;
+	public void attachByteArray(ByteArrayInputStream byteStream) {
+		Preconditions.checkArgument(byteStream != null ^ attachedFile != null, "A SmofGridRef cannot be attached with both a file and a byte array");
+		this.byteStream = byteStream;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return attachedFile == null && byteStream == null;
+	}
+
+	@Override
+	public ByteArrayInputStream getAttachedByteArray() {
+		return byteStream;
 	}
 
 }
