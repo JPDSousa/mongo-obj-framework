@@ -17,7 +17,7 @@ class SmofGridRefImpl extends AbstractElement implements SmofGridRef {
 	private Document metadata;
 	
 	SmofGridRefImpl(ObjectId id, String bucketName) {
-		super(id);
+		super(id, true);
 		this.bucketName = bucketName;
 		this.metadata = new Document();
 	}
