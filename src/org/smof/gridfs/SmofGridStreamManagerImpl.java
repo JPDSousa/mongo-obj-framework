@@ -1,5 +1,6 @@
 package org.smof.gridfs;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -33,6 +34,13 @@ class SmofGridStreamManagerImpl implements SmofGridStreamManager {
 		final String fileName = attachedFile.getFileName().toString();
 		final InputStream stream = Files.newInputStream(attachedFile);
 		uploadStream(ref, fileName, stream);
+	}
+
+	@Override
+	public void uploadStream(SmofGridRef ref) {
+		final ByteArrayInputStream byteStream = ref.getAttachedByteArray();
+		Preconditions.checkNotNull(byteStream, "No byte stream attached");
+		uploadStream(ref, byteStream);
 	}
 
 	@Override
