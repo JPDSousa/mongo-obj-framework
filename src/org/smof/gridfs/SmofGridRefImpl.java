@@ -24,7 +24,7 @@ class SmofGridRefImpl extends AbstractElement implements SmofGridRef {
 	
 	@Override
 	public void attachFile(Path path) {
-		Preconditions.checkArgument(byteStream != null ^ attachedFile != null, "A SmofGridRef cannot be attached with both a file and a byte array");
+		Preconditions.checkArgument(byteStream != null ^ path != null, "A SmofGridRef cannot be attached with both a file and a byte array");
 		attachedFile = path;
 	}
 
