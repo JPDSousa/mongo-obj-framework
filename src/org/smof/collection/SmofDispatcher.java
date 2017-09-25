@@ -98,9 +98,14 @@ public class SmofDispatcher {
 		return streamManager.loadFileMetadata(ref);
 	}
 
-	private boolean uploadFile(SmofGridRef fileRef) {
+	private boolean uploadFile(SmofGridRef ref) {
 		try {
-			streamManager.uploadFile(fileRef);
+			if(ref.getAttachedByteArray() != null) {
+				streamManager.uploadStream(ref);
+			}
+			else {
+				streamManager.uploadFile(ref);
+			}
 			return true;
 		} catch (IOException e) {
 			handleError(e);

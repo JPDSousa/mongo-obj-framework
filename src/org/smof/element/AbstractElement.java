@@ -39,10 +39,14 @@ public abstract class AbstractElement implements Element {
 	}
 
 	protected AbstractElement(final ObjectId initialID) {
-		if(initialID == null) {
+		this(initialID, false);
+	}
+	
+	protected AbstractElement(ObjectId id, boolean allowInitialNullId) {
+		if(!allowInitialNullId && id == null) {
 			throw new SmofException(new IllegalArgumentException("Id cannot be null"));
 		}
-		id = initialID;
+		this.id = id;
 	}
 
 	@Override

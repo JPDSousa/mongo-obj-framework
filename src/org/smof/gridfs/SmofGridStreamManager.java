@@ -17,6 +17,7 @@ public interface SmofGridStreamManager {
 	}
 	
 	void uploadFile(SmofGridRef ref) throws IOException;
+	void uploadStream(SmofGridRef ref);
 	void uploadStream(SmofGridRef ref, InputStream stream);
 	
 	InputStream download(SmofGridRef ref);
