@@ -2,6 +2,7 @@ package org.smof.gridfs;
 
 import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -74,4 +75,8 @@ class SmofGridRefImpl extends AbstractElement implements SmofGridRef {
 		return byteStream;
 	}
 
+	@Override
+	public LocalDateTime getStorageTime() {
+		return getId() == null ? null : super.getStorageTime();
+	}
 }
