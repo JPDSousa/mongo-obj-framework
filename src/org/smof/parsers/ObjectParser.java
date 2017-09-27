@@ -285,7 +285,7 @@ class ObjectParser extends AbstractBsonParser {
 		final BsonValue fieldValue = document.get(field.getName());
 		final Object parsedObj;
 		if(fieldValue != null) {
-			if(fieldValue.isObjectId()) {
+			if(fieldValue.isObjectId() && !SmofGridRef.class.isAssignableFrom(field.getFieldClass())) {
 				builder.append2LazyElements(field, fieldValue.asObjectId().getValue());
 			}
 			else {
