@@ -1,16 +1,16 @@
 /*******************************************************************************
  * Copyright (C) 2017 Joao
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +26,8 @@ import org.bson.BsonValue;
 import org.smof.collection.SmofDispatcher;
 import org.smof.field.SmofField;
 
+import java.util.Objects;
+
 @SuppressWarnings("javadoc")
 public class BooleanParser extends AbstractBsonParser {
 
@@ -37,6 +39,9 @@ public class BooleanParser extends AbstractBsonParser {
 
 	@Override
 	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
+		if (Objects.isNull(value)) {
+			throw new RuntimeException("You must specify a value in order to be serialized");
+		}
 		if(isBoolean(value.getClass())) {
 			return fromBoolean((Boolean) value);
 		}
@@ -54,7 +59,10 @@ public class BooleanParser extends AbstractBsonParser {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
-		return (T) new Boolean(value.asBoolean().getValue());
+		if (Objects.isNull(value)) {
+			throw new RuntimeException("A value must be specified.");
+		}
+		return (T) Boolean.valueOf(value.asBoolean().getValue());
 	}
 
 	@Override
