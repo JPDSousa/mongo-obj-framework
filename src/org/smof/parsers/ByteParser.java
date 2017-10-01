@@ -23,12 +23,7 @@ package org.smof.parsers;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.bson.BsonBinary;
@@ -90,6 +85,9 @@ class ByteParser extends AbstractBsonParser {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T fromBson(BsonValue rawValue, Class<T> type, SmofField fieldOpts) {
+		if (Objects.isNull(rawValue)) {
+			throw new RuntimeException("rawValue field cannot be null");
+		}
 		final BsonBinary value = rawValue.asBinary();
 		if(isPrimitiveByteArray(type)) {
 			return (T) toPrimitiveByteArray(value);
