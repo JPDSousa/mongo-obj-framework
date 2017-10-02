@@ -29,7 +29,6 @@ import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofObject;
-import org.smof.codecs.date.SmofDateCodecProvider;
 import org.smof.element.Element;
 import org.smof.exception.NoSuchCollection;
 import org.smof.gridfs.SmofGridStreamManager;
@@ -89,16 +88,11 @@ public final class Smof implements Closeable {
 	
 	private static MongoClientOptions buildOptions() {
 		final CodecRegistry mongoRegistry = MongoClient.getDefaultCodecRegistry();
-		final CodecRegistry smofRegistry = Smof.getDefaultCodecRegistry();
+		final CodecRegistry smofRegistry = SmofParser.getDefaultCodecRegistry();
 		
 		return MongoClientOptions.builder()
 				.codecRegistry(CodecRegistries.fromRegistries(Arrays.asList(mongoRegistry, smofRegistry)))
 				.build();
-	}
-	
-	public static CodecRegistry getDefaultCodecRegistry() {
-		return CodecRegistries.fromProviders(
-				new SmofDateCodecProvider());
 	}
 
 	private final MongoDatabase database;

@@ -1,4 +1,4 @@
-package org.smof.codecs.date;
+package org.smof.bson.codecs.date;
 
 import java.time.Instant;
 import java.time.LocalDate;

@@ -1,6 +1,6 @@
-package org.smof.codecs.date;
+package org.smof.bson.codecs.date;
 
-import static org.smof.codecs.date.JavaTimeCodecHelper.*;
+import static org.smof.bson.codecs.date.JavaTimeCodecHelper.*;
 
 import java.time.LocalDateTime;
 

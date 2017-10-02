@@ -1,4 +1,4 @@
-package org.smof.codecs.date;
+package org.smof.bson.codecs.date;
 
 import static java.lang.String.format;
 
