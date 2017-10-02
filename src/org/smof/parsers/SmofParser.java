@@ -70,10 +70,10 @@ public class SmofParser {
 	
 	public SmofParser(SmofDispatcher dispatcher, CodecRegistry registry) {
 		this.context = new SmofTypeContext();
+		this.registry = registry;
 		parsers = SmofParserPool.create(this, dispatcher);
 		lazyLoader = LazyLoader.create(dispatcher);
 		serContext = SerializationContext.create();
-		this.registry = registry;
 	}
 	
 	CodecRegistry getRegistry() {
