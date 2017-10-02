@@ -23,6 +23,8 @@ package org.smof.parsers;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.bson.BSONException;
 import org.bson.BsonDocument;
 import org.bson.BsonDocumentReader;
 import org.bson.BsonDocumentWriter;
@@ -42,6 +44,8 @@ import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
 import org.smof.gridfs.SmofGridRef;
 
+import com.google.common.base.Preconditions;
+
 abstract class AbstractBsonParser implements BsonParser {
 	
 	protected static void handleError(Throwable cause) {
@@ -51,15 +55,27 @@ abstract class AbstractBsonParser implements BsonParser {
 	protected final SmofCodecProvider provider;
 	protected final SmofParser bsonParser;
 	protected final SmofDispatcher dispatcher;
+	private final Class<?>[] types;
 	
-	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser bsonParser, SmofCodecProvider provider) {
+	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser bsonParser, SmofCodecProvider provider, Class<?>... types) {
+		checkTypes(types, provider, bsonParser.getRegistry());
 		this.provider = provider;
 		this.bsonParser = bsonParser;
 		this.dispatcher = dispatcher;
+		this.types = types;
 	}
 	
+	private void checkTypes(Class<?>[] types, SmofCodecProvider provider, CodecRegistry registry) {
+		for(Class<?> type : types) {
+			if((provider == null || provider.get(type, registry) == null) && registry.get(type) == null) {
+				handleError(new BSONException("Could not find a valid codec for type: " + type));
+			}
+		}
+	}
+
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
+		Preconditions.checkArgument(value != null, "You must specify a value in order to be serialized");
 		final SerializationContext serContext = bsonParser.getSerializationContext();
 		if(serContext.contains(value, fieldOpts.getType())) {
 			return serContext.get(value, fieldOpts.getType());
@@ -96,6 +112,7 @@ abstract class AbstractBsonParser implements BsonParser {
 	
 	@Override
 	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
+		Preconditions.checkArgument(value != null, "A value must be specified.");
 		final Codec<T> codec = provider.get(type, bsonParser.getRegistry());
 		return deserializeWithCodec(codec, value);
 	}
@@ -127,7 +144,7 @@ abstract class AbstractBsonParser implements BsonParser {
 
 	@Override
 	public boolean isValidType(Class<?> type) {
-		return provider.contains(type);
+		return ArrayUtils.contains(types, type);
 	}
 
 	@Override
