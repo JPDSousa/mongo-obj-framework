@@ -71,9 +71,15 @@ abstract class AbstractBsonParser implements BsonParser {
 	
 	@SuppressWarnings("unused")
 	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
-		final Class<? extends Object> clazz = value.getClass();
+		final Class<?> clazz = value.getClass();
 		final CodecRegistry registry = bsonParser.getRegistry();
-		return serializeWithCodec(provider.get(clazz, registry), value);
+		final Codec<?> codec = getCodec(clazz, registry);
+		return serializeWithCodec(codec, value);
+	}
+
+	private <T> Codec<T> getCodec(final Class<T> clazz, final CodecRegistry registry) {
+		final Codec<T> codec = provider != null ? provider.get(clazz, registry) : null;
+		return codec != null ? codec : registry.get(clazz);
 	}
 	
 	@SuppressWarnings("unchecked")
