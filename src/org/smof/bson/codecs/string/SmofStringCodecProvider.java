@@ -21,7 +21,7 @@ public class SmofStringCodecProvider implements SmofCodecProvider {
 		if(String.class.equals(clazz)) {
 			return (Codec<T>) stringCodec;
 		}
-		return registry.get(clazz);
+		return null;
 	}
 
 	@Override
