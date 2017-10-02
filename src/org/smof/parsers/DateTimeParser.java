@@ -21,6 +21,11 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
 import org.bson.BsonValue;
 import org.smof.bson.codecs.SmofCodecProvider;
 import org.smof.bson.codecs.date.SmofDateCodecProvider;
@@ -28,10 +33,12 @@ import org.smof.collection.SmofDispatcher;
 
 class DateTimeParser extends AbstractBsonParser {
 	
+	private static final Class<?>[] VALID_TYPES = {Instant.class, LocalDate.class, LocalDateTime.class, 
+			ZonedDateTime.class};
 	static final SmofCodecProvider PROVIDER = new SmofDateCodecProvider();
 	
 	DateTimeParser(SmofParser parser, SmofDispatcher dispatcher) {
-		super(dispatcher, parser, PROVIDER);
+		super(dispatcher, parser, PROVIDER, VALID_TYPES);
 	}
 
 	@Override

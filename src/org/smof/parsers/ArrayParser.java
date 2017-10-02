@@ -40,8 +40,10 @@ import org.smof.field.SmofField;
 
 class ArrayParser extends AbstractBsonParser {
 
+	private static final Class<?>[] VALID_TYPES = {Collection.class};
+	
 	ArrayParser(SmofParser parser, SmofDispatcher dispatcher) {
-		super(dispatcher, parser, null, Collection.class);
+		super(dispatcher, parser, null, VALID_TYPES);
 	}
 
 	@Override
