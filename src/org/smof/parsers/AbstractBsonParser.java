@@ -24,7 +24,7 @@ package org.smof.parsers;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.bson.BSONException;
+import org.apache.commons.lang3.ClassUtils;
 import org.bson.BsonDocument;
 import org.bson.BsonDocumentReader;
 import org.bson.BsonDocumentWriter;
@@ -57,20 +57,11 @@ abstract class AbstractBsonParser implements BsonParser {
 	protected final SmofDispatcher dispatcher;
 	private final Class<?>[] types;
 	
-	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser bsonParser, SmofCodecProvider provider, Class<?>... types) {
-		checkTypes(types, provider, bsonParser.getRegistry());
+	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser bsonParser, SmofCodecProvider provider, Class<?>[] types) {
 		this.provider = provider;
 		this.bsonParser = bsonParser;
 		this.dispatcher = dispatcher;
 		this.types = types;
-	}
-	
-	private void checkTypes(Class<?>[] types, SmofCodecProvider provider, CodecRegistry registry) {
-		for(Class<?> type : types) {
-			if((provider == null || provider.get(type, registry) == null) && registry.get(type) == null) {
-				handleError(new BSONException("Could not find a valid codec for type: " + type));
-			}
-		}
 	}
 
 	@Override
@@ -125,15 +116,15 @@ abstract class AbstractBsonParser implements BsonParser {
 		return codec.decode(reader, DecoderContext.builder().build());
 	}
 
-	protected <T> TypeStructure<T> getTypeStructure(Class<T> type) {
+	protected final <T> TypeStructure<T> getTypeStructure(Class<T> type) {
 		return bsonParser.getContext().getTypeStructure(type, bsonParser.getParsers());
 	}
 	
-	protected <T> TypeParser<T> getTypeParser(Class<T> type) {
+	protected final <T> TypeParser<T> getTypeParser(Class<T> type) {
 		return getTypeStructure(type).getParser(type);
 	}
 	
-	protected <T> TypeBuilder<T> getTypeBuilder(Class<T> type) {
+	protected final <T> TypeBuilder<T> getTypeBuilder(Class<T> type) {
 		return getTypeStructure(type).getBuilder();
 	}
 
@@ -144,7 +135,7 @@ abstract class AbstractBsonParser implements BsonParser {
 
 	@Override
 	public boolean isValidType(Class<?> type) {
-		return ArrayUtils.contains(types, type);
+		return ArrayUtils.contains(types, ClassUtils.primitiveToWrapper(type));
 	}
 
 	@Override
@@ -152,43 +143,43 @@ abstract class AbstractBsonParser implements BsonParser {
 		return value.isNull();
 	}
 
-	protected boolean isEnum(final Class<?> type) {
+	protected final boolean isEnum(final Class<?> type) {
 		return type.isEnum();
 	}
 
-	protected boolean isMap(final Class<?> type) {
+	protected final boolean isMap(final Class<?> type) {
 		return Map.class.isAssignableFrom(type);
 	}
 
-	protected boolean isString(Class<?> type) {
-		return type.equals(String.class);
+	protected final boolean isString(Class<?> type) {
+		return String.class.equals(type);
 	}
 
-	protected boolean isElement(Class<?> type) {
+	protected final boolean isElement(Class<?> type) {
 		return Element.class.isAssignableFrom(type);
 	}
 	
-	protected boolean isSmofGridRef(Class<?> type) {
+	protected final boolean isSmofGridRef(Class<?> type) {
 		return SmofGridRef.class.isAssignableFrom(type);
 	}
 	
-	protected boolean isPrimaryField(SmofField fieldOpts) {
+	protected final boolean isPrimaryField(SmofField fieldOpts) {
 		return fieldOpts instanceof PrimaryField;
 	}
 	
-	protected boolean isParameterField(SmofField field) {
+	protected final boolean isParameterField(SmofField field) {
 		return field instanceof ParameterField;
 	}
 
-	protected boolean isMaster(SmofField fieldOpts) {
+	protected final boolean isMaster(SmofField fieldOpts) {
 		return fieldOpts instanceof MasterField;
 	}
 	
-	protected boolean isPrimitive(Class<?> type) {
+	protected final boolean isPrimitive(Class<?> type) {
 		return type.isPrimitive();
 	}
 	
-	protected boolean isArray(Class<?> type) {
+	protected final boolean isArray(Class<?> type) {
 		return type.isArray();
 	}
 
