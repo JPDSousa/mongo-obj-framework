@@ -33,10 +33,8 @@ import org.smof.field.SmofField;
 
 class NumberParser extends AbstractBsonParser {
 
-	private static final Class<?>[] VALID_TYPES = {int.class,
-			long.class, short.class, double.class, float.class,
-			Integer.class, Long.class, Short.class, Double.class,
-			Float.class};
+	private static final Class<?>[] VALID_TYPES = {Integer.class, 
+			Long.class, Short.class, Double.class, Float.class};
 
 	NumberParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, null, VALID_TYPES);
