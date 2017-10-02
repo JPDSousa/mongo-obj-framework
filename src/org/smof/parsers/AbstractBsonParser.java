@@ -21,11 +21,18 @@
  ******************************************************************************/
 package org.smof.parsers;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
+import org.bson.BsonDocument;
+import org.bson.BsonDocumentReader;
+import org.bson.BsonDocumentWriter;
+import org.bson.BsonReader;
 import org.bson.BsonValue;
+import org.bson.codecs.Codec;
+import org.bson.codecs.DecoderContext;
+import org.bson.codecs.EncoderContext;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.smof.bson.codecs.SmofCodecProvider;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
@@ -41,12 +48,12 @@ abstract class AbstractBsonParser implements BsonParser {
 		throw new SmofException(cause);
 	}
 
-	protected final List<Class<?>> validTypes;
+	protected final SmofCodecProvider provider;
 	protected final SmofParser bsonParser;
 	protected final SmofDispatcher dispatcher;
 	
-	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser bsonParser, Class<?>... validTypes) {
-		this.validTypes = Arrays.asList(validTypes);
+	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser bsonParser, SmofCodecProvider provider) {
+		this.provider = provider;
 		this.bsonParser = bsonParser;
 		this.dispatcher = dispatcher;
 	}
@@ -62,10 +69,38 @@ abstract class AbstractBsonParser implements BsonParser {
 		return serValue;
 	}
 	
-	protected abstract BsonValue serializeToBson(Object value, SmofField fieldOpts);
+	@SuppressWarnings("unused")
+	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
+		final Class<? extends Object> clazz = value.getClass();
+		final CodecRegistry registry = bsonParser.getRegistry();
+		return serializeWithCodec(provider.get(clazz, registry), value);
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected final <T> BsonValue serializeWithCodec(Codec<T> codec, Object value) {
+		final BsonDocument document = new BsonDocument();
+		final String name = "result";
+		final BsonDocumentWriter writer = new BsonDocumentWriter(document);
+		writer.writeStartDocument();
+		writer.writeName(name);
+		codec.encode(writer, (T) value, EncoderContext.builder().build());
+		writer.writeEndDocument();
+		return document.get(name);
+	}
 	
 	@Override
-	public abstract <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts);
+	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
+		final Codec<T> codec = provider.get(type, bsonParser.getRegistry());
+		return deserializeWithCodec(codec, value);
+	}
+	
+	protected final <T> T deserializeWithCodec(Codec<T> codec, BsonValue value) {
+		final BsonDocument document = new BsonDocument("result", value);
+		final BsonReader reader = new BsonDocumentReader(document);
+		reader.readStartDocument();
+		reader.readName();
+		return codec.decode(reader, DecoderContext.builder().build());
+	}
 
 	protected <T> TypeStructure<T> getTypeStructure(Class<T> type) {
 		return bsonParser.getContext().getTypeStructure(type, bsonParser.getParsers());
@@ -86,7 +121,7 @@ abstract class AbstractBsonParser implements BsonParser {
 
 	@Override
 	public boolean isValidType(Class<?> type) {
-		return validTypes.stream().anyMatch(t -> t.isAssignableFrom(type));
+		return provider.contains(type);
 	}
 
 	@Override
