@@ -30,7 +30,7 @@ import org.smof.field.SmofField;
 class ObjectIdParser extends AbstractBsonParser {
 	
 	ObjectIdParser(SmofParser parser, SmofDispatcher dispatcher) {
-		super(dispatcher, parser, ObjectId.class);
+		super(dispatcher, parser, null, ObjectId.class);
 	}
 
 	@Override

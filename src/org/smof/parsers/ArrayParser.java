@@ -41,7 +41,7 @@ import org.smof.field.SmofField;
 class ArrayParser extends AbstractBsonParser {
 
 	ArrayParser(SmofParser parser, SmofDispatcher dispatcher) {
-		super(dispatcher, parser, Collection.class);
+		super(dispatcher, parser, null, Collection.class);
 	}
 
 	@Override

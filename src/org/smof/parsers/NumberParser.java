@@ -39,7 +39,7 @@ class NumberParser extends AbstractBsonParser {
 			Float.class};
 
 	NumberParser(SmofParser parser, SmofDispatcher dispatcher) {
-		super(dispatcher, parser, VALID_TYPES);
+		super(dispatcher, parser, null, VALID_TYPES);
 	}
 
 	@Override
