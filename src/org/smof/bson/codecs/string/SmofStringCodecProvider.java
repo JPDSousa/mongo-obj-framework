@@ -15,7 +15,7 @@ public class SmofStringCodecProvider implements SmofCodecProvider {
 		stringCodec = new StringCodec();
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "cast", "rawtypes" })
 	@Override
 	public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
 		if(String.class.equals(clazz)) {
