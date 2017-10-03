@@ -29,11 +29,7 @@ import org.smof.collection.SmofDispatcher;
 class StringParser extends AbstractBsonParser {
 
 	private static final Class<?>[] VALID_TYPES = {
-			String.class, Enum.class, Integer.class/*int.class, long.class, 
-			short.class, double.class, float.class,	char.class, 
-			byte.class, byte[].class, Integer.class, Long.class,
-			Short.class, Double.class, Float.class, Character.class,
-			Byte.class, Byte[].class*/};
+			String.class, Enum.class, Integer.class};
 	static final SmofCodecProvider PROVIDER = new SmofStringCodecProvider();
 	
 	StringParser(SmofParser parser, SmofDispatcher dispatcher) {
@@ -59,7 +55,7 @@ class StringParser extends AbstractBsonParser {
 
 	@Override
 	public boolean isValidType(Class<?> type) {
-		return isEnum(type) && super.isValidType(type);
+		return isEnum(type) || super.isValidType(type);
 	}
 	
 	
