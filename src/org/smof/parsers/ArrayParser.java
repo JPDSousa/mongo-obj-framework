@@ -131,7 +131,7 @@ class ArrayParser extends AbstractBsonParser {
 	public boolean isValidType(SmofField fieldOpts) {
 		final Class<?> type = fieldOpts.getFieldClass();
 
-		return super.isValidType(type)
+		return (Collection.class.isAssignableFrom(type) || super.isValidType(type))
 				&& (!isPrimaryField(fieldOpts) || isValidComponentType((PrimaryField) fieldOpts));
 	}
 
