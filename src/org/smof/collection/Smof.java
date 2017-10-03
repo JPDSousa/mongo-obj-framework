@@ -112,7 +112,7 @@ public final class Smof implements Closeable {
 		this.client = client;
 		this.database = database;
 		this.dispatcher = new SmofDispatcher();
-		this.parser = new SmofParser(dispatcher, client.getMongoClientOptions().getCodecRegistry());
+		this.parser = new SmofParser(dispatcher, database.getCodecRegistry());
 		loadBucket(DEFAULT_BUCKET);
 	}
 
