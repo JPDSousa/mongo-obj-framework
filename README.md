@@ -5,6 +5,7 @@
 [![](https://jitpack.io/v/JPDSousa/mongo-obj-framework.svg)](https://jitpack.io/#JPDSousa/mongo-obj-framework)
 [![Dependency Status](https://www.versioneye.com/user/projects/5933e3e776149d00503a8c25/badge.svg)](https://www.versioneye.com/user/projects/5933e3e776149d00503a8c25)
 [![BCH compliance](https://bettercodehub.com/edge/badge/JPDSousa/mongo-obj-framework?branch=master)](https://bettercodehub.com/)
+[![Known Vulnerabilities](https://snyk.io/test/github/jpdsousa/mongo-obj-framework/badge.svg)](https://snyk.io/test/github/jpdsousa/mongo-obj-framework)
 
 Simple Mongo Object Framework (SMOF) is an ORM built in Java for [MongoDB](https://www.mongodb.com/). SMOF relieves the burden of dealing with object serialization and deserialization, as well as managing such objects in a data store. Furthermore, in order to achieve optimal performance, SMOF caches objects through the [Guava cache](https://github.com/google/guava/wiki/CachesExplained) and uses [ByteBuddy](http://bytebuddy.net) to lazy load objects from the database. Unlike other MongoDB ORMs, SMOF is able to deal with complex object hierarchy schemas.
 
