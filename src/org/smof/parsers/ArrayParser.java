@@ -40,8 +40,10 @@ import org.smof.field.SmofField;
 
 class ArrayParser extends AbstractBsonParser {
 
+	private static final Class<?>[] VALID_TYPES = {Collection.class};
+	
 	ArrayParser(SmofParser parser, SmofDispatcher dispatcher) {
-		super(dispatcher, parser, Collection.class);
+		super(dispatcher, parser, null, VALID_TYPES);
 	}
 
 	@Override
@@ -129,7 +131,7 @@ class ArrayParser extends AbstractBsonParser {
 	public boolean isValidType(SmofField fieldOpts) {
 		final Class<?> type = fieldOpts.getFieldClass();
 
-		return super.isValidType(type)
+		return (Collection.class.isAssignableFrom(type) || super.isValidType(type))
 				&& (!isPrimaryField(fieldOpts) || isValidComponentType((PrimaryField) fieldOpts));
 	}
 

@@ -34,7 +34,7 @@ public class BooleanParser extends AbstractBsonParser {
 	private static final Class<?>[] VALID_TYPES = {boolean.class, Boolean.class};
 
 	protected BooleanParser(SmofParser bsonParser, SmofDispatcher dispatcher) {
-		super(dispatcher, bsonParser, VALID_TYPES);
+		super(dispatcher, bsonParser, null, VALID_TYPES);
 	}
 
 	@Override

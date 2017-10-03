@@ -37,7 +37,7 @@ class ByteParser extends AbstractBsonParser {
 	private static final Class<?>[] VALID_TYPES = {byte[].class, Byte[].class};
 
 	protected ByteParser(SmofDispatcher dispatcher, SmofParser bsonParser) {
-		super(dispatcher, bsonParser, VALID_TYPES);
+		super(dispatcher, bsonParser, null, VALID_TYPES);
 		// TODO Auto-generated constructor stub
 	}
 

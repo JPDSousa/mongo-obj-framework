@@ -21,11 +21,18 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import org.bson.BsonDocument;
+import org.bson.BsonDocumentWriter;
 import org.bson.BsonNull;
 import org.bson.BsonValue;
+import org.bson.BsonWriter;
+import org.bson.codecs.Codec;
+import org.bson.codecs.EncoderContext;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.types.ObjectId;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
@@ -35,6 +42,8 @@ import org.smof.field.MasterField;
 import org.smof.field.SmofField;
 import org.smof.index.InternalIndex;
 
+import com.mongodb.MongoClient;
+
 @SuppressWarnings("javadoc")
 public class SmofParser {
 	
@@ -43,17 +52,32 @@ public class SmofParser {
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}
+	
+	public static CodecRegistry getDefaultCodecRegistry() {
+		return CodecRegistries.fromProviders(
+				DateTimeParser.PROVIDER);
+	}
 
 	private final SmofTypeContext context;
 	private final SmofParserPool parsers;
 	private final LazyLoader lazyLoader;
 	private final SerializationContext serContext;
+	private final CodecRegistry registry;
 
 	public SmofParser(SmofDispatcher dispatcher) {
+		this(dispatcher, CodecRegistries.fromRegistries(Arrays.asList(getDefaultCodecRegistry(), MongoClient.getDefaultCodecRegistry())));
+	}
+	
+	public SmofParser(SmofDispatcher dispatcher, CodecRegistry registry) {
 		this.context = new SmofTypeContext();
+		this.registry = registry;
 		parsers = SmofParserPool.create(this, dispatcher);
 		lazyLoader = LazyLoader.create(dispatcher);
 		serContext = SerializationContext.create();
+	}
+	
+	CodecRegistry getRegistry() {
+		return registry;
 	}
 
 	SmofTypeContext getContext() {
@@ -110,10 +134,27 @@ public class SmofParser {
 		
 		return (BsonDocument) parser.toBson(value, field);
 	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> BsonValue toBson(Object value, Class<T> clazz) {
+		if(value == null) {
+			return new BsonNull();
+		}
+		final Codec<T> codec = registry.get(clazz);
+		final BsonDocument document = new BsonDocument();
+		final BsonWriter writer = new BsonDocumentWriter(document);
+		writer.writeStartDocument();
+		codec.encode(writer, (T) value, EncoderContext.builder().build());
+		writer.writeEndDocument();
+		return document;
+	}
 
 	public BsonValue toBson(Object value, SmofField field) {
 		if(value == null) {
 			return new BsonNull();
+		}
+		if(field == null) {
+			return toBson(value, value.getClass());
 		}
 		final SmofType type = field.getType();
 		final BsonParser parser = parsers.get(type);

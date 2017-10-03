@@ -36,7 +36,6 @@ import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
-import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.smof.annnotations.SmofArray;
@@ -107,10 +106,6 @@ public class ElementTypeFactoryTest {
 	@Test
 	public void testDate() throws SmofException {
 		final ElDateTest test = new ElDateTest(Instant.now(), LocalDate.now(), LocalDateTime.now());
-		test.jodaDateTime = DateTime.now();
-		test.jodaInstant = org.joda.time.Instant.now();
-		test.jodaLocalDate = org.joda.time.LocalDate.now();
-		test.jodaLocalDateTime = org.joda.time.LocalDateTime.now();
 		final BsonDocument doc = parser.toBson(test);
 		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElDateTest.class));
@@ -300,10 +295,6 @@ public class ElementTypeFactoryTest {
 	
 	private static class ElDateTest extends AbstractElement {
 		
-		private static final String JODA_LOCAL_DATE_TIME = "jodaLocalDateTime";
-		private static final String JODA_LOCAL_DATE = "jodaLocalDate";
-		private static final String JODA_DATE_TIME = "jodaDateTime";
-		private static final String JODA_INSTANT = "jodaInstant";
 		private static final String JAVA_LOCAL_DATE_TIME = "javaLocalDateTime";
 		private static final String JAVA_LOCAL_DATE = "javaLocalDate";
 		private static final String JAVA_INSTANT = "javaInstant";
@@ -316,18 +307,6 @@ public class ElementTypeFactoryTest {
 		
 		@SmofDate(name=JAVA_LOCAL_DATE_TIME)
 		private final LocalDateTime javaLocaldateTime;
-		
-		@SmofDate(name=JODA_INSTANT)
-		private org.joda.time.Instant jodaInstant;
-		
-		@SmofDate(name=JODA_DATE_TIME)
-		private DateTime jodaDateTime;
-		
-		@SmofDate(name = JODA_LOCAL_DATE)
-		private org.joda.time.LocalDate jodaLocalDate;
-		
-		@SmofDate(name = JODA_LOCAL_DATE_TIME)
-		private org.joda.time.LocalDateTime jodaLocalDateTime;
 
 		@SmofBuilder
 		private ElDateTest(@SmofParam(name = JAVA_INSTANT) Instant date, 
@@ -341,14 +320,10 @@ public class ElementTypeFactoryTest {
 		@Override
 		public int hashCode() {
 			final int prime = 31;
-			int result = 1;
+			int result = super.hashCode();
 			result = prime * result + ((javaInstant == null) ? 0 : javaInstant.hashCode());
 			result = prime * result + ((javaLocaldate == null) ? 0 : javaLocaldate.hashCode());
 			result = prime * result + ((javaLocaldateTime == null) ? 0 : javaLocaldateTime.hashCode());
-			result = prime * result + ((jodaDateTime == null) ? 0 : jodaDateTime.hashCode());
-			result = prime * result + ((jodaInstant == null) ? 0 : jodaInstant.hashCode());
-			result = prime * result + ((jodaLocalDate == null) ? 0 : jodaLocalDate.hashCode());
-			result = prime * result + ((jodaLocalDateTime == null) ? 0 : jodaLocalDateTime.hashCode());
 			return result;
 		}
 
@@ -357,7 +332,7 @@ public class ElementTypeFactoryTest {
 			if (this == obj) {
 				return true;
 			}
-			if (obj == null) {
+			if (!super.equals(obj)) {
 				return false;
 			}
 			if (getClass() != obj.getClass()) {
@@ -383,34 +358,6 @@ public class ElementTypeFactoryTest {
 					return false;
 				}
 			} else if (!javaLocaldateTime.equals(other.javaLocaldateTime)) {
-				return false;
-			}
-			if (jodaDateTime == null) {
-				if (other.jodaDateTime != null) {
-					return false;
-				}
-			} else if (!jodaDateTime.equals(other.jodaDateTime)) {
-				return false;
-			}
-			if (jodaInstant == null) {
-				if (other.jodaInstant != null) {
-					return false;
-				}
-			} else if (!jodaInstant.equals(other.jodaInstant)) {
-				return false;
-			}
-			if (jodaLocalDate == null) {
-				if (other.jodaLocalDate != null) {
-					return false;
-				}
-			} else if (!jodaLocalDate.equals(other.jodaLocalDate)) {
-				return false;
-			}
-			if (jodaLocalDateTime == null) {
-				if (other.jodaLocalDateTime != null) {
-					return false;
-				}
-			} else if (!jodaLocalDateTime.equals(other.jodaLocalDateTime)) {
 				return false;
 			}
 			return true;

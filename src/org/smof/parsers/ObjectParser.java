@@ -52,10 +52,11 @@ import com.mongodb.client.gridfs.model.GridFSFile;
 
 class ObjectParser extends AbstractBsonParser {
 
+	private static final Class<?>[] VALID_TYPES = {};
 	private static final String ENUM_NAME = "_enumValue";
 
 	ObjectParser(SmofParser parser, SmofDispatcher dispatcher) {
-		super(dispatcher, parser);
+		super(dispatcher, parser, null, VALID_TYPES);
 	}
 
 	@Override
