@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.smof.collection;
 
+import java.util.regex.Pattern;
+
 import org.bson.conversions.Bson;
 import org.smof.element.Element;
 
@@ -28,7 +30,20 @@ interface FilterQuery<E extends Element, T extends FilterQuery<E, ?>> {
 
 	Class<E> getElementClass();
 	
-	T withField(String fieldName, Object filterValue);
+	T withFieldEquals(String fieldName, Object value);
+	T withFieldNotEquals(String fieldName, Object value);
+	T withFieldIn(String fieldName, Object[] values);
+	T withFieldNotIn(String fieldName, Object[] values);
+	T withFieldRegex(String fieldName, Pattern value);
+	
+	T withFieldGreater(String fieldName, Number value);
+	T withFieldGreater(String fieldName, Number value, boolean greaterOrEqual);
+	T withFieldGreaterOrEqual(String fieldName, Number value);
+	
+	T withFieldSmaller(String fieldName, Number value);
+	T withFieldSmaller(String fieldName, Number value, boolean smallerOrEqual);
+	T withFieldSmallerOrEqual(String fieldName, Number value);
+	
 	
 	T applyBsonFilter(Bson filter);
 	
