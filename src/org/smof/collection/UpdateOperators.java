@@ -22,7 +22,7 @@
 package org.smof.collection;
 
 @SuppressWarnings("javadoc")
-public enum Operators {
+public enum UpdateOperators {
 	
 	INCREASE("inc"),
 	MULTIPLY("mul"),
@@ -36,7 +36,7 @@ public enum Operators {
 	
 	private final String operator;
 	
-	private Operators(String operator) {
+	private UpdateOperators(String operator) {
 		this.operator = "$" + operator;
 	}
 
