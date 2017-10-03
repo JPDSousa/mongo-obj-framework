@@ -21,6 +21,9 @@ public class SmofStringCodecProvider implements SmofCodecProvider {
 		if(String.class.equals(clazz)) {
 			return (Codec<T>) stringCodec;
 		}
+		if(Enum.class.isAssignableFrom(clazz)) {
+			return (Codec<T>) new EnumCodec(clazz);
+		}
 		return null;
 	}
 
