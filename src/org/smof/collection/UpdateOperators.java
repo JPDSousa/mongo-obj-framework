@@ -21,16 +21,27 @@
  ******************************************************************************/
 package org.smof.collection;
 
-import org.bson.conversions.Bson;
-import org.smof.element.Element;
+@SuppressWarnings("javadoc")
+public enum UpdateOperators {
+	
+	INCREASE("inc"),
+	MULTIPLY("mul"),
+	RENAME("rename"),
+	SET_ON_INSERT("setOnInsert"),
+	SET("set"),
+	UNSET("unset"),
+	MINIMUM("min"),
+	MAXIMUM("miax"),
+	CURRENT_DATE("currentDate");
+	
+	private final String operator;
+	
+	private UpdateOperators(String operator) {
+		this.operator = "$" + operator;
+	}
 
-interface FilterQuery<E extends Element, T extends FilterQuery<E, ?>> {
-
-	Class<E> getElementClass();
+	public String getOperator() {
+		return operator;
+	}
 	
-	T withField(String fieldName, Object filterValue);
-	
-	T applyBsonFilter(Bson filter);
-	
-	SmofResults<E> results();
 }

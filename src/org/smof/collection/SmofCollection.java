@@ -61,7 +61,7 @@ public interface SmofCollection<T extends Element> {
 	void execUpdate(Bson filter, Bson updates, SmofOpOptions options);
 	SmofUpdate<T> update();
 
-	SmofQuery<T> query();
+	ParentQuery<T> query();
 	T findById(ObjectId id);
 	
 	SmofParser getParser();

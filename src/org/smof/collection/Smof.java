@@ -354,14 +354,14 @@ public final class Smof implements Closeable {
 	}
 
 	/**
-	 * Creates and returns a new {@link SmofQuery} that allows the user to perform a read operation.
+	 * Creates and returns a new {@link ParentQuery} that allows the user to perform a read operation.
 	 * The element class passed as parameter must be previously registered to a mongo collection,
 	 * otherwise {@link NoSuchCollection} is thrown.
 	 * 
 	 * @param elementClass element class
-	 * @return a new {@link SmofQuery} object
+	 * @return a new {@link ParentQuery} object
 	 */
-	public <T extends Element> SmofQuery<T> find(Class<T> elementClass) {
+	public <T extends Element> ParentQuery<T> find(Class<T> elementClass) {
 		final SmofCollection<T> collection = dispatcher.getCollection(elementClass);
 		return collection.query();
 	}

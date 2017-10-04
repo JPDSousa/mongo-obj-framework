@@ -129,8 +129,8 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	@Override
-	public SmofQuery<T> query() {
-		return new SmofQuery<T>(type, parser, cache, collection);
+	public ParentQuery<T> query() {
+		return new ParentQuery<T>(type, parser, cache, collection);
 	}
 
 	@Override

@@ -39,6 +39,7 @@ import org.smof.element.Element;
 import org.smof.exception.InvalidBsonTypeException;
 import org.smof.exception.SmofException;
 import org.smof.field.MasterField;
+import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
 import org.smof.index.InternalIndex;
 
@@ -76,7 +77,7 @@ public class SmofParser {
 		serContext = SerializationContext.create();
 	}
 	
-	CodecRegistry getRegistry() {
+	public CodecRegistry getRegistry() {
 		return registry;
 	}
 
@@ -185,7 +186,7 @@ public class SmofParser {
 		serContext.clear();
 	}
 
-	public SmofField getField(Class<?> type, String fieldName) {
+	public PrimaryField getField(Class<?> type, String fieldName) {
 		return getTypeStructure(type).getAllFields().get(fieldName);
 	}
 }

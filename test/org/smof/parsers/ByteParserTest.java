@@ -18,6 +18,7 @@ import static org.junit.Assert.*;
 /**
  * Created by thales on 01/10/17.
  */
+@SuppressWarnings("javadoc")
 public class ByteParserTest {
 
     private AbstractBsonParser abstractBsonParser;
@@ -78,7 +79,7 @@ public class ByteParserTest {
         Collection<byte[]> bytes = new ArrayList<>();
         bytes.add("a byte array".getBytes());
         this.abstractBsonParser.fromBson(new BsonBinary("a byte array".getBytes()), bytes.getClass(), null);
-        assertArrayEquals("a byte array".getBytes(), (byte []) ArrayUtils.toPrimitive(bytes.stream().findAny().get()));
+        assertArrayEquals("a byte array".getBytes(), bytes.stream().findAny().get());
     }
 
     @Test(expected = RuntimeException.class)

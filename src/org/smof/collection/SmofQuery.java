@@ -21,57 +21,37 @@
  ******************************************************************************/
 package org.smof.collection;
 
-import java.util.Map;
+import java.util.regex.Pattern;
 
-import org.bson.BsonDocument;
-import org.bson.BsonValue;
-import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
 import org.smof.element.Element;
-import org.smof.parsers.SmofParser;
-
-import com.google.common.cache.Cache;
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
 
 @SuppressWarnings("javadoc")
-public class SmofQuery<T extends Element> extends AbstractSmofQuery<T, SmofQuery<T>>{
+public interface SmofQuery<E extends Element, T extends SmofQuery<E, ?>> {
 
-	private final Cache<ObjectId, T> cache;
-	private final MongoCollection<BsonDocument> collection;
+	Class<E> getElementClass();
 	
-	SmofQuery(Class<T> elementClass, SmofParser parser, Cache<ObjectId, T> cache, MongoCollection<BsonDocument> collection) {
-		super(parser, elementClass);
-		this.cache = cache;
-		this.collection = collection;
-	}
+	T withFieldEquals(String fieldName, Object value);
+	T withFieldNotEquals(String fieldName, Object value);
+	T withFieldIn(String fieldName, Object[] values);
+	T withFieldNotIn(String fieldName, Object[] values);
+	T withFieldRegex(String fieldName, Pattern value);
 	
-	@Override
-	public SmofResults<T> results() {
-		return new SmofResults<T>(getParser(), getElementClass(), cache, collection, getFilter());
-	}
+	T withFieldGreater(String fieldName, Number value);
+	T withFieldGreater(String fieldName, Number value, boolean greaterOrEqual);
+	T withFieldGreaterOrEqual(String fieldName, Number value);
 	
-	public AndQuery<T> beginAnd() {
-		return new AndQuery<>(this);
-	}
+	T withFieldSmaller(String fieldName, Number value);
+	T withFieldSmaller(String fieldName, Number value, boolean smallerOrEqual);
+	T withFieldSmallerOrEqual(String fieldName, Number value);
 	
-	public OrQuery<T> beginOr() {
-		return new OrQuery<>(this);
-	}
+	T withFieldMod(String fieldName, int divisor, int remainder);
 	
-	@Override
-	public SmofQuery<T> applyBsonFilter(Bson filter) {
-		final BsonDocument filterDoc = filter.toBsonDocument(BsonDocument.class, MongoClient.getDefaultCodecRegistry());
-		for(Map.Entry<String, BsonValue> entry : filterDoc.entrySet()) {
-			getFilter().append(entry.getKey(), entry.getValue());
-		}
-		return this;
-	}
-
-	public T byElement(T element) {
-		return withField(Element.ID, element.getId())
-		.results()
-		.first();
-	}
+	T withFieldAll(String fieldName, Object[] values);
 	
+	ArrayQuery<E> beginAnd();
+	ArrayQuery<E> beginOr();
+	ArrayQuery<E> beginNor();
+	DocumentQuery<E> beginNot();
+	
+	SmofResults<E> results();
 }

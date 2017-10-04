@@ -23,11 +23,8 @@ package org.smof;
 
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
-import com.mongodb.client.model.Filters;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -75,32 +72,6 @@ public class ReadOpTest {
 	public final void testQueryAll() {
 		final SmofResults<Guitar> query = smof.find(Guitar.class).results();
 		assertEquals(ALL_GUITARS, query.stream().collect(Collectors.toList()));
-	}
-
-	@Test
-	public final void testAndQuery() {
-		final SmofResults<Guitar> query = smof.find(Guitar.class)
-				.beginAnd()
-				.and(Filters.eq(Guitar.PRICE, GUITAR_3.getPrice()))
-				.applyBsonFilter(Filters.eq(Guitar.TYPE, TypeGuitar.ACOUSTIC.toString())) //same as and()
-				.endAnd().results();
-
-		List<Guitar> result = query.stream().collect(Collectors.toList());
-		assertEquals(1, result.size());
-		assertTrue(result.contains(GUITAR_3));
-	}
-
-	@Test
-	public final void testOrQuery() {
-		final SmofResults<Guitar> query = smof.find(Guitar.class)
-				.beginOr()
-				.or(Filters.eq(Guitar.TYPE, TypeGuitar.ELECTRIC.toString()))
-				.applyBsonFilter(Filters.eq(Guitar.TYPE, TypeGuitar.CLASSIC.toString())) //same as or()
-				.endOr().results();
-		List<Guitar> result = query.stream().collect(Collectors.toList());
-
-		assertEquals(2, result.size());
-		assertTrue(result.containsAll(Arrays.asList(GUITAR_1, GUITAR_2)));
 	}
 
 }

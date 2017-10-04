@@ -26,15 +26,15 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 
 import org.junit.Test;
-import org.smof.collection.Operators;
+import org.smof.collection.UpdateOperators;
 
 @SuppressWarnings("javadoc")
 public class OperatorsTest {
 
 	@Test
 	public final void testNotNullGetOperator() {
-		Arrays.stream(Operators.values())
-		.map(Operators::getOperator)
+		Arrays.stream(UpdateOperators.values())
+		.map(UpdateOperators::getOperator)
 		.forEach(o -> assertTrue(o != null && o.length() > 0));
 	}
 
