@@ -21,44 +21,48 @@
  ******************************************************************************/
 package org.smof.collection;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bson.conversions.Bson;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
+import org.bson.types.ObjectId;
 import org.smof.element.Element;
+import org.smof.parsers.SmofParser;
 
-import com.mongodb.client.model.Filters;
+import com.google.common.cache.Cache;
+import com.mongodb.client.MongoCollection;
 
 @SuppressWarnings("javadoc")
-public class OrQuery<T extends Element> extends AbstractSmofQuery<T, OrQuery<T>> {
+public class ParentQuery<T extends Element> extends AbstractQuery<T, ParentQuery<T>>{
 
-	private final SmofQuery<T> parent;
-	private final List<Bson> filters;
-
-	OrQuery(SmofQuery<T> parent) {
-		super(parent.getParser(), parent.getElementClass());
-		this.parent = parent;
-		filters = new ArrayList<>();
+	private final BsonDocument query;
+	private final Cache<ObjectId, T> cache;
+	private final MongoCollection<BsonDocument> collection;
+	
+	ParentQuery(Class<T> elementClass, SmofParser parser, Cache<ObjectId, T> cache, MongoCollection<BsonDocument> collection) {
+		super(parser, elementClass);
+		this.query = new BsonDocument();
+		this.cache = cache;
+		this.collection = collection;
 	}
 	
-	public OrQuery<T> or(Bson filter) {
-		filters.add(filter);
-		return this;
-	}
-	
-	@Override
-	public OrQuery<T> applyBsonFilter(Bson filter) {
-		return or(filter);
-	}
-	
-	public SmofQuery<T> endOr() {
-		parent.applyBsonFilter(Filters.or(filters));
-		return parent;
-	}
-
 	@Override
 	public SmofResults<T> results() {
-		return endOr().results();
+		return new SmofResults<T>(getParser(), getElementClass(), cache, collection, query);
 	}
 
+	public T byElement(T element) {
+		return withFieldEquals(Element.ID, element.getId())
+		.results()
+		.first();
+	}
+
+	@Override
+	protected void append(String name, BsonValue value) {
+		query.append(name, value);
+	}
+
+	@Override
+	protected BsonValue getFilter() {
+		return query;
+	}
+	
 }

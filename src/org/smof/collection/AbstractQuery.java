@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.bson.BsonArray;
-import org.bson.BsonDocument;
 import org.bson.BsonValue;
 import org.smof.element.Element;
 import org.smof.field.PrimaryField;
@@ -34,15 +33,12 @@ import org.smof.parsers.SmofType;
 
 import static org.smof.collection.QueryOperators.*;
 
-@SuppressWarnings("javadoc")
-public abstract class AbstractSmofQuery<T extends Element, Query extends FilterQuery<T, ?>> implements FilterQuery<T, Query> {
+abstract class AbstractQuery<T extends Element, Query extends SmofQuery<T, ?>> implements SmofQuery<T, Query> {
 
-	private final BsonDocument query;
 	private final SmofParser parser;
 	private final Class<T> elementClass;
 	
-	protected AbstractSmofQuery(SmofParser parser, Class<T> elementClass) {
-		this.query = new BsonDocument();
+	protected AbstractQuery(SmofParser parser, Class<T> elementClass) {
 		this.elementClass = elementClass;
 		this.parser = parser;
 	}
@@ -52,9 +48,9 @@ public abstract class AbstractSmofQuery<T extends Element, Query extends FilterQ
 		return elementClass;
 	}
 	
-	protected BsonDocument getFilter() {
-		return query;
-	}
+	protected abstract void append(String name, BsonValue value);
+	
+	protected abstract BsonValue getFilter();
 
 	protected SmofParser getParser() {
 		return parser;
@@ -67,7 +63,7 @@ public abstract class AbstractSmofQuery<T extends Element, Query extends FilterQ
 	
 	@SuppressWarnings("unchecked")
 	private Query applyBsonQuery(String fieldName, BsonValue value, QueryOperators op) {
-		query.append(fieldName, op.query(value));
+		append(fieldName, op.query(value));
 		return (Query) this;
 	}
 	
@@ -119,7 +115,7 @@ public abstract class AbstractSmofQuery<T extends Element, Query extends FilterQ
 	@Override
 	public Query withFieldRegex(String fieldName, Pattern value) {
 		final BsonValue bsonValue = parser.toBson(value, Pattern.class);
-		query.append(fieldName, bsonValue);
+		append(fieldName, bsonValue);
 		return (Query) this;
 	}
 
@@ -152,4 +148,29 @@ public abstract class AbstractSmofQuery<T extends Element, Query extends FilterQ
 	public Query withFieldSmallerOrEqual(String fieldName, Number value) {
 		return withFieldSmaller(fieldName, value, true);
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public ArrayQuery<T> beginAnd() {
+		return new ArrayQuery<T>((AbstractQuery<T, SmofQuery<T, ?>>) this, AND);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public ArrayQuery<T> beginOr() {
+		return new ArrayQuery<T>((AbstractQuery<T, SmofQuery<T, ?>>) this, OR);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ArrayQuery<T> beginNor() {
+		return new ArrayQuery<T>((AbstractQuery<T, SmofQuery<T, ?>>) this, NOR);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public DocumentQuery<T> beginNot() {
+		return new DocumentQuery<T>((AbstractQuery<T, SmofQuery<T, ?>>) this, NOT);
+	}
+	
 }
