@@ -5,6 +5,7 @@ import org.bson.BsonValue;
 
 enum QueryOperators {
 	
+	//comparison operators
 	EQUALS("eq"),
 	NOT_EQUALS("ne"),
 	GREATER("gt"),
@@ -12,7 +13,12 @@ enum QueryOperators {
 	SMALLER("lt"),
 	SMALLER_OR_EQUAL("lte"),
 	IN("in"),
-	NOT_IN("nin");
+	NOT_IN("nin"),
+	//logical operators
+	AND("and"),
+	OR("or"),
+	NOR("nor"),
+	NOT("not");
 	
 	private final String fieldName;
 
@@ -20,9 +26,18 @@ enum QueryOperators {
 		this.fieldName = fieldName;
 	}
 	
-	BsonDocument query(BsonValue value) {
-		return new BsonDocument(fieldName, value);
+	String getFieldName() {
+		return "$" + fieldName;
 	}
 	
+	BsonDocument query(BsonValue value) {
+		final BsonDocument doc = new BsonDocument();
+		query(value, doc);
+		return doc;
+	}
+	
+	void query(BsonValue value, BsonDocument query) {
+		query.append(getFieldName(), value);
+	}
 
 }
