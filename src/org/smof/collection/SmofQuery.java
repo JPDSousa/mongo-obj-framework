@@ -44,6 +44,10 @@ public interface SmofQuery<E extends Element, T extends SmofQuery<E, ?>> {
 	T withFieldSmaller(String fieldName, Number value, boolean smallerOrEqual);
 	T withFieldSmallerOrEqual(String fieldName, Number value);
 	
+	T withFieldMod(String fieldName, int divisor, int remainder);
+	
+	T withFieldAll(String fieldName, Object[] values);
+	
 	ArrayQuery<E> beginAnd();
 	ArrayQuery<E> beginOr();
 	ArrayQuery<E> beginNor();

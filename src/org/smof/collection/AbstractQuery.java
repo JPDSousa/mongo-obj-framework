@@ -172,5 +172,21 @@ abstract class AbstractQuery<T extends Element, Query extends SmofQuery<T, ?>> i
 	public DocumentQuery<T> beginNot() {
 		return new DocumentQuery<T>((AbstractQuery<T, SmofQuery<T, ?>>) this, NOT);
 	}
+
+	@Override
+	public Query withFieldMod(String fieldName, int divisor, int remainder) {
+		final PrimaryField field = parser.getField(elementClass, fieldName);
+		final BsonValue bsonValue = toBsonQueryValues(field, new Object[]{divisor, remainder});
+		return applyBsonQuery(fieldName, bsonValue, MOD);
+	}
+
+	@Override
+	public Query withFieldAll(String fieldName, Object[] values) {
+		final PrimaryField field = parser.getField(elementClass, fieldName);
+		final BsonValue bsonValue = toBsonQueryValues(field, values);
+		return applyBsonQuery(fieldName, bsonValue, ALL);
+	}
+	
+	
 	
 }

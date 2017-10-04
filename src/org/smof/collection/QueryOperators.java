@@ -18,7 +18,11 @@ enum QueryOperators {
 	AND("and"),
 	OR("or"),
 	NOR("nor"),
-	NOT("not");
+	NOT("not"),
+	//evaluation operators
+	MOD("mod"),
+	// array operators
+	ALL("all");
 	
 	private final String fieldName;
 
