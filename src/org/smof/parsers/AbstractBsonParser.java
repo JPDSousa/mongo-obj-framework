@@ -28,6 +28,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.bson.BsonDocument;
 import org.bson.BsonDocumentReader;
 import org.bson.BsonDocumentWriter;
+import org.bson.BsonInvalidOperationException;
 import org.bson.BsonReader;
 import org.bson.BsonValue;
 import org.bson.codecs.Codec;
@@ -106,7 +107,12 @@ abstract class AbstractBsonParser implements BsonParser {
 	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
 		checkArgument(value != null, "A value must be specified.");
 		final Codec<T> codec = getCodec(type, bsonParser.getRegistry());
-		return deserializeWithCodec(codec, value);
+		try {
+			return deserializeWithCodec(codec, value);
+		} catch (BsonInvalidOperationException e) {
+			handleError(new RuntimeException("Cannot parse value for type: " + fieldOpts.getName(), e));
+			return null;
+		}
 	}
 	
 	protected final <T> T deserializeWithCodec(Codec<T> codec, BsonValue value) {
