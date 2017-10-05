@@ -142,12 +142,14 @@ public class SmofParser {
 			return new BsonNull();
 		}
 		final Codec<T> codec = registry.get(clazz);
+		final String key = "value";
 		final BsonDocument document = new BsonDocument();
 		final BsonWriter writer = new BsonDocumentWriter(document);
 		writer.writeStartDocument();
+		writer.writeName(key);
 		codec.encode(writer, (T) value, EncoderContext.builder().build());
 		writer.writeEndDocument();
-		return document;
+		return document.get(key);
 	}
 
 	public BsonValue toBson(Object value, SmofField field) {
