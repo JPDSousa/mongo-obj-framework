@@ -120,32 +120,32 @@ abstract class AbstractQuery<T extends Element, Query extends SmofQuery<T, ?>> i
 	}
 
 	@Override
-	public Query withFieldGreater(String fieldName, Number value) {
+	public Query withFieldGreater(String fieldName, Object value) {
 		return withFieldGreater(fieldName, value, false);
 	}
 
 	@Override
-	public Query withFieldGreater(String fieldName, Number value, boolean greaterOrEqual) {
+	public Query withFieldGreater(String fieldName, Object value, boolean greaterOrEqual) {
 		return applyQuery(fieldName, value, greaterOrEqual ? GREATER_OR_EQUAL : GREATER);
 	}
 
 	@Override
-	public Query withFieldGreaterOrEqual(String fieldName, Number value) { 
+	public Query withFieldGreaterOrEqual(String fieldName, Object value) { 
 		return withFieldGreater(fieldName, value, true);
 	}
 
 	@Override
-	public Query withFieldSmaller(String fieldName, Number value) {
+	public Query withFieldSmaller(String fieldName, Object value) {
 		return withFieldSmaller(fieldName, value, false);
 	}
 
 	@Override
-	public Query withFieldSmaller(String fieldName, Number value, boolean smallerOrEqual) {
+	public Query withFieldSmaller(String fieldName, Object value, boolean smallerOrEqual) {
 		return applyQuery(fieldName, value, smallerOrEqual ? SMALLER_OR_EQUAL : SMALLER);
 	}
 
 	@Override
-	public Query withFieldSmallerOrEqual(String fieldName, Number value) {
+	public Query withFieldSmallerOrEqual(String fieldName, Object value) {
 		return withFieldSmaller(fieldName, value, true);
 	}
 	

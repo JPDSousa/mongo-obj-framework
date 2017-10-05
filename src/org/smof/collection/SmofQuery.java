@@ -36,13 +36,13 @@ public interface SmofQuery<E extends Element, T extends SmofQuery<E, ?>> {
 	T withFieldNotIn(String fieldName, Object[] values);
 	T withFieldRegex(String fieldName, Pattern value);
 	
-	T withFieldGreater(String fieldName, Number value);
-	T withFieldGreater(String fieldName, Number value, boolean greaterOrEqual);
-	T withFieldGreaterOrEqual(String fieldName, Number value);
+	T withFieldGreater(String fieldName, Object value);
+	T withFieldGreater(String fieldName, Object value, boolean greaterOrEqual);
+	T withFieldGreaterOrEqual(String fieldName, Object value);
 	
-	T withFieldSmaller(String fieldName, Number value);
-	T withFieldSmaller(String fieldName, Number value, boolean smallerOrEqual);
-	T withFieldSmallerOrEqual(String fieldName, Number value);
+	T withFieldSmaller(String fieldName, Object value);
+	T withFieldSmaller(String fieldName, Object value, boolean smallerOrEqual);
+	T withFieldSmallerOrEqual(String fieldName, Object value);
 	
 	T withFieldMod(String fieldName, int divisor, int remainder);
 	
