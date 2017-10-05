@@ -10,14 +10,19 @@ import com.google.common.base.Objects;
 public class SmofStringCodecProvider implements SmofCodecProvider {
 	
 	private final Codec<String> stringCodec;
+	private final Codec<Integer> integerCodec;
 	
 	public SmofStringCodecProvider() {
 		stringCodec = new StringCodec();
+		integerCodec = new IntegerCodec();
 	}
 
 	@SuppressWarnings({ "unchecked", "cast", "rawtypes" })
 	@Override
 	public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
+		if(Integer.class.equals(clazz)) {
+			return (Codec<T>) integerCodec;
+		}
 		if(String.class.equals(clazz)) {
 			return (Codec<T>) stringCodec;
 		}

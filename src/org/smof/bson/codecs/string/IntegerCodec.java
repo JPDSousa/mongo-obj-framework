@@ -6,8 +6,7 @@ import org.bson.BsonWriter;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 
-@SuppressWarnings("javadoc")
-public class IntegerCodec extends org.bson.codecs.IntegerCodec {
+class IntegerCodec extends org.bson.codecs.IntegerCodec {
 
 	@Override
 	public void encode(BsonWriter writer, Integer value, EncoderContext encoderContext) {
