@@ -44,7 +44,7 @@ import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
 import org.smof.gridfs.SmofGridRef;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.*;
 
 abstract class AbstractBsonParser implements BsonParser {
 	
@@ -66,7 +66,7 @@ abstract class AbstractBsonParser implements BsonParser {
 
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
-		Preconditions.checkArgument(value != null, "You must specify a value in order to be serialized");
+		checkArgument(value != null, "You must specify a value in order to be serialized");
 		final SerializationContext serContext = bsonParser.getSerializationContext();
 		if(serContext.contains(value, fieldOpts.getType())) {
 			return serContext.get(value, fieldOpts.getType());
@@ -91,6 +91,7 @@ abstract class AbstractBsonParser implements BsonParser {
 	
 	@SuppressWarnings("unchecked")
 	protected final <T> BsonValue serializeWithCodec(Codec<T> codec, Object value) {
+		checkArgument(codec != null, "Cannot find a valid codec to serialize: " + value);
 		final BsonDocument document = new BsonDocument();
 		final String name = "result";
 		final BsonDocumentWriter writer = new BsonDocumentWriter(document);
@@ -103,12 +104,13 @@ abstract class AbstractBsonParser implements BsonParser {
 	
 	@Override
 	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
-		Preconditions.checkArgument(value != null, "A value must be specified.");
-		final Codec<T> codec = provider.get(type, bsonParser.getRegistry());
+		checkArgument(value != null, "A value must be specified.");
+		final Codec<T> codec = getCodec(type, bsonParser.getRegistry());
 		return deserializeWithCodec(codec, value);
 	}
 	
 	protected final <T> T deserializeWithCodec(Codec<T> codec, BsonValue value) {
+		checkArgument(codec != null, "Cannot find a valid codec to deserialize: " + value);
 		final BsonDocument document = new BsonDocument("result", value);
 		final BsonReader reader = new BsonDocumentReader(document);
 		reader.readStartDocument();
