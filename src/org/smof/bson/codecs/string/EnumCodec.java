@@ -1,5 +1,6 @@
 package org.smof.bson.codecs.string;
 
+import org.bson.BsonInvalidOperationException;
 import org.bson.BsonReader;
 import org.bson.BsonWriter;
 import org.bson.codecs.Codec;
@@ -27,7 +28,11 @@ class EnumCodec<T extends Enum<T>> implements Codec<T> {
 
 	@Override
 	public T decode(BsonReader reader, DecoderContext decoderContext) {
-		return Enum.valueOf(clazz, reader.readString());
+		try {
+			return Enum.valueOf(clazz, reader.readString());
+		} catch (IllegalArgumentException e) {
+			throw new BsonInvalidOperationException(e.getMessage());
+		}
 	}
 
 }
