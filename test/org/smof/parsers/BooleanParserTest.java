@@ -2,13 +2,13 @@ package org.smof.parsers;
 
 import org.bson.BsonArray;
 import org.bson.BsonBoolean;
-import org.bson.BsonInt32;
-import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+
+import java.time.LocalDate;
 
 /**
  * Created by thales minussi on 28/09/17.
@@ -19,51 +19,46 @@ public class BooleanParserTest {
 
 	private static final BsonValue BSON_TRUE = BsonBoolean.TRUE;
 	private static final BsonValue BSON_FALSE = BsonBoolean.FALSE;
-	private static AbstractBsonParser parser;
+	private static BooleanParser parser;
 
 	@Before
 	public void setUp() {
-		parser = new BooleanParser(null, null);
+		parser = (BooleanParser) new SmofParser(null)
+				.getParsers()
+				.get(SmofType.BOOLEAN);
 	}
 	
-	private void testSupport(BsonValue bsonTrue, BsonValue bsonFalse, 
-			Object valueTrue, Object valueFalse, Class<?> type) {
+	private void testSupport(Object valueTrue, Object valueFalse, Class<?> type) {
 		// valid type
 		assertTrue(parser.isValidType(type));
 		// valid bson
-		assertTrue(parser.isValidBson(bsonTrue));
-		assertTrue(parser.isValidBson(bsonFalse));
 		// valid serialization
-		assertEquals(bsonTrue, parser.toBson(valueTrue, null));
-		assertEquals(bsonFalse, parser.toBson(valueFalse, null));
+		assertEquals(BSON_TRUE, parser.toBson(valueTrue, null));
+		assertEquals(BSON_FALSE, parser.toBson(valueFalse, null));
 		// valid deserialization
-		assertEquals(valueTrue, parser.fromBson(bsonTrue, type, null));
-		assertEquals(valueFalse, parser.fromBson(bsonFalse, type, null));
+		assertEquals(valueTrue, parser.fromBson(BSON_TRUE, type, null));
+		assertEquals(valueFalse, parser.fromBson(BSON_FALSE, type, null));
 	}
 
 	@Test
 	public void booleanSupport() {
-		testSupport(BSON_TRUE, BSON_FALSE, Boolean.TRUE, Boolean.FALSE, Boolean.class);
-		testSupport(BSON_TRUE, BSON_FALSE, true, false, boolean.class);
+		testSupport(Boolean.TRUE, Boolean.FALSE, Boolean.class);
+		testSupport(true, false, boolean.class);
 	}
 	
 	@Test
 	public void stringSupport() {
 		final String valueTrue = Boolean.TRUE.toString();
 		final String valueFalse = Boolean.FALSE.toString();
-		final BsonValue bsonTrue = new BsonString(valueTrue);
-		final BsonValue bsonFalse = new BsonString(valueFalse);
-		testSupport(bsonTrue, bsonFalse, valueTrue, valueFalse, String.class);
+		testSupport(valueTrue, valueFalse, String.class);
 	}
 	
 	@Test
 	public void integerSupport() {
 		final int valueTrue = 1;
 		final int valueFalse = 0;
-		final BsonValue bsonTrue = new BsonInt32(valueTrue);
-		final BsonValue bsonFalse = new BsonInt32(valueFalse);
-		testSupport(bsonTrue, bsonFalse, valueTrue, valueFalse, Integer.class);
-		testSupport(bsonTrue, bsonFalse, valueTrue, valueFalse, int.class);
+		testSupport(valueTrue, valueFalse, Integer.class);
+		testSupport(valueTrue, valueFalse, int.class);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -84,8 +79,8 @@ public class BooleanParserTest {
 
 	@Test
 	public void serializeToBson_ShouldReturn_Null() {
-		BsonValue bsonValue = parser.serializeToBson("This is not a boolean value", null);
-		assertNull(bsonValue);
+		BsonValue bsonValue = parser.serializeToBson(LocalDate.now(), null);
+		assertFalse(bsonValue.isBoolean());
 	}
 
 	@Test(expected = RuntimeException.class)
@@ -95,8 +90,8 @@ public class BooleanParserTest {
 
 	@Test
 	public void isValidBson_ShouldReturn_True() {
-		boolean validBson = parser.isValidBson(new BsonBoolean(Boolean.TRUE));
-		assertTrue(validBson);
+		assertTrue(parser.isValidBson(BSON_FALSE));
+		assertTrue(parser.isValidBson(BSON_TRUE));
 	}
 
 	@Test
