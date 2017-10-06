@@ -28,10 +28,12 @@ import org.smof.field.SmofField;
 
 import java.util.Objects;
 
+import static com.google.common.base.Preconditions.*;
+
 @SuppressWarnings("javadoc")
 public class BooleanParser extends AbstractBsonParser {
 
-	private static final Class<?>[] VALID_TYPES = {boolean.class, Boolean.class};
+	private static final Class<?>[] VALID_TYPES = {Boolean.class};
 
 	protected BooleanParser(SmofParser bsonParser, SmofDispatcher dispatcher) {
 		super(dispatcher, bsonParser, null, VALID_TYPES);
@@ -39,9 +41,7 @@ public class BooleanParser extends AbstractBsonParser {
 
 	@Override
 	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
-		if (Objects.isNull(value)) {
-			throw new RuntimeException("You must specify a value in order to be serialized");
-		}
+		checkArgument(value != null, "You must specify a value in order to be serialized");
 		if(isBoolean(value.getClass())) {
 			return fromBoolean((Boolean) value);
 		}
