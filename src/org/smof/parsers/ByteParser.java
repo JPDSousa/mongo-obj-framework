@@ -34,11 +34,10 @@ import org.smof.field.SmofField;
 
 class ByteParser extends AbstractBsonParser {
 
-	private static final Class<?>[] VALID_TYPES = {byte[].class, Byte[].class};
+	private static final Class<?>[] VALID_TYPES = {Byte[].class};
 
 	protected ByteParser(SmofDispatcher dispatcher, SmofParser bsonParser) {
 		super(dispatcher, bsonParser, null, VALID_TYPES);
-		// TODO Auto-generated constructor stub
 	}
 
 	@SuppressWarnings("unchecked")
