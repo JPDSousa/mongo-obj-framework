@@ -54,13 +54,15 @@ abstract class AbstractBsonParser implements BsonParser {
 	}
 
 	protected final SmofCodecProvider provider;
-	protected final SmofParser bsonParser;
+	protected final SmofParser topParser;
+	protected final SerializationContext serializationContext;
 	protected final SmofDispatcher dispatcher;
 	private final Class<?>[] types;
 	
-	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser bsonParser, SmofCodecProvider provider, Class<?>[] types) {
+	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser topParser, SmofCodecProvider provider, Class<?>[] types) {
 		this.provider = provider;
-		this.bsonParser = bsonParser;
+		this.topParser = topParser;
+		this.serializationContext = topParser != null ? topParser.getSerializationContext() : null;
 		this.dispatcher = dispatcher;
 		this.types = types;
 	}
@@ -68,26 +70,39 @@ abstract class AbstractBsonParser implements BsonParser {
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
 		checkArgument(value != null, "You must specify a value in order to be serialized");
-		final SerializationContext serContext = bsonParser.getSerializationContext();
-		if(serContext.contains(value, fieldOpts.getType())) {
-			return serContext.get(value, fieldOpts.getType());
+		if(serializationContextContains(value, fieldOpts)) {
+			return serializationContext.get(value, fieldOpts.getType());
 		}
-		final BsonValue serValue = serializeToBson(value, fieldOpts);
-		serContext.put(value, fieldOpts.getType(), serValue);
-		return serValue;
+		final BsonValue bsonValue = serializeToBson(value, fieldOpts);
+		add2SerializationContext(value, fieldOpts, bsonValue);
+		return bsonValue;
+	}
+	
+	private void add2SerializationContext(Object value, SmofField fieldOpts, BsonValue serValue) {
+		if(serializationContext != null) {
+			serializationContext.put(value, fieldOpts.getType(), serValue);			
+		}
+	}
+
+	private boolean serializationContextContains(Object value, SmofField field) {
+		return field != null 
+				&& serializationContext != null 
+				&& serializationContext.contains(value, field.getType());
 	}
 	
 	@SuppressWarnings("unused")
 	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
 		final Class<?> clazz = value.getClass();
-		final CodecRegistry registry = bsonParser.getRegistry();
+		final CodecRegistry registry = topParser.getRegistry();
 		final Codec<?> codec = getCodec(clazz, registry);
 		return serializeWithCodec(codec, value);
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T> Codec<T> getCodec(final Class<T> clazz, final CodecRegistry registry) {
-		final Codec<T> codec = provider != null ? provider.get(clazz, registry) : null;
-		return codec != null ? codec : registry.get(clazz);
+		final Class<T> wrapperClass = (Class<T>) ClassUtils.primitiveToWrapper(clazz);
+		final Codec<T> codec = provider != null ? provider.get(wrapperClass, registry) : null;
+		return codec != null ? codec : registry.get(wrapperClass);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -107,7 +122,7 @@ abstract class AbstractBsonParser implements BsonParser {
 	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
 		checkArgument(value != null, "A value must be specified.");
 		checkArgument(type != null, "A type must be specified.");
-		final Codec<T> codec = getCodec(type, bsonParser.getRegistry());
+		final Codec<T> codec = getCodec(type, topParser.getRegistry());
 		try {
 			return deserializeWithCodec(codec, value);
 		} catch (BsonInvalidOperationException e) {
@@ -126,7 +141,7 @@ abstract class AbstractBsonParser implements BsonParser {
 	}
 
 	protected final <T> TypeStructure<T> getTypeStructure(Class<T> type) {
-		return bsonParser.getContext().getTypeStructure(type, bsonParser.getParsers());
+		return topParser.getContext().getTypeStructure(type, topParser.getParsers());
 	}
 	
 	protected final <T> TypeParser<T> getTypeParser(Class<T> type) {
