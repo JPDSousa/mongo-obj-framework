@@ -54,9 +54,12 @@ class ObjectParser extends AbstractBsonParser {
 
 	private static final Class<?>[] VALID_TYPES = {};
 	private static final String ENUM_NAME = "_enumValue";
+	
+	private final SerializationContext serializationContext;
 
 	ObjectParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, null, VALID_TYPES);
+		serializationContext = parser != null ? parser.getSerializationContext() : null;
 	}
 
 	@Override

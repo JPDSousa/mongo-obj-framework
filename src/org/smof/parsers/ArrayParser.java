@@ -39,8 +39,11 @@ class ArrayParser extends AbstractBsonParser {
 
 	private static final Class<?>[] VALID_TYPES = {};
 	
+	private final SerializationContext serializationContext;
+	
 	ArrayParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, null, VALID_TYPES);
+		serializationContext = parser != null ? parser.getSerializationContext() : null;
 	}
 
 	@Override
