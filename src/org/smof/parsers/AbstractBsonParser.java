@@ -106,6 +106,7 @@ abstract class AbstractBsonParser implements BsonParser {
 	@Override
 	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
 		checkArgument(value != null, "A value must be specified.");
+		checkArgument(type != null, "A type must be specified.");
 		final Codec<T> codec = getCodec(type, bsonParser.getRegistry());
 		try {
 			return deserializeWithCodec(codec, value);
