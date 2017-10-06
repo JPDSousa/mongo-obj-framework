@@ -1,4 +1,4 @@
-package org.smof.bson.codecs;
+package org.smof.bson.codecs.bytes;
 
 import static java.lang.String.format;
 
