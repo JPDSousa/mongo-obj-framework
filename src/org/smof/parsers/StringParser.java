@@ -53,7 +53,7 @@ class StringParser extends AbstractBsonParser {
 			bson = (String) value;
 		}
 		else if(isInteger(type)) {
-			bson = ((Integer) value).toString();
+			bson = value.toString();
 		}
 		else {
 			//TODO add other type
