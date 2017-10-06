@@ -37,7 +37,7 @@ import org.smof.field.SmofField;
 
 class ArrayParser extends AbstractBsonParser {
 
-	private static final Class<?>[] VALID_TYPES = {Collection.class};
+	private static final Class<?>[] VALID_TYPES = {};
 	
 	ArrayParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, null, VALID_TYPES);
