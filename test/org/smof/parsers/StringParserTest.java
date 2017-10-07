@@ -2,6 +2,7 @@ package org.smof.parsers;
 
 import org.bson.*;
 import org.junit.Test;
+import org.junit.Before;
 import org.smof.dataModel.TypeGuitar;
 
 import java.math.BigDecimal;
@@ -12,12 +13,19 @@ import static org.junit.Assert.*;
  * Created by thales on 06/10/17.
  */
 public class StringParserTest {
+	
+	private StringParser parser;
+	
+	@Before
+	public void setUp() {
+		parser = new StringParser(null, null);
+	}
 
     @Test
     public void serializeToBson_ShouldSerialize_ObjectStringValueCorrectly() {
-        AbstractBsonParser abstractBsonParser = new StringParser(null, null);
-        BsonValue bsonValue = abstractBsonParser.serializeToBson("some string", null);
-        assertEquals("BsonString{value='some string'}", bsonValue.toString());
+		final String testString = "some string";
+        BsonValue bsonValue = parser.serializeToBson(testString, null);
+        assertEquals(new BsonString(testString), bsonValue);
     }
 
     @Test
