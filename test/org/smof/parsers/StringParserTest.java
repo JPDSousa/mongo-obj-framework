@@ -12,7 +12,13 @@ import static org.junit.Assert.*;
 /**
  * Created by thales on 06/10/17.
  */
+@SuppressWarnings("javadoc")
 public class StringParserTest {
+	
+	private enum DummyEnum {
+		VALUE1,
+		VALUE2
+	}
 	
 	private StringParser parser;
 	
@@ -62,6 +68,14 @@ public class StringParserTest {
         BsonString bsonString = new BsonString("1");
         Integer integer = abstractBsonParser.fromBson(bsonString, Integer.class, null);
         assertEquals(1, integer.intValue());
+    }
+    
+    @Test
+    public void fromBson_ShouldReturn_EnumRawValue() {
+    	final DummyEnum expected = DummyEnum.VALUE1;
+		final BsonString bsonValue = new BsonString(expected.name());
+		final DummyEnum actual = parser.fromBson(bsonValue, DummyEnum.class, null);
+    	assertEquals(expected, actual);
     }
 
     @Test(expected = RuntimeException.class)
