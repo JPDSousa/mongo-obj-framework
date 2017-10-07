@@ -14,6 +14,11 @@ import org.smof.parsers.SmofParser;
 @SuppressWarnings("javadoc")
 public class BsonUtils {
 	
+	/** This class not support new instances.
+	/* 
+	/**/
+	private BsonUtils() {}
+	
 	public final static BsonObjectId toBsonObjectId(Element value) {
 		final ObjectId id = value.getId();
 		return new BsonObjectId(id);

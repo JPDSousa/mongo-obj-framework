@@ -18,3 +18,5 @@ target/
 Database/
 
 db\.bat
+.idea
+smof.iml

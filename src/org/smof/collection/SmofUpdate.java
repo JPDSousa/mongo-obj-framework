@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.smof.collection;
 
-import static org.smof.collection.Operators.*;
+import static org.smof.collection.UpdateOperators.*;
 
 import java.util.Map;
 
@@ -112,7 +112,7 @@ public class SmofUpdate<T extends Element> {
 		return set(value, fieldName);
 	}
 	
-	private void putOrAppend(Operators op, BsonDocument doc) {
+	private void putOrAppend(UpdateOperators op, BsonDocument doc) {
 		putOrAppend(op.getOperator(), doc);
 	}
 

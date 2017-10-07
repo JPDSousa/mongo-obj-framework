@@ -21,44 +21,29 @@
  ******************************************************************************/
 package org.smof.collection;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bson.conversions.Bson;
+import org.bson.BsonArray;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
 import org.smof.element.Element;
 
-import com.mongodb.client.model.Filters;
-
 @SuppressWarnings("javadoc")
-public class OrQuery<T extends Element> extends AbstractSmofQuery<T, OrQuery<T>> {
+public class ArrayQuery<T extends Element> extends AbstractChildQuery<T, ArrayQuery<T>> {
 
-	private final SmofQuery<T> parent;
-	private final List<Bson> filters;
+	private final BsonArray filter;
 
-	OrQuery(SmofQuery<T> parent) {
-		super(parent.getParser(), parent.getElementClass());
-		this.parent = parent;
-		filters = new ArrayList<>();
-	}
-	
-	public OrQuery<T> or(Bson filter) {
-		filters.add(filter);
-		return this;
-	}
-	
-	@Override
-	public OrQuery<T> applyBsonFilter(Bson filter) {
-		return or(filter);
-	}
-	
-	public SmofQuery<T> endOr() {
-		parent.applyBsonFilter(Filters.or(filters));
-		return parent;
+	ArrayQuery(AbstractQuery<T, SmofQuery<T, ?>> parent, QueryOperators op) {
+		super(parent, op);
+		filter = new BsonArray();
 	}
 
 	@Override
-	public SmofResults<T> results() {
-		return endOr().results();
+	protected void append(String name, BsonValue value) {
+		filter.add(new BsonDocument(name, value));
+	}
+
+	@Override
+	protected BsonValue getFilter() {
+		return filter;
 	}
 
 }

@@ -34,6 +34,7 @@ import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridStreamManager;
 import org.smof.utils.BsonUtils;
 
+import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
 
@@ -47,11 +48,63 @@ public class SmofDispatcher {
 	private final CollectionsPool collections;
 	private final SmofGridStreamManager streamManager;
 
-	public SmofDispatcher(CollectionsPool collections, SmofGridStreamManager streamManager) {
-		this.collections = collections;
-		this.streamManager = streamManager;
+	public SmofDispatcher() {
+		this.collections = new CollectionsPool();
+		this.streamManager = SmofGridStreamManager.newStreamManager(collections);
 	}
 	
+	public void put(String bucketName, GridFSBucket bucket) {
+		collections.put(bucketName, bucket);
+	}
+	
+	public <T extends Element> void put(Class<T> elClass, SmofCollection<T> collection) {
+		collections.put(elClass, collection);
+	}
+	
+	public void dropBucket(String bucketName) {
+		final GridFSBucket bucket = collections.getBucket(bucketName);
+		bucket.drop();
+		collections.removeBucket(bucketName);
+	}
+
+	public void dropAllBuckets() {
+		for(String bucketName : collections.getAllBuckets()) {
+			collections.getBucket(bucketName).drop();
+		}
+		collections.clearBuckets();
+	}
+
+	public SmofGridStreamManager getGridStreamManager() {
+		return streamManager;
+	}
+
+	public boolean dropCollection(String collectionName) {
+		SmofCollection<?> toDrop = null;
+		for(SmofCollection<?> collection : collections) {
+			if(collectionName.equals(collection.getCollectionName())) {
+				toDrop = collection;
+				break;
+			}
+		}
+		if(toDrop != null) {
+			toDrop.getMongoCollection().drop();
+			collections.remove(toDrop);
+			return true;
+		}
+		return false;
+	}
+
+	public void dropCollections() {
+		for(SmofCollection<?> collection : collections) {
+			collection.getMongoCollection().drop();
+		}
+		collections.clearCollections();
+	}
+	
+	public <T extends Element> SmofCollection<T> getCollection(Class<T> elClass) {
+		return collections.getCollection(elClass);
+	}
+
 	public final <T extends Element> boolean insert(T element) {
 		return insert(element, SmofOpOptions.create());
 	}

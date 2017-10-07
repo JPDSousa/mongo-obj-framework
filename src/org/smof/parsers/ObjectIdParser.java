@@ -29,8 +29,10 @@ import org.smof.field.SmofField;
 
 class ObjectIdParser extends AbstractBsonParser {
 	
+	private static final Class<?>[] VALID_TYPES = {ObjectId.class};
+	
 	ObjectIdParser(SmofParser parser, SmofDispatcher dispatcher) {
-		super(dispatcher, parser, ObjectId.class);
+		super(dispatcher, parser, null, VALID_TYPES);
 	}
 
 	@Override

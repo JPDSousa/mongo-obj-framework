@@ -22,8 +22,11 @@
 package org.smof.collection;
 
 import java.io.Closeable;
+import java.util.Arrays;
 
 import org.bson.BsonDocument;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofObject;
 import org.smof.element.Element;
@@ -33,7 +36,9 @@ import org.smof.parsers.SmofParser;
 
 import com.google.common.base.Preconditions;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoWriteException;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
@@ -75,17 +80,25 @@ public final class Smof implements Closeable {
 	 * @return a new smof connection
 	 */
 	public static Smof create(String host, int port, String databaseName) {
-		final MongoClient client = new MongoClient(host, port);
+		final MongoClientOptions clientOptions = buildOptions();
+		final MongoClient client = new MongoClient(new ServerAddress(host, port), clientOptions);
 		final MongoDatabase database = client.getDatabase(databaseName);
 		return new Smof(client, database);
 	}
+	
+	private static MongoClientOptions buildOptions() {
+		final CodecRegistry mongoRegistry = MongoClient.getDefaultCodecRegistry();
+		final CodecRegistry smofRegistry = SmofParser.getDefaultCodecRegistry();
+		
+		return MongoClientOptions.builder()
+				.codecRegistry(CodecRegistries.fromRegistries(Arrays.asList(mongoRegistry, smofRegistry)))
+				.build();
+	}
 
 	private final MongoDatabase database;
-	private final CollectionsPool collections;
 	private final SmofParser parser;
 	private final SmofDispatcher dispatcher;
 	private final MongoClient client;
-	private final SmofGridStreamManager gridStreamManager;
 
 	/**
 	 * Private constructor. This constructor is only accessed through the {@link #create(String, int, String)}
@@ -98,33 +111,26 @@ public final class Smof implements Closeable {
 	private Smof(MongoClient client, MongoDatabase database) {
 		this.client = client;
 		this.database = database;
-		this.collections = new CollectionsPool();
-		this.gridStreamManager = SmofGridStreamManager.newStreamManager(collections);
-		this.dispatcher = new SmofDispatcher(collections, gridStreamManager);
-		this.parser = new SmofParser(dispatcher);
+		this.dispatcher = new SmofDispatcher();
+		this.parser = new SmofParser(dispatcher, database.getCodecRegistry());
 		loadBucket(DEFAULT_BUCKET);
 	}
 
 	public void loadBucket(String bucketName) {
 		final GridFSBucket bucket = GridFSBuckets.create(database, bucketName);
-		collections.put(bucketName, bucket);
+		dispatcher.put(bucketName, bucket);
 	}
 	
 	public void dropBucket(String bucketName) {
-		final GridFSBucket bucket = collections.getBucket(bucketName);
-		bucket.drop();
-		collections.removeBucket(bucketName);
+		dispatcher.dropBucket(bucketName);
 	}
 	
 	public void dropAllBuckets() {
-		for(String bucketName : collections.getAllBuckets()) {
-			collections.getBucket(bucketName).drop();
-		}
-		collections.clearBuckets();
+		dispatcher.dropAllBuckets();
 	}
 
 	public SmofGridStreamManager getGridStreamManager() {
-		return gridStreamManager;
+		return dispatcher.getGridStreamManager();
 	}
 	
 	/**
@@ -193,7 +199,7 @@ public final class Smof implements Closeable {
 
 	private <T extends Element> void loadCollection(String collectionName, Class<T> elClass, SmofParser parser, CollectionOptions<T> options) {
 		final MongoCollection<BsonDocument> collection = database.getCollection(collectionName, BsonDocument.class);
-		collections.put(elClass, new SmofCollectionImpl<T>(collectionName, collection, elClass, parser, options));
+		dispatcher.put(elClass, new SmofCollectionImpl<T>(collectionName, collection, elClass, parser, options));
 	}
 
 	/**
@@ -292,26 +298,11 @@ public final class Smof implements Closeable {
 	 * @return {@code true} if the collection was dropped or {@code false} otherwise
 	 */
 	public boolean dropCollection(String collectionName) {
-		SmofCollection<?> toDrop = null;
-		for(SmofCollection<?> collection : collections) {
-			if(collectionName.equals(collection.getCollectionName())) {
-				toDrop = collection;
-				break;
-			}
-		}
-		if(toDrop != null) {
-			toDrop.getMongoCollection().drop();
-			collections.remove(toDrop);
-			return true;
-		}
-		return false;
+		return dispatcher.dropCollection(collectionName);
 	}
 	
 	public void dropAllCollections() {
-		for(SmofCollection<?> collection : collections) {
-			collection.getMongoCollection().drop();
-		}
-		collections.clearCollections();
+		dispatcher.dropCollections();
 	}
 
 	/**
@@ -324,7 +315,7 @@ public final class Smof implements Closeable {
 	@SuppressWarnings("unchecked")
 	public <T extends Element> boolean insert(T element) {
 		Preconditions.checkArgument(element != null, "Cannot insert a null element");
-		final SmofCollection<T> collection = (SmofCollection<T>) collections.getCollection(element.getClass());
+		final SmofCollection<T> collection = (SmofCollection<T>) dispatcher.getCollection(element.getClass());
 		final CollectionOptions<T> options = collection.getCollectionOptions();
 		boolean success = false;
 		try {
@@ -358,20 +349,20 @@ public final class Smof implements Closeable {
 	 * @return a new {@link SmofUpdate} object
 	 */
 	public <T extends Element> SmofUpdate<T> update(Class<T> elementClass) {
-		final SmofCollection<T> collection = collections.getCollection(elementClass);
+		final SmofCollection<T> collection = dispatcher.getCollection(elementClass);
 		return collection.update();
 	}
 
 	/**
-	 * Creates and returns a new {@link SmofQuery} that allows the user to perform a read operation.
+	 * Creates and returns a new {@link ParentQuery} that allows the user to perform a read operation.
 	 * The element class passed as parameter must be previously registered to a mongo collection,
 	 * otherwise {@link NoSuchCollection} is thrown.
 	 * 
 	 * @param elementClass element class
-	 * @return a new {@link SmofQuery} object
+	 * @return a new {@link ParentQuery} object
 	 */
-	public <T extends Element> SmofQuery<T> find(Class<T> elementClass) {
-		final SmofCollection<T> collection = collections.getCollection(elementClass);
+	public <T extends Element> ParentQuery<T> find(Class<T> elementClass) {
+		final SmofCollection<T> collection = dispatcher.getCollection(elementClass);
 		return collection.query();
 	}
 

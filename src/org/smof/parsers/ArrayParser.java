@@ -21,8 +21,6 @@
  ******************************************************************************/
 package org.smof.parsers;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -31,7 +29,6 @@ import java.util.Set;
 
 import org.bson.BsonArray;
 import org.bson.BsonValue;
-import org.smof.annnotations.SmofArray;
 import org.smof.collection.SmofDispatcher;
 import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
@@ -40,8 +37,10 @@ import org.smof.field.SmofField;
 
 class ArrayParser extends AbstractBsonParser {
 
+	private static final Class<?>[] VALID_TYPES = {Collection.class};
+	
 	ArrayParser(SmofParser parser, SmofDispatcher dispatcher) {
-		super(dispatcher, parser, Collection.class);
+		super(dispatcher, parser, null, VALID_TYPES);
 	}
 
 	@Override
@@ -53,7 +52,7 @@ class ArrayParser extends AbstractBsonParser {
 		final Class<?> type = value.getClass();
 		if(isPrimaryField(fieldOpts) && isCollection(type)) {
 			final Object[] array;
-			final SecondaryField componentField = getCollectionField((PrimaryField) fieldOpts);
+			final SecondaryField componentField = ((PrimaryField) fieldOpts).getSecondaryField();
 			array = fromCollection((Collection<?>) value);
 			return fromArray(array, componentField);
 		}
@@ -100,7 +99,7 @@ class ArrayParser extends AbstractBsonParser {
 	}
 
 	private Collection<Object> toCollection(BsonArray values, PrimaryField fieldOpts) {
-		final SecondaryField componentField = getCollectionField(fieldOpts);
+		final SecondaryField componentField = fieldOpts.getSecondaryField();
 		final Collection<Object> collection = createCollection(fieldOpts.getFieldClass());
 		for(BsonValue value : values) {
 			final Object parsedValue = bsonParser.fromBson(value, componentField);
@@ -129,13 +128,13 @@ class ArrayParser extends AbstractBsonParser {
 	public boolean isValidType(SmofField fieldOpts) {
 		final Class<?> type = fieldOpts.getFieldClass();
 
-		return super.isValidType(type)
+		return (Collection.class.isAssignableFrom(type) || super.isValidType(type))
 				&& (!isPrimaryField(fieldOpts) || isValidComponentType((PrimaryField) fieldOpts));
 	}
 
 	private boolean isValidComponentType(PrimaryField fieldOpts) {
 		//Careful here! The next line is only safe 'cause we only support collections
-		final SecondaryField componentField = getCollectionField(fieldOpts);
+		final SecondaryField componentField = fieldOpts.getSecondaryField();
 		final Class<?> componentClass = componentField.getFieldClass();
 		final SmofType componentType = componentField.getType();
 		
@@ -146,17 +145,6 @@ class ArrayParser extends AbstractBsonParser {
 
 	private boolean isSupportedComponentType(SmofType componentType) {
 		return componentType != SmofType.ARRAY;
-	}
-
-	private SecondaryField getCollectionField(PrimaryField fieldOpts) {
-		final SmofArray note = fieldOpts.getSmofAnnotationAs(SmofArray.class);
-		final Class<?> componentClass = getCollectionType(fieldOpts.getRawField());
-		return new SecondaryField(fieldOpts.getName(), note.type(), componentClass);
-	}
-
-	private Class<?> getCollectionType(Field collType) {
-		final ParameterizedType mapParamType = (ParameterizedType) collType.getGenericType();
-		return (Class<?>) mapParamType.getActualTypeArguments()[0];
 	}
 
 	@Override

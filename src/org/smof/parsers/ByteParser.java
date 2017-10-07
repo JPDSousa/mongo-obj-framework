@@ -1,16 +1,16 @@
 /*******************************************************************************
  * Copyright (C) 2017 Joao
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,12 +23,7 @@ package org.smof.parsers;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.bson.BsonBinary;
@@ -40,9 +35,9 @@ import org.smof.field.SmofField;
 class ByteParser extends AbstractBsonParser {
 
 	private static final Class<?>[] VALID_TYPES = {byte[].class, Byte[].class};
-	
+
 	protected ByteParser(SmofDispatcher dispatcher, SmofParser bsonParser) {
-		super(dispatcher, bsonParser, VALID_TYPES);
+		super(dispatcher, bsonParser, null, VALID_TYPES);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -90,6 +85,9 @@ class ByteParser extends AbstractBsonParser {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T fromBson(BsonValue rawValue, Class<T> type, SmofField fieldOpts) {
+		if (Objects.isNull(rawValue)) {
+			throw new RuntimeException("rawValue field cannot be null");
+		}
 		final BsonBinary value = rawValue.asBinary();
 		if(isPrimitiveByteArray(type)) {
 			return (T) toPrimitiveByteArray(value);
@@ -114,7 +112,7 @@ class ByteParser extends AbstractBsonParser {
 		collection.addAll(data);
 		return collection;
 	}
-	
+
 	private Collection<Byte> createCollection(Class<?> collectionClass) {
 		final Collection<Byte> collection;
 		if(List.class.isAssignableFrom(collectionClass)) {
@@ -144,7 +142,7 @@ class ByteParser extends AbstractBsonParser {
 
 	@Override
 	public boolean isValidType(SmofField fieldOpts) {
-		return super.isValidType(fieldOpts) || 
+		return super.isValidType(fieldOpts) ||
 				(!isPrimaryField(fieldOpts) || isByteCollection((PrimaryField) fieldOpts));
 	}
 
@@ -155,10 +153,9 @@ class ByteParser extends AbstractBsonParser {
 	private boolean isByteComponentType(Field field) {
 		return getCollectionType(field).equals(Byte.class);
 	}
-	
+
 	private Class<?> getCollectionType(Field collType) {
 		final ParameterizedType mapParamType = (ParameterizedType) collType.getGenericType();
 		return (Class<?>) mapParamType.getActualTypeArguments()[0];
 	}
-
 }

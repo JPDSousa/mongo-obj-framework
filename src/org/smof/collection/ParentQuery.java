@@ -23,42 +23,46 @@ package org.smof.collection;
 
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
+import org.bson.types.ObjectId;
 import org.smof.element.Element;
-import org.smof.field.SmofField;
 import org.smof.parsers.SmofParser;
 
+import com.google.common.cache.Cache;
+import com.mongodb.client.MongoCollection;
+
 @SuppressWarnings("javadoc")
-public abstract class AbstractSmofQuery<T extends Element, Query extends FilterQuery<T, ?>> implements FilterQuery<T, Query> {
+public class ParentQuery<T extends Element> extends AbstractQuery<T, ParentQuery<T>>{
 
-	private final BsonDocument filter;
-	private final SmofParser parser;
-	private final Class<T> elementClass;
+	private final BsonDocument query;
+	private final Cache<ObjectId, T> cache;
+	private final MongoCollection<BsonDocument> collection;
 	
-	protected AbstractSmofQuery(SmofParser parser, Class<T> elementClass) {
-		this.filter = new BsonDocument();
-		this.elementClass = elementClass;
-		this.parser = parser;
+	ParentQuery(Class<T> elementClass, SmofParser parser, Cache<ObjectId, T> cache, MongoCollection<BsonDocument> collection) {
+		super(parser, elementClass);
+		this.query = new BsonDocument();
+		this.cache = cache;
+		this.collection = collection;
 	}
 	
 	@Override
-	public Class<T> getElementClass() {
-		return elementClass;
+	public SmofResults<T> results() {
+		return new SmofResults<T>(getParser(), getElementClass(), cache, collection, query);
+	}
+
+	public T byElement(T element) {
+		return withFieldEquals(Element.ID, element.getId())
+		.results()
+		.first();
+	}
+
+	@Override
+	protected void append(String name, BsonValue value) {
+		query.append(name, value);
+	}
+
+	@Override
+	protected BsonValue getFilter() {
+		return query;
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public Query withField(String fieldName, Object filterValue) {
-		final SmofField field = parser.getField(elementClass, fieldName);
-		final BsonValue bsonValue = parser.toBson(filterValue, field);
-		filter.append(fieldName, bsonValue);
-		return (Query) this;
-	}
-
-	protected BsonDocument getFilter() {
-		return filter;
-	}
-
-	protected SmofParser getParser() {
-		return parser;
-	}
 }

@@ -23,6 +23,7 @@ package org.smof.field;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 
 import org.smof.annnotations.SmofArray;
 import org.smof.annnotations.SmofBoolean;
@@ -141,7 +142,26 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	public Field getRawField() {
 		return field;
 	}
+	
+	public SecondaryField getSecondaryField() {
+		final SmofType type;
+		if(this.type == SmofType.ARRAY) {
+			final SmofArray note = getSmofAnnotationAs(SmofArray.class);
+			type = note.type();
+		}
+		else {
+			final SmofObject note = getSmofAnnotationAs(SmofObject.class);
+			type = note.mapValueType();
+		}
+		final Class<?> componentClass = getParameterizedType(getRawField());
+		return new SecondaryField(getName(), type, componentClass);
+	}
 
+	private Class<?> getParameterizedType(Field collType) {
+		final ParameterizedType mapParamType = (ParameterizedType) collType.getGenericType();
+		return (Class<?>) mapParamType.getActualTypeArguments()[0];
+	}
+	
 	@Override
 	public int compareTo(PrimaryField o) {
 		final int boolCompare = this.type.compareTo(o.type);
