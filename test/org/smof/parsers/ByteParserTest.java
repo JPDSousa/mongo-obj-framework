@@ -7,11 +7,9 @@ import org.bson.BsonValue;
 import org.junit.Before;
 import org.junit.Test;
 import org.smof.annnotations.SmofString;
-import org.smof.field.MasterField;
 import org.smof.field.PrimaryField;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 
@@ -21,25 +19,48 @@ import static org.junit.Assert.*;
 @SuppressWarnings("javadoc")
 public class ByteParserTest {
 
-    private AbstractBsonParser abstractBsonParser;
+    private AbstractBsonParser parser;
 
     @SmofString(name = "name")
     private String name;
 
     @Before
     public void setup() {
-        this.abstractBsonParser = new ByteParser(null, null);
+        this.parser = new ByteParser(null, null);
+    }
+    
+    private void testSupport(Object value, BsonBinary bsonValue, Class<?> type) {
+		assertTrue(parser.isValidType(type));
+		assertEquals(bsonValue, parser.toBson(value, null));
+	}
+    
+    @Test
+    public void primitiveByteArraySupport() {
+    	final byte[] value = new byte[1024];
+    	new Random().nextBytes(value);
+    	final BsonBinary bsonValue = new BsonBinary(value);
+    	testSupport(value, bsonValue, byte[].class);
+    	assertArrayEquals(value, parser.fromBson(bsonValue, byte[].class, null));
+    }
+    
+    @Test
+    public void genericByteArraySupport() {
+    	final byte[] value = new byte[1024];
+    	new Random().nextBytes(value);
+    	final BsonBinary bsonValue = new BsonBinary(value);
+    	testSupport(ArrayUtils.toObject(value), bsonValue, Byte[].class);
+    	assertArrayEquals(ArrayUtils.toObject(value), parser.fromBson(bsonValue, Byte[].class, null));
     }
 
-    @Test
-    public void serializeToBson_ShouldReturn_Null() {
-        assertNull(this.abstractBsonParser.serializeToBson("Not a byte array", null));
+    @Test(expected = IllegalArgumentException.class)
+    public void serializeToBson_ShouldThrow() {
+        assertNull(this.parser.serializeToBson("Not a byte array", null));
     }
 
     @Test
     public void serializeToBson_ShouldSerializePrimitiveByteArray_Successfully() {
         byte[] bytes = "a byte array".getBytes();
-        BsonValue bsonValue = this.abstractBsonParser.serializeToBson(bytes, null);
+        BsonValue bsonValue = this.parser.serializeToBson(bytes, null);
         byte[] data = ((BsonBinary) bsonValue).getData();
         assertEquals(bytes, data);
     }
@@ -48,78 +69,54 @@ public class ByteParserTest {
     public void serializeToBson_ShouldSerializeWrapperByteArray_Successfully() {
         byte[] bytes = "a byte array".getBytes();
         Byte[] wrappedBytes = ArrayUtils.toObject(bytes);
-        BsonValue bsonValue = this.abstractBsonParser.serializeToBson(wrappedBytes, null);
+        BsonValue bsonValue = this.parser.serializeToBson(wrappedBytes, null);
         byte[] data = ((BsonBinary) bsonValue).getData();
         assertArrayEquals(bytes, data);
     }
 
     @Test
-    public void serializeToBson_ShouldSerializeByteCollection_Successfully() {
-        Collection<Byte> bytes = new ArrayList<>();
-        bytes.add(ArrayUtils.toObject("a byte array".getBytes())[0]);
-        BsonValue bsonValue = this.abstractBsonParser.serializeToBson(bytes, null);
-        byte[] data = ((BsonBinary) bsonValue).getData();
-        assertArrayEquals("a".getBytes(), data);
-    }
-
-    @Test
     public void fromBson_ShouldParseRawValue_Correctly() {
-        byte[] bytes = this.abstractBsonParser.fromBson(new BsonBinary("a byte array".getBytes()), byte[].class, null);
+        byte[] bytes = this.parser.fromBson(new BsonBinary("a byte array".getBytes()), byte[].class, null);
         assertArrayEquals("a byte array".getBytes(), bytes);
     }
 
     @Test
     public void fromBson_ShouldParseWrapperRawValue_Correctly() {
-        Byte[] bytes = this.abstractBsonParser.fromBson(new BsonBinary("a byte array".getBytes()), Byte[].class, null);
+        Byte[] bytes = this.parser.fromBson(new BsonBinary("a byte array".getBytes()), Byte[].class, null);
         assertArrayEquals("a byte array".getBytes(), ArrayUtils.toPrimitive(bytes));
     }
 
-    @Test
-    public void fromBson_ShouldParseRawValueCollection_Correctly() {
-        Collection<byte[]> bytes = new ArrayList<>();
-        bytes.add("a byte array".getBytes());
-        this.abstractBsonParser.fromBson(new BsonBinary("a byte array".getBytes()), bytes.getClass(), null);
-        assertArrayEquals("a byte array".getBytes(), bytes.stream().findAny().get());
+    @Test(expected = IllegalArgumentException.class)
+    public void fromBson_ShouldRaise_IllegalArgumentExceptionIfRawValueIsNull() {
+        this.parser.fromBson(null, null, null);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void fromBson_ShouldRaise_RuntimeExceptionIfRawValueIsNull() {
-        this.abstractBsonParser.fromBson(null, null, null);
+    @Test(expected = IllegalArgumentException.class)
+    public void fromBson_ShouldRaise_IllegalArgumentExceptionIfTypeIsNull() {
+        this.parser.fromBson(new BsonBinary("a byte array".getBytes()), null, null);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void fromBson_ShouldRaise_RuntimeExceptionIfTypeIsNull() {
-        this.abstractBsonParser.fromBson(new BsonBinary("a byte array".getBytes()), null, null);
-    }
-
-    @Test
-    public void fromBson_ShouldReturn_Null() {
-        this.abstractBsonParser.fromBson(new BsonBinary("a byte array".getBytes()), String.class, null);
+    @Test(expected = IllegalArgumentException.class)
+    public void fromBson_ShouldThrow() {
+        this.parser.fromBson(new BsonBinary("a byte array".getBytes()), String.class, null);
     }
 
     @Test
     public void isValidBson_ShouldReturn_True() {
-        this.abstractBsonParser = new ByteParser(null, null);
-        boolean validBson = abstractBsonParser.isValidBson(new BsonBinary("a byte array".getBytes()));
+        this.parser = new ByteParser(null, null);
+        boolean validBson = parser.isValidBson(new BsonBinary("a byte array".getBytes()));
         assertTrue(validBson);
     }
 
     @Test
     public void isValidBson_ShouldReturn_False() {
-        boolean validBson = abstractBsonParser.isValidBson(new BsonArray());
+        boolean validBson = parser.isValidBson(new BsonArray());
         assertFalse(validBson);
     }
 
     @Test
-    public void isValidType_ShouldReturn_True() {
-        this.abstractBsonParser = new ByteParser(null, null);
-        boolean validType = abstractBsonParser.isValidType(new MasterField(String.class));
-        assertTrue(validType);
-    }
-
-    @Test
     public void isValidType_ShouldReturn_False() throws NoSuchFieldException {
-        this.abstractBsonParser = new ByteParser(null, null);
+        this.parser = new ByteParser(null, null);
         PrimaryField fieldOpts = new PrimaryField(ByteParserTest.class.getDeclaredField("name"), SmofType.STRING) {
             @Override
             public SmofType getType() {
@@ -127,7 +124,7 @@ public class ByteParserTest {
             }
 
         };
-        boolean validType = abstractBsonParser.isValidType(fieldOpts);
+        boolean validType = parser.isValidType(fieldOpts);
         assertFalse(validType);
     }
 }

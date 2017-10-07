@@ -54,44 +54,46 @@ class ObjectParser extends AbstractBsonParser {
 
 	private static final Class<?>[] VALID_TYPES = {};
 	private static final String ENUM_NAME = "_enumValue";
+	
+	private final SerializationContext serializationContext;
 
 	ObjectParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, null, VALID_TYPES);
+		serializationContext = parser != null ? parser.getSerializationContext() : null;
 	}
 
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
-		final SerializationContext serContext = bsonParser.getSerializationContext();
-		if(contextContains(value, fieldOpts, serContext)) {
-			return serContext.get(value, fieldOpts.getType());
+		if(contextContains(value, fieldOpts, serializationContext)) {
+			return serializationContext.get(value, fieldOpts.getType());
 		}
 		final Class<?> type = value.getClass();
 		final BsonDocument serValue;
 
 		if(isMaster(fieldOpts)) {
-			return fromMasterField((Element) value, fieldOpts, serContext);
+			return fromMasterField((Element) value, fieldOpts, serializationContext);
 		}
 		else if(isSmofGridRef(type)) {
 			return fromGridRef((SmofGridRef) value, (PrimaryField) fieldOpts);
 		}
 		else if(isElement(type)) {
 			if(fieldOpts instanceof PrimaryField) {
-				return fromElement((Element) value, (PrimaryField) fieldOpts, serContext);				
+				return fromElement((Element) value, (PrimaryField) fieldOpts, serializationContext);				
 			}
-			return fromElement((Element) value, serContext);
+			return fromElement((Element) value, serializationContext);
 		}
 		else if(isMap(type) && isPrimaryField(fieldOpts)) {
-			return fromMap((Map<?, ?>) value, (PrimaryField) fieldOpts, serContext);
+			return fromMap((Map<?, ?>) value, (PrimaryField) fieldOpts, serializationContext);
 		}
 		else if(isEnum(type)) {
-			return fromEnum((Enum<?>) value, serContext);
+			return fromEnum((Enum<?>) value, serializationContext);
 		}
 		serValue = fromObject(value);
-		serContext.put(value, SmofType.OBJECT, serValue);
+		serializationContext.put(value, SmofType.OBJECT, serValue);
 		return serValue;
 	}
 
-	private boolean contextContains(Object value, SmofField fieldOpts, final SerializationContext serContext) {
+	private boolean contextContains(Object value, SmofField fieldOpts, SerializationContext serContext) {
 		return !(fieldOpts instanceof MasterField) && serContext.contains(value, fieldOpts.getType());
 	}
 
@@ -151,7 +153,7 @@ class ObjectParser extends AbstractBsonParser {
 			final BsonValue parsedValue;
 
 			checkRequired(field, fieldValue);
-			parsedValue = bsonParser.toBson(fieldValue, field);
+			parsedValue = topParser.toBson(fieldValue, field);
 			if(parsedValue instanceof BsonLazyObjectId) {
 				lazyStack.add(parsedValue);
 			}
@@ -197,7 +199,7 @@ class ObjectParser extends AbstractBsonParser {
 		final BsonDocument document = new BsonDocument();
 		for(Object key : value.keySet()) {
 			final Object mapValue = value.get(key);
-			final BsonValue parsedValue = bsonParser.toBson(mapValue, fields.getValue());
+			final BsonValue parsedValue = topParser.toBson(mapValue, fields.getValue());
 			document.append(key.toString(), parsedValue);
 		}
 		serContext.put(value, SmofType.OBJECT, document);
@@ -240,7 +242,7 @@ class ObjectParser extends AbstractBsonParser {
 	private <T extends Element> T toElement(BsonValue value, Class<T> type) {
 		final ObjectId id = value.asObjectId().getValue();
 		//all types are lazy loaded
-		return bsonParser.createLazyInstance(type, id);
+		return topParser.createLazyInstance(type, id);
 	}
 
 	private Map<?, ?> toMap(BsonDocument document, PrimaryField fieldOpts) {
@@ -258,12 +260,12 @@ class ObjectParser extends AbstractBsonParser {
 	}
 
 	private Object toMapValue(BsonValue value, SecondaryField field) {
-		return bsonParser.fromBson(value, field);
+		return topParser.fromBson(value, field);
 	}
 
 	private Object toMapKey(String key, SecondaryField field) {
 		final BsonString bsonKey = new BsonString(key);
-		return bsonParser.fromBson(bsonKey, field);
+		return topParser.fromBson(bsonKey, field);
 	}
 
 	private <T> T toObject(BsonDocument document, Class<T> type) {
@@ -290,7 +292,7 @@ class ObjectParser extends AbstractBsonParser {
 				builder.append2LazyElements(field, fieldValue.asObjectId().getValue());
 			}
 			else {
-				parsedObj = bsonParser.fromBson(fieldValue, field);
+				parsedObj = topParser.fromBson(fieldValue, field);
 				builder.append2AdditionalFields(field.getRawField(), parsedObj);
 			}
 		}
@@ -307,7 +309,7 @@ class ObjectParser extends AbstractBsonParser {
 		for(ParameterField field : typeBuilder.getParams()) {
 			final BsonValue fieldValue = getFromDocument(document, field.getName());
 			final Object parsedObj;
-			parsedObj = bsonParser.fromBson(fieldValue, field);
+			parsedObj = topParser.fromBson(fieldValue, field);
 			builder.append(field.getName(), parsedObj);
 		}
 		return builder.build(typeBuilder);
@@ -337,8 +339,8 @@ class ObjectParser extends AbstractBsonParser {
 		if(isMap(type)) {
 			mapTypes = getMapFields(fieldOpts);
 
-			return bsonParser.isValidType(mapTypes.getKey())
-					&& bsonParser.isValidType(mapTypes.getValue());
+			return topParser.isValidType(mapTypes.getKey())
+					&& topParser.isValidType(mapTypes.getValue());
 		}
 		return true;
 	}

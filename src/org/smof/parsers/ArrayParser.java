@@ -37,17 +37,19 @@ import org.smof.field.SmofField;
 
 class ArrayParser extends AbstractBsonParser {
 
-	private static final Class<?>[] VALID_TYPES = {Collection.class};
+	private static final Class<?>[] VALID_TYPES = {};
+	
+	private final SerializationContext serializationContext;
 	
 	ArrayParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, null, VALID_TYPES);
+		serializationContext = parser != null ? parser.getSerializationContext() : null;
 	}
 
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
-		final SerializationContext serContext = bsonParser.getSerializationContext();
-		if(serContext.contains(value, fieldOpts.getType())) {
-			return serContext.get(value, fieldOpts.getType());
+		if(serializationContext.contains(value, fieldOpts.getType())) {
+			return serializationContext.get(value, fieldOpts.getType());
 		}
 		final Class<?> type = value.getClass();
 		if(isPrimaryField(fieldOpts) && isCollection(type)) {
@@ -68,7 +70,7 @@ class ArrayParser extends AbstractBsonParser {
 	private BsonValue fromArray(Object[] values, SecondaryField componentField) {
 		final BsonArray bsonArray = new BsonArray();
 		for(Object value : values) {
-			final BsonValue parsedValue = bsonParser.toBson(value, componentField);
+			final BsonValue parsedValue = topParser.toBson(value, componentField);
 			bsonArray.add(parsedValue);
 		}
 
@@ -102,7 +104,7 @@ class ArrayParser extends AbstractBsonParser {
 		final SecondaryField componentField = fieldOpts.getSecondaryField();
 		final Collection<Object> collection = createCollection(fieldOpts.getFieldClass());
 		for(BsonValue value : values) {
-			final Object parsedValue = bsonParser.fromBson(value, componentField);
+			final Object parsedValue = topParser.fromBson(value, componentField);
 			collection.add(parsedValue);
 		}
 
@@ -140,7 +142,7 @@ class ArrayParser extends AbstractBsonParser {
 		
 		return isSupportedComponentType(componentType)
 				&& !isMap(componentClass)
-				&& bsonParser.isValidType(componentField);
+				&& topParser.isValidType(componentField);
 	}
 
 	private boolean isSupportedComponentType(SmofType componentType) {

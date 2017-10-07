@@ -21,53 +21,26 @@
  ******************************************************************************/
 package org.smof.parsers;
 
-import org.bson.BsonBoolean;
 import org.bson.BsonValue;
+import org.smof.bson.codecs.SmofCodecProvider;
+import org.smof.bson.codecs.bool.SmofBooleanCodecProvider;
 import org.smof.collection.SmofDispatcher;
-import org.smof.field.SmofField;
 
-import java.util.Objects;
+
 
 @SuppressWarnings("javadoc")
 public class BooleanParser extends AbstractBsonParser {
 
-	private static final Class<?>[] VALID_TYPES = {boolean.class, Boolean.class};
+	private static final SmofCodecProvider PROVIDER = new SmofBooleanCodecProvider();
+	private static final Class<?>[] VALID_TYPES = {Boolean.class, String.class, Integer.class};
 
 	protected BooleanParser(SmofParser bsonParser, SmofDispatcher dispatcher) {
-		super(dispatcher, bsonParser, null, VALID_TYPES);
-	}
-
-	@Override
-	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
-		if (Objects.isNull(value)) {
-			throw new RuntimeException("You must specify a value in order to be serialized");
-		}
-		if(isBoolean(value.getClass())) {
-			return fromBoolean((Boolean) value);
-		}
-		return null;
-	}
-
-	private BsonValue fromBoolean(Boolean value) {
-		return new BsonBoolean(value);
-	}
-
-	private boolean isBoolean(Class<?> type) {
-		return type.equals(boolean.class) || type.equals(Boolean.class);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
-		if (Objects.isNull(value)) {
-			throw new RuntimeException("A value must be specified.");
-		}
-		return (T) Boolean.valueOf(value.asBoolean().getValue());
+		super(dispatcher, bsonParser, PROVIDER, VALID_TYPES);
 	}
 
 	@Override
 	public boolean isValidBson(BsonValue value) {
-		return super.isValidBson(value) || value.isBoolean();
+		return value.isBoolean() || super.isValidBson(value);
 	}
 
 }
