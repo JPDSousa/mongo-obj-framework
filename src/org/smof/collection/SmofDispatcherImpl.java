@@ -50,7 +50,7 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 	private final SmofGridStreamManager streamManager;
 
 	public SmofDispatcherImpl() {
-		this.collections = new CollectionsPool();
+		this.collections = new CollectionsPoolImpl();
 		this.streamManager = SmofGridStreamManager.newStreamManager(collections);
 	}
 	
@@ -116,7 +116,7 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 
 	@Override
     public final <T extends Element> boolean insert(T element) {
-		return insert(element, SmofOpOptions.create());
+		return insert(element, new SmofOpOptionsImpl());
 	}
 	
 	@Override
