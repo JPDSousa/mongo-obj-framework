@@ -110,14 +110,14 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 				return insert(element);
 			}
 		}
-		result = new SmofInsertResult();
+		result = new SmofInsertResultImpl();
 		result.setSuccess(isValid);
 		return result;
 	}
 
 	private SmofInsertResult insert(T element) {
 		final BsonDocument document;
-		final SmofInsertResult result = new SmofInsertResult();
+		final SmofInsertResult result = new SmofInsertResultImpl();
 		final Stack<Pair<String, Element>> posInsertions;
 		document = parser.toBson(element);
 		posInsertions = BsonUtils.extrackPosInsertions(document);
@@ -157,7 +157,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	private SmofInsertResult replace(T element, SmofOpOptions options) {
-		final SmofInsertResult result = new SmofInsertResult();
+		final SmofInsertResult result = new SmofInsertResultImpl();
 		result.setSuccess(true);
 		options.upsert(true);
 		if(options.isBypassCache() || !cache.asMap().containsValue(element)) {

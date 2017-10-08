@@ -1,4 +1,5 @@
-/*******************************************************************************
+/*
+ * ******************************************************************************
  * Copyright (C) 2017 Joao
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,10 +19,12 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- ******************************************************************************/
+ *****************************************************************************
+ */
 package org.smof.collection;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -64,8 +67,8 @@ public class SmofResults<T extends Element> {
 	
 	public Stream<T> stream() {
 		return StreamSupport.stream(results.spliterator(), false)
-				.filter(d -> d != null)
-				.map(d -> parse(d));
+				.filter(Objects::nonNull)
+				.map(this::parse);
 	}
 
 	private T parse(BsonDocument d) {

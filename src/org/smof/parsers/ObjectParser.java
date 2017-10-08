@@ -37,6 +37,7 @@ import org.bson.types.ObjectId;
 import org.smof.annnotations.SmofObject;
 import org.smof.collection.SmofDispatcher;
 import org.smof.collection.SmofOpOptions;
+import org.smof.collection.SmofOpOptionsImpl;
 import org.smof.element.Element;
 import org.smof.exception.MissingRequiredFieldException;
 import org.smof.field.MasterField;
@@ -135,7 +136,7 @@ class ObjectParser extends AbstractBsonParser {
 	}
 	
 	private BsonValue fromElement(Element value, SerializationContext serContext) {
-		final SmofOpOptions options = SmofOpOptions.create();
+		final SmofOpOptions options = new SmofOpOptionsImpl();
 		options.bypassCache(true);
 		dispatcher.insert(value, options);
 		final BsonObjectId id = BsonUtils.toBsonObjectId(value);

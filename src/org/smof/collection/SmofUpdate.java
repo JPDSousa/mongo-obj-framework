@@ -51,7 +51,7 @@ public class SmofUpdate<T extends Element> {
 		this.type = collection.getType();
 		this.collection = collection;
 		fields = parser.getTypeStructure(type).getAllFields();
-		options = SmofOpOptions.create();
+		options = new SmofOpOptionsImpl();
 		options.bypassCache(true);
 	}
 	
