@@ -54,6 +54,7 @@ public class SmofGridStreamManagerTest {
 		streamManager.drop(ref);
 	}
 	
+	@Test
 	public final void testMetadata() throws IOException {
 		final Document metadata = new Document("randomkey", 45);
 		ref.putMetadata(metadata);
