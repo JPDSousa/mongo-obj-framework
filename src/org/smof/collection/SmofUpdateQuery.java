@@ -35,7 +35,7 @@ import org.smof.parsers.SmofParser;
 @SuppressWarnings("javadoc")
 public class SmofUpdateQuery<T extends Element> {
 
-	private static void handleError(Throwable cause) {
+	private void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}
 	
