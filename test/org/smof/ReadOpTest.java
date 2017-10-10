@@ -23,6 +23,8 @@ package org.smof;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -72,6 +74,22 @@ public class ReadOpTest {
 	public final void testQueryAll() {
 		final SmofResults<Guitar> query = smof.find(Guitar.class).results();
 		assertEquals(ALL_GUITARS, query.stream().collect(Collectors.toList()));
+	}
+	
+	@Test
+	public final void testQueryElement() {
+		final List<Guitar> expected = Arrays.asList(GUITAR_3, GUITAR_2);
+		final List<Guitar> actual = smof.find(Guitar.class).withFieldEquals(Guitar.MODEL, MODEL_1)
+				.results().asList();
+		assertEquals(expected, actual);
+	}
+	
+	@Test
+	public final void testQueryElementByObjectID() {
+		final List<Guitar> expected = Arrays.asList(GUITAR_3, GUITAR_2);
+		final List<Guitar> actual = smof.find(Guitar.class).withFieldEquals(Guitar.MODEL, MODEL_1.getId())
+				.results().asList();
+		assertEquals(expected, actual);
 	}
 
 }
