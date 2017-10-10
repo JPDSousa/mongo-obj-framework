@@ -70,7 +70,10 @@ class ObjectParser extends AbstractBsonParser {
 		final Class<?> type = value.getClass();
 		final BsonDocument serValue;
 
-		if(isMaster(fieldOpts)) {
+		if(value instanceof ObjectId) {
+			return new BsonObjectId((ObjectId) value);
+		}
+		else if(isMaster(fieldOpts)) {
 			return fromMasterField((Element) value, fieldOpts, serializationContext);
 		}
 		else if(isSmofGridRef(type)) {
