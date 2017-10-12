@@ -94,12 +94,12 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>23.0</version>
+				<version>23.1-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>net.bytebuddy</groupId>
 				<artifactId>byte-buddy</artifactId>
-				<version>1.6.9</version>
+				<version>1.7.6</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
