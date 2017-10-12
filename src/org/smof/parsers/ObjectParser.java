@@ -47,6 +47,8 @@ import org.smof.field.SecondaryField;
 import org.smof.field.SmofField;
 import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridRefFactory;
+import org.smof.parsers.metadata.TypeBuilder;
+import org.smof.parsers.metadata.TypeParser;
 import org.smof.utils.BsonUtils;
 
 import com.mongodb.client.gridfs.model.GridFSFile;

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof.parsers;
+package org.smof.parsers.metadata;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -32,9 +32,9 @@ import org.smof.exception.InvalidSmofTypeException;
 import org.smof.exception.SmofException;
 import org.smof.field.PrimaryField;
 import org.smof.index.InternalIndex;
+import org.smof.parsers.SmofType;
 
-@SuppressWarnings("javadoc")
-public class TypeStructure<T> {
+class TypeStructureImpl<T> implements TypeStructure<T>{
 
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
@@ -46,7 +46,7 @@ public class TypeStructure<T> {
 	private final Class<T> type;
 	private final Set<InternalIndex> indexes;
 
-	TypeStructure(Class<T> type, TypeBuilder<T> builder) {
+	TypeStructureImpl(Class<T> type, TypeBuilder<T> builder) {
 		this.type = type;
 		checkValidBuilder(builder);
 		this.subTypes = new LinkedHashMap<>();
@@ -79,11 +79,13 @@ public class TypeStructure<T> {
 		return type.getAnnotation(SmofIndexes.class).value();
 	}
 	
+	@Override
 	public Set<InternalIndex> getIndexes() {
 		return indexes;
 	}
 
-	<E> void addSubType(Class<E> subType, TypeParser<E> parser) {
+	@Override
+	public <E> void addSubType(Class<E> subType, TypeParser<E> parser) {
 		checkValidParser(parser);
 		checkTypeConsistency(parser);
 		defaultTypeBuilder.setTypes(parser);
@@ -116,19 +118,23 @@ public class TypeStructure<T> {
 		}
 	}
 
+	@Override
 	public TypeBuilder<T> getBuilder() {
 		return defaultTypeBuilder;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <E> TypeParser<E> getParser(Class<E> type) {
 		return (TypeParser<E>) subTypes.get(type);
 	}
 
+	@Override
 	public boolean containsSub(Class<?> type) {
 		return subTypes.containsKey(type);
 	}
 
+	@Override
 	public Map<String, PrimaryField> getAllFields() {
 		return allFields;
 	}

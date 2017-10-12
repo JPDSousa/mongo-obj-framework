@@ -29,36 +29,37 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.smof.exception.SmofException;
 import org.smof.field.PrimaryField;
+import org.smof.parsers.metadata.TypeBuilder;
 
-class BsonBuilder<T> {
+final class BsonBuilder<T> {
 
 	private final Document fields;
 	private final Map<Field, Object> addFields;
 	private final Map<PrimaryField, ObjectId> lazyElements;
 
-	BsonBuilder() {
+	protected BsonBuilder() {
 		fields = new Document();
 		addFields = new LinkedHashMap<>();
 		lazyElements = new LinkedHashMap<>();
 	}
 
-	void append(String fieldName, Object parsedObject) {
+	protected void append(String fieldName, Object parsedObject) {
 		fields.append(fieldName, parsedObject);
 	}
 	
-	void append2AdditionalFields(Field field, Object parsedObject) {
+	protected void append2AdditionalFields(Field field, Object parsedObject) {
 		addFields.put(field, parsedObject);
 	}
 	
-	void append2LazyElements(PrimaryField field, ObjectId id) {
+	protected void append2LazyElements(PrimaryField field, ObjectId id) {
 		lazyElements.put(field, id);
 	}
 
-	T build(TypeBuilder<T> builder) {
+	protected T build(TypeBuilder<T> builder) {
 		return builder.build(fields);
 	}
 
-	void fillElement(T element) {
+	protected void fillElement(T element) {
 		for(Field field : addFields.keySet()) {
 			final Object value = addFields.get(field);
 			setValue(element, field, value);

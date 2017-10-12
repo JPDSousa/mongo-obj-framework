@@ -207,6 +207,12 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		PrimaryField other = (PrimaryField) obj;
 		return field.equals(other.field);
 	}
+
+	@Override
+	public String toString() {
+		return "PrimaryField [type=" + type + ", name=" + name + ", required=" + required + ", annotation=" + annotation
+				+ ", field=" + field + ", external=" + external + ", builder=" + builder + "]";
+	}
 	
 	
 }

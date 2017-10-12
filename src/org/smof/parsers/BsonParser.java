@@ -24,7 +24,8 @@ package org.smof.parsers;
 import org.bson.BsonValue;
 import org.smof.field.SmofField;
 
-interface BsonParser {
+@SuppressWarnings("javadoc")
+public interface BsonParser {
 
 	BsonValue toBson(Object value, SmofField fieldOpts);
 	
