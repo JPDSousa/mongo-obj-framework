@@ -44,6 +44,12 @@ public class CollectionTest {
 	}
 	
 	@Test
+	public final void testGetCollection() {
+		connection.loadCollection(BRANDS, Brand.class);
+		assertNotNull(connection.getCollection(Brand.class));
+	}
+	
+	@Test
 	public final void testUnorderedCollectionLoading() {
 		connection.loadCollection(GUITARS, Guitar.class);
 		connection.loadCollection(MODELS, Model.class);
