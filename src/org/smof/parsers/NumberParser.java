@@ -22,15 +22,19 @@
 package org.smof.parsers;
 
 import org.bson.BsonValue;
+import org.smof.bson.codecs.SmofCodecProvider;
+import org.smof.bson.codecs.number.SmofNumberCodecProvider;
 import org.smof.collection.SmofDispatcher;
 
 class NumberParser extends AbstractBsonParser {
 
 	private static final Class<?>[] VALID_TYPES = {Integer.class, 
 			Long.class, Short.class, Double.class, Float.class};
+	
+	private static final SmofCodecProvider PROVIDER = new SmofNumberCodecProvider();
 
 	NumberParser(SmofParser parser, SmofDispatcher dispatcher) {
-		super(dispatcher, parser, null, VALID_TYPES);
+		super(dispatcher, parser, PROVIDER, VALID_TYPES);
 	}
 
 	@Override
