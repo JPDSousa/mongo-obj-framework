@@ -44,15 +44,14 @@ import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
 import org.smof.gridfs.SmofGridRef;
+import org.smof.parsers.metadata.TypeBuilder;
+import org.smof.parsers.metadata.TypeParser;
+import org.smof.parsers.metadata.TypeStructure;
 
 import static com.google.common.base.Preconditions.*;
 
 abstract class AbstractBsonParser implements BsonParser {
 	
-	protected static void handleError(Throwable cause) {
-		throw new SmofException(cause);
-	}
-
 	protected final SmofCodecProvider provider;
 	protected final SmofParser topParser;
 	protected final CodecRegistry registry;
@@ -65,6 +64,10 @@ abstract class AbstractBsonParser implements BsonParser {
 		this.registry = topParser != null ? topParser.getRegistry() : null;
 		this.dispatcher = dispatcher;
 		this.types = types;
+	}
+	
+	protected void handleError(Throwable cause) {
+		throw new SmofException(cause);
 	}
 
 	@SuppressWarnings("unchecked")

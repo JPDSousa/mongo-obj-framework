@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof.parsers;
+package org.smof.parsers.metadata;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,26 +32,31 @@ import org.smof.exception.SmofException;
 import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
 import org.smof.index.InternalIndex;
+import org.smof.parsers.BsonParser;
+import org.smof.parsers.SmofParserPool;
 
-class SmofTypeContext {
+class SmofTypeContextImpl implements SmofTypeContext {
 
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}
 
 	private final Map<Class<?>, TypeStructure<?>> types;
+	private final TypeBuilderFactory factory;
 
-	SmofTypeContext() {
+	SmofTypeContextImpl() {
 		types = new LinkedHashMap<>();
+		factory = TypeBuilderFactory.getDefault();
 	}
 
-	void put(Class<?> type, SmofParserPool parsers) {
+	@Override
+	public void put(Class<?> type, SmofParserPool parsers) {
 		putWithFactory(type, null, parsers);
 	}
 
 	private <T> TypeStructure<T> handleSupertype(Class<T> type, Object factory, SmofParserPool parsers) {
-		final TypeBuilder<T> builder = TypeBuilder.create(type, factory);
-		final TypeStructure<T> typeStructure = new TypeStructure<>(type, builder);
+		final TypeBuilder<T> builder = this.factory.create(type, factory);
+		final TypeStructure<T> typeStructure = TypeStructure.create(type, builder);
 		this.types.put(type, typeStructure);
 		handleTypeParser(type, typeStructure, parsers);
 		return typeStructure;
@@ -79,7 +84,8 @@ class SmofTypeContext {
 		}
 	}
 
-	<T> void putWithFactory(Class<T> type, Object factory, SmofParserPool parsers) {
+	@Override
+	public <T> void putWithFactory(Class<T> type, Object factory, SmofParserPool parsers) {
 		if(containsSubOrSuperType(type)) {
 			handleSubtype(type, parsers);
 		}
@@ -93,7 +99,8 @@ class SmofTypeContext {
 		handleTypeParser(type, typeStructure, parsers);
 	}
 
-	<T> TypeStructure<T> getTypeStructure(Class<T> type, SmofParserPool parsers) {
+	@Override
+	public <T> TypeStructure<T> getTypeStructure(Class<T> type, SmofParserPool parsers) {
 		return getOrCreateParser(type, parsers);
 	}
 
@@ -145,7 +152,8 @@ class SmofTypeContext {
 		}
 	}
 
-	<T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass) {
+	@Override
+	public <T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass) {
 		return types.get(elClass).getIndexes();
 	}
 

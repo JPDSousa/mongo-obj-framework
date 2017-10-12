@@ -19,101 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof.parsers;
+package org.smof.parsers.metadata;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
-import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofParam;
 import org.smof.exception.InvalidSmofTypeException;
 import org.smof.exception.SmofException;
 import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 
-class TypeBuilder<T> {
+class TypeBuilderImpl<T> implements TypeBuilder<T> {
 
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
-	}
-
-	static <T> TypeBuilder<T> create(Class<T> type) {
-		final Constructor<T> constructor = getConstructor(type);
-		final Method method;
-		if(constructor != null) {
-			return new TypeBuilder<>(type, constructor);
-		}
-		method = getStaticMethod(type);
-		if(method != null) {
-			return new TypeBuilder<>(type, method);
-		}
-		return null;
-	}
-
-	static <T> TypeBuilder<T> create(Class<T> type, Object factory) {
-		if(factory == null) {
-			return create(type);
-		}
-		final Method method = getFactoryMethod(type, factory);
-		if(method != null && Modifier.isStatic(method.getModifiers())) {
-			return new TypeBuilder<>(type, method);
-		}
-		else if(method != null) {
-			return new TypeBuilder<>(type, method, factory);
-		}
-		return null;
-	}
-
-	@SuppressWarnings("unchecked")
-	private static <T> Constructor<T> getConstructor(Class<T> type) {
-		Constructor<T> cons = null;
-		SmofBuilder annot = null;
-
-		for(Constructor<?> constructor : type.getDeclaredConstructors()) {
-			annot = constructor.getAnnotation(SmofBuilder.class);
-			if(annot != null) {
-				cons = (Constructor<T>) constructor;
-				break;
-			}
-		}
-		return cons;
-	}
-
-	private static Method getFactoryMethod(Class<?> type, Object object) {
-		Method method = getBuilderMethod(object.getClass());
-		if(method != null && !type.isAssignableFrom(method.getReturnType())) {
-			handleError(new InvalidSmofTypeException("Return type from factory method is incompatible with the specified type."));
-		}
-		return method;
-	}
-
-	private static Method getStaticMethod(Class<?> type) {
-		Method method = getBuilderMethod(type);
-		if(method != null && !type.isAssignableFrom(method.getReturnType())) {
-			handleError(new InvalidSmofTypeException("Return type from factory method is incompatible with the specified type."));
-		}
-		return method;
-	}
-
-	private static Method getBuilderMethod(Class<?> type) {
-		SmofBuilder annot = null;
-
-		for(Method method : type.getDeclaredMethods()) {
-			annot = method.getAnnotation(SmofBuilder.class);
-			if(annot != null) {
-				return method;
-			}
-		}
-		return null;
 	}
 
 	private final Class<T> type;
@@ -121,21 +48,21 @@ class TypeBuilder<T> {
 	private final Pair<Object, Method> method;
 	private final List<ParameterField> params;
 
-	private TypeBuilder(Class<T> type, Constructor<T> constructor) {
+	TypeBuilderImpl(Class<T> type, Constructor<T> constructor) {
 		this.type = type;
 		this.method = null;
 		this.constructor = constructor;
 		this.params = getParamAnnotations(constructor.getParameters());
 	}
 
-	private TypeBuilder(Class<T> type, Method method, Object instance) {
+	TypeBuilderImpl(Class<T> type, Method method, Object instance) {
 		this.type = type;
 		this.constructor = null;
 		this.method = Pair.of(instance, method);
 		this.params = getParamAnnotations(method.getParameters());
 	}
 
-	private TypeBuilder(Class<T> type, Method method) {
+	TypeBuilderImpl(Class<T> type, Method method) {
 		this.type = type;
 		this.constructor = null;
 		this.method = Pair.of(null, method);
@@ -167,18 +94,14 @@ class TypeBuilder<T> {
 		}
 	}
 
-	List<String> getParamNames() {
-		return getParams().stream()
-				.map(p -> p.getName())
-				.collect(Collectors.toList());
-	}
-
-	List<ParameterField> getParams() {
+	@Override
+	public List<ParameterField> getParams() {
 		return params;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked") 
-	T build(Document document) {
+	public T build(Document document) {
 		final List<Object> params = new ArrayList<>(this.params.size());
 		final T element;
 
@@ -202,7 +125,8 @@ class TypeBuilder<T> {
 		}
 	}
 
-	void setTypes(TypeParser<?> parser) {
+	@Override
+	public void setTypes(TypeParser<?> parser) {
 		final Map<String, PrimaryField> fields = parser.getFieldsAsMap();
 		for(ParameterField param : params) {
 			handleField(fields, param);

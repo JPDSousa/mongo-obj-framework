@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof.parsers;
+package org.smof.parsers.metadata;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -32,19 +32,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.smof.field.PrimaryField;
+import org.smof.parsers.SmofType;
 
-@SuppressWarnings("javadoc")
-public class TypeParser<T> {
-
-	static <T> TypeParser<T> create(Class<T> type) {
-		return new TypeParser<>(type);
-	}
+class TypeParserImpl<T> implements TypeParser<T> {
 
 	private final Class<T> type;
 
 	private final Map<String, PrimaryField> fields;
 
-	private TypeParser(Class<T> type) {
+	TypeParserImpl(Class<T> type) {
 		this.type = type;
 		this.fields = new LinkedHashMap<>();
 		fillFields();
@@ -75,27 +71,26 @@ public class TypeParser<T> {
 		return fields;
 	}
 
+	@Override
 	public Class<T> getType() {
 		return type;
 	}
 
+	@Override
 	public Collection<PrimaryField> getAllFields() {
 		return getFieldsAsMap().values();
 	}
 	
+	@Override
 	public Map<String, PrimaryField> getFieldsAsMap() {
 		return fields;
 	}
 
+	@Override
 	public Set<PrimaryField> getNonBuilderFields() {
 		return getAllFields().stream()
 				.filter(f -> !f.isBuilder())
 				.collect(Collectors.toSet());
 	}
 
-	public Set<PrimaryField> getExternalFields() {
-		return getAllFields().stream()
-				.filter(f -> f.isExternal())
-				.collect(Collectors.toSet());
-	}
 }
