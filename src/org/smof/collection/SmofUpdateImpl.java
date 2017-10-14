@@ -61,7 +61,7 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		return field;
 	}
 	
-	public SmofUpdateImpl<T> setUpsert(boolean upsert) {
+	public SmofUpdate<T> setUpsert(boolean upsert) {
 		options.upsert(upsert);
 		return this;
 	}
@@ -75,7 +75,7 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		parser.reset();
 	}
 
-	public SmofUpdateImpl<T> increase(Number value, String fieldName) {
+	public SmofUpdate<T> increase(Number value, String fieldName) {
 		final SmofField field = validateFieldName(fieldName);
 		final BsonValue number = parser.toBson(value, field);
 		final BsonDocument doc = new BsonDocument();
@@ -84,7 +84,7 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		return this;
 	}
 	
-	public SmofUpdateImpl<T> multiply(Number value, String fieldName) {
+	public SmofUpdate<T> multiply(Number value, String fieldName) {
 		final SmofField field = validateFieldName(fieldName);
 		final BsonValue number = parser.toBson(value, field);
 		final BsonDocument doc = new BsonDocument(fieldName, number);
@@ -92,7 +92,7 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		return this;
 	}
 	
-	public SmofUpdateImpl<T> rename(String newName, String fieldName) {
+	public SmofUpdate<T> rename(String newName, String fieldName) {
 		validateFieldName(fieldName);
 		final BsonDocument doc = new BsonDocument();
 		doc.put(fieldName, new BsonString(newName));
@@ -100,13 +100,13 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		return this;
 	}
 	
-	public SmofUpdateImpl<T> set(BsonValue bson, String fieldName) {
+	public SmofUpdate<T> set(BsonValue bson, String fieldName) {
 		final BsonDocument doc = new BsonDocument(fieldName, bson);
 		putOrAppend(SET, doc);
 		return this;
 	}
 	
-	public SmofUpdateImpl<T> set(Object obj, String fieldName) {
+	public SmofUpdate<T> set(Object obj, String fieldName) {
 		final SmofField field = validateFieldName(fieldName);
 		final BsonValue value = parser.toBson(obj, field);
 		return set(value, fieldName);
