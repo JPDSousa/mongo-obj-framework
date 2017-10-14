@@ -79,7 +79,7 @@ public class InternalIndex {
 	
 	private static List<Bson> fromSmofIndexFields(SmofIndexField[] fields) {
 		return Arrays.stream(fields)
-				.map(f -> fromSmofIndexField(f))
+				.map(InternalIndex::fromSmofIndexField)
 				.collect(Collectors.toList());
 	}
 	
@@ -118,24 +118,24 @@ public class InternalIndex {
 
 	private static Bson nextIndex(StringTokenizer tokens) {
 		final Bson index;
-		String indexName = tokens.nextToken();
+		StringBuilder indexName = new StringBuilder(tokens.nextToken());
 		String indexTypeStr = tokens.nextToken();
 		IndexType indexT;
 		
 		while((indexT = IndexType.parse(indexTypeStr)) == null) {
-			indexName+= "_" + indexTypeStr;
+			indexName.append("_").append(indexTypeStr);
 			indexTypeStr = tokens.nextToken();
 		}
 		
 		switch(indexT) {
 		case ASCENDING:
-			index = Indexes.ascending(indexName);
+			index = Indexes.ascending(indexName.toString());
 			break;
 		case DESCENDING:
-			index = Indexes.descending(indexName);
+			index = Indexes.descending(indexName.toString());
 			break;
 		case TEXT:
-			index = Indexes.text(indexName);
+			index = Indexes.text(indexName.toString());
 			break;
 		default:
 			handleError(new IllegalArgumentException("Invalid bson index"));

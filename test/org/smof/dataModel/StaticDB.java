@@ -3,6 +3,7 @@ package org.smof.dataModel;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("javadoc")
@@ -17,7 +18,7 @@ public final class StaticDB {
 	
 	public static final Owner OWNER_1 = Owner.create("ziztheman", LocalDate.of(1990, 10, 12));
 	
-	public static final Brand BRAND_1 = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList(OWNER_1));
+	public static final Brand BRAND_1 = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
 	
 	public static final Model MODEL_1 = Model.create("Manhattan", "Tyler", 1000, BRAND_1, Arrays.asList("red", "blue"));
 	public static final Model MODEL_2 = Model.create("BeeGees", "Tyler", 5463, BRAND_1, Arrays.asList("sunburst", "ebony"));

@@ -62,15 +62,13 @@ class SmofTypeContextImpl implements SmofTypeContext {
 		return typeStructure;
 	}
 	
-	private <T> TypeParser<T> handleTypeParser(Class<T> type, TypeStructure<?> typeStructure, SmofParserPool parsers) {
+	private <T> void handleTypeParser(Class<T> type, TypeStructure<?> typeStructure, SmofParserPool parsers) {
 		handleForceInspection(type, typeStructure, parsers);
-		if(!type.isInterface()) {
+		if (!type.isInterface()) {
 			final TypeParser<T> typeParser = TypeParser.create(type);
 			validateParserFields(typeParser, parsers);
 			typeStructure.addSubType(type, typeParser);
-			return typeParser;
 		}
-		return null;
 	}
 
 	private <T> void handleForceInspection(Class<T> type, TypeStructure<?> typeStructure, SmofParserPool parsers) {
@@ -96,7 +94,9 @@ class SmofTypeContextImpl implements SmofTypeContext {
 
 	private void handleSubtype(Class<?> type, SmofParserPool parsers) {
 		final TypeStructure<?> typeStructure = getTypeStructureFromSub(type);
-		handleTypeParser(type, typeStructure, parsers);
+		if (typeStructure != null) {
+			handleTypeParser(type, typeStructure, parsers);
+		}
 	}
 
 	@Override
@@ -131,12 +131,7 @@ class SmofTypeContextImpl implements SmofTypeContext {
 	}
 
 	private boolean containsSubOrSuperType(Class<?> type) {
-		for(Class<?> t : types.keySet()) {
-			if(t.isAssignableFrom(type)) {
-				return true;
-			}
-		}
-		return false;
+		return types.keySet().stream().anyMatch(t -> t.isAssignableFrom(type));
 	}
 
 	private void checkValidSmofField(SmofField field, SmofParserPool parsers) {

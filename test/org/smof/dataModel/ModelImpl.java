@@ -136,7 +136,7 @@ class ModelImpl extends AbstractElement implements Model {
 	
 	@Override
 	public String toString() {
-		return new StringBuilder(name).append("-").append(brand).toString();
+		return name + "-" + brand;
 	}
 
 }

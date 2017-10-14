@@ -12,7 +12,7 @@ import com.mongodb.client.gridfs.model.GridFSFile;
 @SuppressWarnings("javadoc")
 public interface SmofGridStreamManager {
 
-	public static SmofGridStreamManager newStreamManager(CollectionsPool pool) {
+	static SmofGridStreamManager newStreamManager(CollectionsPool pool) {
 		return new SmofGridStreamManagerImpl(pool);
 	}
 	
@@ -21,7 +21,7 @@ public interface SmofGridStreamManager {
 	void uploadStream(SmofGridRef ref, InputStream stream);
 	
 	InputStream download(SmofGridRef ref);
-	public void downloadToFile(SmofGridRef ref, Path path) throws IOException;
+	void downloadToFile(SmofGridRef ref, Path path) throws IOException;
 	
 	void drop(SmofGridRef ref);
 	

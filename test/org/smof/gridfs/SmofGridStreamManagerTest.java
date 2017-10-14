@@ -30,7 +30,7 @@ public class SmofGridStreamManagerTest {
 	private static byte[] content;
 	
 	@BeforeClass
-	public static final void setUp() throws IOException {
+	public static void setUp() throws IOException {
 		smof = TestUtils.createTestConnection();
 		streamManager = smof.getGridStreamManager();
 		smof.loadBucket(BUCKET);
@@ -40,7 +40,7 @@ public class SmofGridStreamManagerTest {
 	}
 	
 	@AfterClass
-	public static final void drop() {
+	public static void drop() {
 		smof.dropBucket(BUCKET);
 		smof.close();
 	}

@@ -31,6 +31,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(FIELD)
 public @interface SmofDate {
-	public String name();
-	public boolean required() default false;
+	String name();
+	boolean required() default false;
 }

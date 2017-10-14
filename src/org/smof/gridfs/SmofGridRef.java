@@ -9,19 +9,19 @@ import org.smof.element.Element;
 @SuppressWarnings("javadoc")
 public interface SmofGridRef extends Element {
 	
-	public String getBucketName();
-	public void setBucketName(String bucketName);
+	String getBucketName();
+	void setBucketName(String bucketName);
 	
-	public void attachFile(Path path);
-	public Path getAttachedFile();
+	void attachFile(Path path);
+	Path getAttachedFile();
 	
-	public void attachByteArray(ByteArrayInputStream byteStream);
-	public ByteArrayInputStream getAttachedByteArray();
+	void attachByteArray(ByteArrayInputStream byteStream);
+	ByteArrayInputStream getAttachedByteArray();
 	
-	public void putMetadataEntry(String key, Object value);
-	public void putMetadata(Document document);
-	public Document getMetadata();
+	void putMetadataEntry(String key, Object value);
+	void putMetadata(Document document);
+	Document getMetadata();
 	
-	public boolean isEmpty();
+	boolean isEmpty();
 
 }

@@ -36,7 +36,7 @@ public enum UpdateOperators {
 	
 	private final String operator;
 	
-	private UpdateOperators(String operator) {
+	UpdateOperators(String operator) {
 		this.operator = "$" + operator;
 	}
 

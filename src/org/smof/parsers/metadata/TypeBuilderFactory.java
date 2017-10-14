@@ -13,7 +13,7 @@ public class TypeBuilderFactory {
 
 	private static TypeBuilderFactory singleton;
 	
-	public static final TypeBuilderFactory getDefault() {
+	public static TypeBuilderFactory getDefault() {
 		if(singleton == null) {
 			singleton = new TypeBuilderFactory();
 		}
@@ -56,7 +56,7 @@ public class TypeBuilderFactory {
 	@SuppressWarnings("unchecked")
 	private <T> Constructor<T> getConstructor(Class<T> type) {
 		Constructor<T> cons = null;
-		SmofBuilder annot = null;
+		SmofBuilder annot;
 
 		for(Constructor<?> constructor : type.getDeclaredConstructors()) {
 			annot = constructor.getAnnotation(SmofBuilder.class);
@@ -85,7 +85,7 @@ public class TypeBuilderFactory {
 	}
 
 	private static Method getBuilderMethod(Class<?> type) {
-		SmofBuilder annot = null;
+		SmofBuilder annot;
 
 		for(Method method : type.getDeclaredMethods()) {
 			annot = method.getAnnotation(SmofBuilder.class);
