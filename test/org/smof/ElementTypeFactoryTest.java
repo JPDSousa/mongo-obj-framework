@@ -26,12 +26,7 @@ import static org.junit.Assert.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.bson.BsonDocument;
@@ -95,7 +90,7 @@ public class ElementTypeFactoryTest {
 	
 	@Test
 	public void testNumber() throws SmofException {
-		final ElNumTest test = new ElNumTest(31, new Long(31), new Short((short) 200));
+		final ElNumTest test = new ElNumTest(31, 31L, (short) 200);
 		final BsonDocument doc = parser.toBson(test);
 		System.out.println(doc.toJson());
 		final ElNumTest back = parser.fromBson(doc, ElNumTest.class);
@@ -128,7 +123,7 @@ public class ElementTypeFactoryTest {
 	@Test
 	public void testArray() throws SmofException {
 		final List<LocalDate> localDateList = Arrays.asList(LocalDate.now(), LocalDate.now());
-		final ElArrTest test = new ElArrTest(Arrays.asList(500), Sets.newLinkedHashSet(localDateList));
+		final ElArrTest test = new ElArrTest(Collections.singletonList(500), Sets.newLinkedHashSet(localDateList));
 		final BsonDocument doc = parser.toBson(test);
 		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElArrTest.class));
@@ -155,10 +150,10 @@ public class ElementTypeFactoryTest {
 		assertEquals(test, parser.fromBson(doc, ElBoolTest.class));
 	}
 	
-	private static enum EnumTest {
+	private enum EnumTest {
 		VALA,
 		VALB,
-		VALC;
+		VALC
 	}
 	
 	private static class ElStrTest extends AbstractElement {

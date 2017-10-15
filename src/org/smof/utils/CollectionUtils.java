@@ -12,7 +12,7 @@ import com.google.common.collect.Sets;
 @SuppressWarnings("javadoc")
 public final class CollectionUtils {
 
-	public static final <E> Collection<E> create(Class<Collection<E>> clazz) throws InstantiationException, IllegalAccessException {
+	public static <E> Collection<E> create(Class<Collection<E>> clazz) throws InstantiationException, IllegalAccessException {
 		if(clazz.isInterface()) {
 			if(List.class.isAssignableFrom(clazz)) {
 				return Lists.newArrayList();

@@ -5,10 +5,12 @@ import org.smof.element.Element;
 import java.util.List;
 import java.util.stream.Stream;
 
+@SuppressWarnings("javadoc")
 public interface SmofResults<T extends Element> {
-    Stream stream();
+	
+    Stream<T> stream();
 
-    List asList();
+    List<T> asList();
 
     T first();
 

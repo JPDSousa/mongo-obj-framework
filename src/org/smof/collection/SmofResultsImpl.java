@@ -43,7 +43,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
 @SuppressWarnings("javadoc")
-public class SmofResultsImpl<T extends Element> implements SmofResults {
+public class SmofResultsImpl<T extends Element> implements SmofResults<T> {
 	
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);

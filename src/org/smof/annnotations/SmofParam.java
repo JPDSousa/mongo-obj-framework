@@ -31,5 +31,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(PARAMETER)
 public @interface SmofParam {
-	public String name();
+	String name();
 }

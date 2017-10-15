@@ -152,25 +152,25 @@ abstract class AbstractQuery<T extends Element, Query extends SmofQuery<T, ?>> i
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayQuery<T> beginAnd() {
-		return new ArrayQuery<T>((AbstractQuery<T, SmofQuery<T, ?>>) this, AND);
+		return new ArrayQuery<>((AbstractQuery<T, SmofQuery<T, ?>>) this, AND);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayQuery<T> beginOr() {
-		return new ArrayQuery<T>((AbstractQuery<T, SmofQuery<T, ?>>) this, OR);
+		return new ArrayQuery<>((AbstractQuery<T, SmofQuery<T, ?>>) this, OR);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayQuery<T> beginNor() {
-		return new ArrayQuery<T>((AbstractQuery<T, SmofQuery<T, ?>>) this, NOR);
+		return new ArrayQuery<>((AbstractQuery<T, SmofQuery<T, ?>>) this, NOR);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public DocumentQuery<T> beginNot() {
-		return new DocumentQuery<T>((AbstractQuery<T, SmofQuery<T, ?>>) this, NOT);
+		return new DocumentQuery<>((AbstractQuery<T, SmofQuery<T, ?>>) this, NOT);
 	}
 
 	@Override

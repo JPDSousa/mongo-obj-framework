@@ -31,7 +31,7 @@ public enum IndexType {
 
 	private final String mongoToken;
 	
-	private IndexType(String mongoToken) {
+	IndexType(String mongoToken) {
 		this.mongoToken = mongoToken;
 	}
 	

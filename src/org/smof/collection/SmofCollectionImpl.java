@@ -130,7 +130,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public ParentQuery<T> query() {
-		return new ParentQuery<T>(type, parser, cache, collection);
+		return new ParentQuery<>(type, parser, cache, collection);
 	}
 
 	@Override
@@ -153,7 +153,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public SmofUpdate<T> update() {
-		return new SmofUpdate<>(this);
+		return new SmofUpdateImpl<>(this);
 	}
 
 	private SmofInsertResult replace(T element, SmofOpOptions options) {

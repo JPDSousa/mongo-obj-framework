@@ -136,7 +136,7 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 	private <T extends Element> boolean onInsertSuccess(T element, SmofCollection<T> collection, SmofInsertResult result) {
 		final Stack<Pair<String, Element>> stack = result.getPostInserts();
 		if(!stack.isEmpty()) {
-			final SmofUpdate<T> update = new SmofUpdate<>(collection);
+			final SmofUpdate<T> update = new SmofUpdateImpl<>(collection);
 			boolean updateSuccess = true;
 			while(!stack.isEmpty() && updateSuccess) {
 				final Pair<String, Element> current = stack.pop();

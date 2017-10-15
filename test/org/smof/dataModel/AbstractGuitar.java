@@ -122,7 +122,7 @@ public abstract class AbstractGuitar extends AbstractElement implements Guitar{
 	
 	@Override
 	public String toString() {
-		return new StringBuilder(type.toString()).append("-").append(model).toString();
+		return type.toString() + "-" + model;
 	}
 
 	@Override

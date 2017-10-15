@@ -33,8 +33,8 @@ import org.smof.parsers.SmofType;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(FIELD)
 public @interface SmofArray {
-	public String name();
-	public SmofType type();
-	public boolean required() default false;
-	public String[] validValues() default {};
+	String name();
+	SmofType type();
+	boolean required() default false;
+	String[] validValues() default {};
 }

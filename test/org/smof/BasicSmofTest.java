@@ -25,10 +25,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.bson.BsonDocument;
@@ -158,7 +155,7 @@ public class BasicSmofTest {
 	
 	@Test
 	public void testRedundantInsert() {
-		final Brand brand = Brand.create("Gibson", new Location("Here", "Now"), Arrays.asList(OWNER_1));
+		final Brand brand = Brand.create("Gibson", new Location("Here", "Now"), Collections.singletonList(OWNER_1));
 		smof.insert(brand);
 		smof.insert(brand);
 		final long count = smof.find(Brand.class).results().count();
@@ -178,7 +175,7 @@ public class BasicSmofTest {
 	
 	@Test
 	public void testUpdateReplace() {
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList(OWNER_1));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
 		smof.insert(brand);
 		brand.setCapital(1000);
 		smof.update(Brand.class).fromElement(brand);
@@ -187,8 +184,8 @@ public class BasicSmofTest {
 	
 	@Test
 	public void testUpdateIncrease() {
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList(OWNER_1));
-		final long inc = 75l;
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
+		final long inc = 75L;
 		smof.insert(brand);
 		smof.update(Brand.class)
 		.increase(inc, Brand.CAPITAL)

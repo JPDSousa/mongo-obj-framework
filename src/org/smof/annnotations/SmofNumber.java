@@ -33,8 +33,8 @@ import org.smof.index.IndexType;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(FIELD)
 public @interface SmofNumber {
-	public String name();
-	public boolean required() default false;
+	String name();
+	boolean required() default false;
 	
 	String indexKey() default "";
 	IndexType indexType() default IndexType.ASCENDING;
