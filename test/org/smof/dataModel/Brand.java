@@ -44,4 +44,6 @@ public interface Brand extends Element{
 	void increaseCapital(long value);
 	
 	Location getLocation();
+
+	void multiplyCapital(long value);
 }
