@@ -26,7 +26,7 @@ enum QueryOperators {
 	
 	private final String fieldName;
 
-	private QueryOperators(String fieldName) {
+	QueryOperators(String fieldName) {
 		this.fieldName = fieldName;
 	}
 	

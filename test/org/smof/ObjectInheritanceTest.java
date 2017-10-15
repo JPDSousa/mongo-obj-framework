@@ -50,14 +50,14 @@ public class ObjectInheritanceTest {
 
 	@Test
 	public void testInterface() {
-		final Ia test = new A(90l, 31, "32");
+		final Ia test = new A(90L, 31, "32");
 		final BsonDocument doc = parser.toBson(test);
 		assertEquals(test, parser.fromBson(doc, Ia.class));
 	}
 	
 	@Test
 	public void testChild() {
-		final Ia test = new A1(300l, 31, "32");
+		final Ia test = new A1(300L, 31, "32");
 		final BsonDocument doc = parser.toBson(test);
 		assertEquals(test, parser.fromBson(doc, Ia.class));
 	}
@@ -69,7 +69,7 @@ public class ObjectInheritanceTest {
 		assertEquals(test, parser.fromBson(doc, B.class));
 	}
 	
-	private static interface Ia extends Element {
+	private interface Ia extends Element {
 		long getNum1();
 		int getNum2();
 		String getStr1();

@@ -46,7 +46,7 @@ public enum SmofType {
 
 	private final Class<? extends Annotation> annotClass;
 
-	private SmofType(Class<? extends Annotation> annotClass) {
+	SmofType(Class<? extends Annotation> annotClass) {
 		this.annotClass = annotClass;
 	}
 

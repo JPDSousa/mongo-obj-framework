@@ -9,7 +9,7 @@ import org.smof.field.PrimaryField;
 @SuppressWarnings("javadoc")
 public interface TypeParser<T> {
 	
-	public static <T> TypeParser<T> create(Class<T> type) {
+	static <T> TypeParser<T> create(Class<T> type) {
 		return new TypeParserImpl<>(type);
 	}
 

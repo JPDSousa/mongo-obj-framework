@@ -9,16 +9,16 @@ import org.smof.parsers.SmofParserPool;
 @SuppressWarnings("javadoc")
 public interface SmofTypeContext {
 	
-	public static SmofTypeContext create() {
+	static SmofTypeContext create() {
 		return new SmofTypeContextImpl();
 	}
 
-	public <T> TypeStructure<T> getTypeStructure(Class<T> type, SmofParserPool parsers);
+	<T> TypeStructure<T> getTypeStructure(Class<T> type, SmofParserPool parsers);
 	
-	public void put(Class<?> type, SmofParserPool parsers);
+	void put(Class<?> type, SmofParserPool parsers);
 
-	public <T> void putWithFactory(Class<T> type, Object factory, SmofParserPool parsers);
+	<T> void putWithFactory(Class<T> type, Object factory, SmofParserPool parsers);
 
-	public <T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass);
+	<T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass);
 
 }

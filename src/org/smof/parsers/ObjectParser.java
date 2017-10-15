@@ -275,7 +275,7 @@ class ObjectParser extends AbstractBsonParser {
 	}
 
 	private <T> T toObject(BsonDocument document, Class<T> type) {
-		final BsonBuilder<T> builder = new BsonBuilder<T>();
+		final BsonBuilder<T> builder = new BsonBuilder<>();
 		final T obj = buildObject(document, builder, type);
 		fillObject(document, builder, obj);
 		return obj;

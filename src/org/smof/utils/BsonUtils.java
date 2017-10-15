@@ -19,12 +19,12 @@ public class BsonUtils {
 	/**/
 	private BsonUtils() {}
 	
-	public final static BsonObjectId toBsonObjectId(Element value) {
+	public static BsonObjectId toBsonObjectId(Element value) {
 		final ObjectId id = value.getId();
 		return new BsonObjectId(id);
 	}
 	
-	public final static Stack<Pair<String, Element>> extrackPosInsertions(BsonDocument doc) {
+	public static Stack<Pair<String, Element>> extrackPosInsertions(BsonDocument doc) {
 		final BsonArray bsonPosInsert = doc.remove(SmofParser.ON_INSERT).asArray();
 		final Stack<Pair<String, Element>> posInsertions = new Stack<>();
 		bsonPosInsert.stream()

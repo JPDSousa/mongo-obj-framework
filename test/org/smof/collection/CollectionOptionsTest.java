@@ -25,6 +25,7 @@ import static org.junit.Assert.*;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -48,7 +49,7 @@ public class CollectionOptionsTest {
 	@Before
 	public void setUp() {
 		guineaPig = CollectionOptions.create();
-		brand = Brand.create(NAME, new Location("here", "not there"), Arrays.asList(StaticDB.OWNER_1));
+		brand = Brand.create(NAME, new Location("here", "not there"), Collections.singletonList(StaticDB.OWNER_1));
 	}
 	
 	@Test

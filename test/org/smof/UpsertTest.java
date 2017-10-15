@@ -5,6 +5,7 @@ import static org.smof.TestUtils.*;
 import static org.smof.dataModel.StaticDB.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -60,7 +61,7 @@ public class UpsertTest {
 	@Test
 	public void testUpsert() {
 		createCollections(true, true, true);
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList(OWNER_1));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
 		connection.update(Brand.class)
 			.setUpsert(true)
 			.fromElement(brand);
@@ -85,8 +86,8 @@ public class UpsertTest {
 		//Check the reference of the second model
 		createCollections(true, true, false);
 		final Brand brand = BRAND_1;
-		final Model model1 = Model.create("Model1", "this guy", 209, brand, Arrays.asList("Red"));
-		final Model model2 = Model.create("Model2", "this guy", 209, brand, Arrays.asList("Red"));
+		final Model model1 = Model.create("Model1", "this guy", 209, brand, Collections.singletonList("Red"));
+		final Model model2 = Model.create("Model2", "this guy", 209, brand, Collections.singletonList("Red"));
 		connection.insert(model1);
 		connection.insert(model2);
 		final Model modelDB2 = connection.find(Model.class).byElement(model2);

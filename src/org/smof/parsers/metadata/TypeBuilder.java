@@ -8,10 +8,10 @@ import org.smof.field.ParameterField;
 @SuppressWarnings("javadoc")
 public interface TypeBuilder<T> {
 
-	public void setTypes(TypeParser<?> parser);
+	void setTypes(TypeParser<?> parser);
 
-	public T build(Document document);
+	T build(Document document);
 
-	public List<ParameterField> getParams();
+	List<ParameterField> getParams();
 	
 }

@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
 @Target(FIELD)
 public @interface SmofObjectId {
 	
-	public String name();
-	public String ref() default "";
-	public boolean required() default false;
+	String name();
+	String ref() default "";
+	boolean required() default false;
 }

@@ -199,7 +199,7 @@ public final class Smof implements Closeable {
 
 	private <T extends Element> void loadCollection(String collectionName, Class<T> elClass, SmofParser parser, CollectionOptions<T> options) {
 		final MongoCollection<BsonDocument> collection = database.getCollection(collectionName, BsonDocument.class);
-		dispatcher.put(elClass, new SmofCollectionImpl<T>(collectionName, collection, elClass, parser, options));
+		dispatcher.put(elClass, new SmofCollectionImpl<>(collectionName, collection, elClass, parser, options));
 	}
 
 	/**

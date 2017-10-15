@@ -83,8 +83,7 @@ abstract class AbstractBsonParser implements BsonParser {
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
 		checkArgument(value != null, "You must specify a value in order to be serialized");
-		final BsonValue bsonValue = serializeToBson(value, fieldOpts);
-		return bsonValue;
+		return serializeToBson(value, fieldOpts);
 	}
 	
 	@SuppressWarnings("unused")

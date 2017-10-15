@@ -130,7 +130,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public ParentQuery<T> query() {
-		return new ParentQuery<T>(type, parser, cache, collection);
+		return new ParentQuery<>(type, parser, cache, collection);
 	}
 
 	@Override

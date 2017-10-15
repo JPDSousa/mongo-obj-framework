@@ -9,19 +9,19 @@ import org.smof.index.InternalIndex;
 @SuppressWarnings("javadoc")
 public interface TypeStructure<T> {
 	
-	public static <T> TypeStructure<T> create(Class<T> type, TypeBuilder<T> builder) {
+	static <T> TypeStructure<T> create(Class<T> type, TypeBuilder<T> builder) {
 		return new TypeStructureImpl<>(type, builder);
 	}
 
-	public Map<String, PrimaryField> getAllFields();
+	Map<String, PrimaryField> getAllFields();
 
-	public <E> TypeParser<E> getParser(Class<E> type);
+	<E> TypeParser<E> getParser(Class<E> type);
 
-	public TypeBuilder<T> getBuilder();
+	TypeBuilder<T> getBuilder();
 
-	public <E> void addSubType(Class<E> subType, TypeParser<E> parser);
+	<E> void addSubType(Class<E> subType, TypeParser<E> parser);
 
-	public boolean containsSub(Class<?> type);
+	boolean containsSub(Class<?> type);
 
 	Set<InternalIndex> getIndexes();
 
