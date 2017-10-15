@@ -46,6 +46,7 @@ import org.smof.dataModel.Owner;
 import org.smof.dataModel.TypeGuitar;
 import org.smof.element.AbstractElement;
 import org.smof.element.Element;
+import org.smof.exception.SmofException;
 import org.smof.gridfs.SmofGridStreamManager;
 import org.smof.index.InternalIndex;
 
@@ -196,7 +197,65 @@ public class BasicSmofTest {
 		final Brand actual = smof.find(Brand.class).byElement(brand);
 		assertEquals(brand, actual);
 	}
-	
+
+	@Test(expected = SmofException.class)
+	public void testUpdateUnknownField() {
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
+		smof.insert(brand);
+		smof.update(Brand.class)
+		.where()
+		.fieldEq("unknown", "Gibson")
+		.execute();
+	}
+
+	@Test
+	public void testUpdateMultiply() {
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
+		brand.setCapital(4L);
+		final long mul = 2L;
+		smof.insert(brand);
+		smof.update(Brand.class)
+		.multiply(mul, Brand.CAPITAL)
+		.where()
+		.fieldEq(Brand.NAME, "Gibson")
+		.execute();
+		brand.multiplyCapital(mul);
+		final Brand actual = smof.find(Brand.class).byElement(brand);
+		assertEquals(brand, actual);
+	}
+
+	@Test
+	public void testUpdateSet() {
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
+		smof.insert(brand);
+		Location newLocation = new Location("New York", "USA");
+		smof.update(Brand.class)
+		.set(newLocation, Brand.LOCATION)
+		.where()
+		.fieldEq(Brand.NAME, "Gibson")
+		.execute();
+		final Brand expected = Brand.create("Gibson", newLocation, Collections.singletonList(OWNER_1));
+		final Brand actual = smof.find(Brand.class).byElement(brand);
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testUpdateSetSameFieldTwice() {
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
+		smof.insert(brand);
+		Location newLocation1 = new Location("New York", "USA");
+		Location newLocation2 = new Location("Los-Angeles", "USA");
+		smof.update(Brand.class)
+		.set(newLocation1, Brand.LOCATION)
+		.set(newLocation2, Brand.LOCATION)
+		.where()
+		.fieldEq(Brand.NAME, "Gibson")
+		.execute();
+		final Brand expected = Brand.create("Gibson", newLocation2, Collections.singletonList(OWNER_1));
+		final Brand actual = smof.find(Brand.class).byElement(brand);
+		assertEquals(expected, actual);
+	}
+
 	@Test
 	public void testSmofGridRef() throws IOException {
 		final SmofGridStreamManager gridStream = smof.getGridStreamManager();
