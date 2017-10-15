@@ -25,6 +25,7 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.junit.After;
@@ -42,54 +43,71 @@ import static org.smof.dataModel.StaticDB.*;
 @SuppressWarnings("javadoc")
 public class ReadOpTest {
 
-	private static Smof smof;
+    private static Smof smof;
 
-	@BeforeClass
-	public static void setUpBeforeClass() {
-		smof = createTestConnection();
-	}
+    @BeforeClass
+    public static void setUpBeforeClass() {
+        smof = createTestConnection();
+    }
 
-	@AfterClass
-	public static void tearDownAfterClass() {
-		smof.close();
-	}
+    @AfterClass
+    public static void tearDownAfterClass() {
+        smof.close();
+    }
 
-	@Before
-	public void setUp() {
-		smof.loadCollection(GUITARS, Guitar.class);
-		smof.loadCollection(BRANDS, Brand.class);
-		smof.loadCollection(MODELS, Model.class);
-		smof.loadCollection(OWNERS, Owner.class);
+    @Before
+    public void setUp() {
+        smof.loadCollection(GUITARS, Guitar.class);
+        smof.loadCollection(BRANDS, Brand.class);
+        smof.loadCollection(MODELS, Model.class);
+        smof.loadCollection(OWNERS, Owner.class);
 
-		ALL_GUITARS.forEach(g -> smof.insert(g));
-	}
+        ALL_GUITARS.forEach(g -> smof.insert(g));
+    }
 
-	@After
-	public void tearDown() {
-		smof.dropAllCollections();
-		smof.dropAllBuckets();
-	}
+    @After
+    public void tearDown() {
+        smof.dropAllCollections();
+        smof.dropAllBuckets();
+    }
 
-	@Test
-	public final void testQueryAll() {
-		final SmofResults<Guitar> query = smof.find(Guitar.class).results();
-		assertEquals(ALL_GUITARS, query.stream().collect(Collectors.toList()));
-	}
-	
-	@Test
-	public final void testQueryElement() {
-		final List<Guitar> expected = Arrays.asList(GUITAR_3, GUITAR_2);
-		final List<Guitar> actual = smof.find(Guitar.class).withFieldEquals(Guitar.MODEL, MODEL_1)
-				.results().asList();
-		assertEquals(expected, actual);
-	}
-	
-	@Test
-	public final void testQueryElementByObjectID() {
-		final List<Guitar> expected = Arrays.asList(GUITAR_3, GUITAR_2);
-		final List<Guitar> actual = smof.find(Guitar.class).withFieldEquals(Guitar.MODEL, MODEL_1.getId())
-				.results().asList();
-		assertEquals(expected, actual);
-	}
+    @Test
+    public final void testQueryAll() {
+        final SmofResults<Guitar> query = smof.find(Guitar.class).results();
+        assertEquals(ALL_GUITARS, query.stream().collect(Collectors.toList()));
+    }
+
+    @Test
+    public final void testQueryElement() {
+        final List<Guitar> expected = Arrays.asList(GUITAR_3, GUITAR_2);
+        final List<Guitar> actual = smof.find(Guitar.class).withFieldEquals(Guitar.MODEL, MODEL_1)
+                .results().asList();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public final void testQueryElementByObjectID() {
+        final List<Guitar> expected = Arrays.asList(GUITAR_3, GUITAR_2);
+        final List<Guitar> actual = smof.find(Guitar.class).withFieldEquals(Guitar.MODEL, MODEL_1.getId())
+                .results().asList();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public final void testQueryElementInClause() {
+        final List<Guitar> expected = Arrays.asList(GUITAR_2, GUITAR_3);
+        final List<Guitar> actual = smof.find(Guitar.class).withFieldIn(Guitar.PRICE, new Object[]{1000, 2000}).
+                results().asList();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public final void testQueryElementByRegex() {
+        Pattern pattern = Pattern.compile("EL*C");
+        final List<Guitar> expected = Arrays.asList(GUITAR_1);
+        final List<Guitar> actual = smof.find(Guitar.class).withFieldRegex(Guitar.TYPE,pattern).
+                results().asList();
+        assertEquals(expected, actual);
+    }
 
 }

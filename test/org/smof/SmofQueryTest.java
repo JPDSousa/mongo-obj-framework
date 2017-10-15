@@ -67,7 +67,7 @@ public class SmofQueryTest {
 				.withFieldEquals(Guitar.TYPE, TypeGuitar.ACOUSTIC)
 				.end().results();
 
-		List<Guitar> result = query.stream().collect(Collectors.toList());
+		List<Guitar> result = (List<Guitar>) query.stream().collect(Collectors.toList());
 		assertEquals(1, result.size());
 		assertTrue(result.contains(GUITAR_3));
 	}
@@ -79,7 +79,7 @@ public class SmofQueryTest {
 				.withFieldEquals(Guitar.TYPE, TypeGuitar.ELECTRIC)
 				.withFieldEquals(Guitar.TYPE, TypeGuitar.CLASSIC)
 				.end().results();
-		List<Guitar> result = query.stream().collect(Collectors.toList());
+		List<Guitar> result = (List<Guitar>) query.stream().collect(Collectors.toList());
 
 		assertEquals(2, result.size());
 		assertTrue(result.containsAll(Arrays.asList(GUITAR_1, GUITAR_2)));

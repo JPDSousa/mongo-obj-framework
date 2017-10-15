@@ -339,7 +339,7 @@ public final class Smof implements Closeable {
 	 * <ol>
 	 * 	<li> Invoke this method to generate an update</li>
 	 * 	<li> Use the {@link SmofUpdate} generated to set the updates</li>
-	 * 	<li> From the {@link SmofUpdate}, use {@link SmofUpdate#where()} generate a {@link SmofUpdateQuery} 
+	 * 	<li> From the {@link SmofUpdate}, use {@link SmofUpdate#where()} generate a {@link SmofUpdateQuery}
 	 * 	that will allow you to specify which elements the updated will be applied to.</li>
 	 * </ol>
 	 * <b>Note:</b> {@link SmofUpdate} also comes with methods that simplify this process for certain use
