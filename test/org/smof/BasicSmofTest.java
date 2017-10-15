@@ -200,7 +200,7 @@ public class BasicSmofTest {
 
 	@Test(expected = SmofException.class)
 	public void testUpdateUnknownField() {
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList(OWNER_1));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
 		smof.insert(brand);
 		smof.update(Brand.class)
 		.where()
@@ -210,9 +210,9 @@ public class BasicSmofTest {
 
 	@Test
 	public void testUpdateMultiply() {
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList(OWNER_1));
-		brand.setCapital(4l);
-		final long mul = 2l;
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
+		brand.setCapital(4L);
+		final long mul = 2L;
 		smof.insert(brand);
 		smof.update(Brand.class)
 		.multiply(mul, Brand.CAPITAL)
@@ -226,7 +226,7 @@ public class BasicSmofTest {
 
 	@Test
 	public void testUpdateSet() {
-		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Arrays.asList(OWNER_1));
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
 		smof.insert(brand);
 		Location newLocation = new Location("New York", "USA");
 		smof.update(Brand.class)
@@ -234,7 +234,24 @@ public class BasicSmofTest {
 		.where()
 		.fieldEq(Brand.NAME, "Gibson")
 		.execute();
-		final Brand expected = Brand.create("Gibson", newLocation, Arrays.asList(OWNER_1));
+		final Brand expected = Brand.create("Gibson", newLocation, Collections.singletonList(OWNER_1));
+		final Brand actual = smof.find(Brand.class).byElement(brand);
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testUpdateSetSameFieldTwice() {
+		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
+		smof.insert(brand);
+		Location newLocation1 = new Location("New York", "USA");
+		Location newLocation2 = new Location("Los-Angeles", "USA");
+		smof.update(Brand.class)
+		.set(newLocation1, Brand.LOCATION)
+		.set(newLocation2, Brand.LOCATION)
+		.where()
+		.fieldEq(Brand.NAME, "Gibson")
+		.execute();
+		final Brand expected = Brand.create("Gibson", newLocation2, Collections.singletonList(OWNER_1));
 		final Brand actual = smof.find(Brand.class).byElement(brand);
 		assertEquals(expected, actual);
 	}
