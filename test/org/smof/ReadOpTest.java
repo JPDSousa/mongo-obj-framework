@@ -110,4 +110,22 @@ public class ReadOpTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public final void testQueryElementByRegexAndInClause() {
+        Pattern pattern = Pattern.compile("AC*C");
+        final List<Guitar> expected = Arrays.asList(GUITAR_3);
+        final List<Guitar> actual = smof.find(Guitar.class).beginAnd().withFieldRegex(Guitar.TYPE,pattern).
+                withFieldIn(Guitar.PRICE, new Object[]{1000, 2000}).results().asList();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public final void testQueryElementByRegexOrInClause() {
+        Pattern pattern = Pattern.compile("AC*C");
+        final List<Guitar> expected = Arrays.asList(GUITAR_1,GUITAR_2,GUITAR_3);
+        final List<Guitar> actual = smof.find(Guitar.class).beginOr().withFieldRegex(Guitar.TYPE,pattern).
+                withFieldIn(Guitar.PRICE, new Object[]{5463,1000}).results().asList();
+        assertEquals(expected, actual);
+    }
+
 }
