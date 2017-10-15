@@ -34,10 +34,6 @@ import org.smof.parsers.SmofParser;
 
 @SuppressWarnings("javadoc")
 public class SmofUpdateQuery<T extends Element> {
-
-	private void handleError(Throwable cause) {
-		throw new SmofException(cause);
-	}
 	
 	private final BsonDocument update;
 	private final SmofCollection<T> collection;
@@ -56,6 +52,10 @@ public class SmofUpdateQuery<T extends Element> {
 		this.parser = collection.getParser();
 		this.fields = fields;
 		this.type = collection.getType();
+	}
+	
+	private void handleError(Throwable cause) {
+		throw new SmofException(cause);
 	}
 	
 	private SmofField validateFieldName(String fieldName) {

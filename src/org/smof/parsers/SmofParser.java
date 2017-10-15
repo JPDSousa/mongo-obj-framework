@@ -42,6 +42,8 @@ import org.smof.field.MasterField;
 import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
 import org.smof.index.InternalIndex;
+import org.smof.parsers.metadata.SmofTypeContext;
+import org.smof.parsers.metadata.TypeStructure;
 
 import com.mongodb.MongoClient;
 
@@ -70,7 +72,7 @@ public class SmofParser {
 	}
 	
 	public SmofParser(SmofDispatcher dispatcher, CodecRegistry registry) {
-		this.context = new SmofTypeContext();
+		this.context = SmofTypeContext.create();
 		this.registry = registry;
 		serContext = SerializationContext.create();
 		parsers = SmofParserPool.create(this, dispatcher);
@@ -81,11 +83,11 @@ public class SmofParser {
 		return registry;
 	}
 
-	SmofTypeContext getContext() {
+	protected SmofTypeContext getContext() {
 		return context;
 	}
 	
-	SerializationContext getSerializationContext() {
+	protected SerializationContext getSerializationContext() {
 		return serContext;
 	}
 	
@@ -93,7 +95,7 @@ public class SmofParser {
 		return getContext().getTypeStructure(type, parsers);
 	}
 	
-	<T extends Element> T createLazyInstance(Class<T> type, ObjectId id) {
+	protected <T extends Element> T createLazyInstance(Class<T> type, ObjectId id) {
 		return lazyLoader.createLazyInstance(type, id);
 	}
 
@@ -111,7 +113,7 @@ public class SmofParser {
 		return parser.fromBson(document, type, field);
 	}
 
-	Object fromBson(BsonValue value, SmofField field) {
+	protected Object fromBson(BsonValue value, SmofField field) {
 		if(value.isNull()) {
 			return null;
 		}
@@ -171,12 +173,12 @@ public class SmofParser {
 		}
 	}
 
-	boolean isValidType(SmofField field) {
+	protected boolean isValidType(SmofField field) {
 		final BsonParser parser = parsers.get(field.getType());
 		return parser.isValidType(field.getFieldClass());
 	}
 
-	SmofParserPool getParsers() {
+	protected SmofParserPool getParsers() {
 		return parsers;
 	}
 

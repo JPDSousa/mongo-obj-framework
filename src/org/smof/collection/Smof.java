@@ -365,6 +365,10 @@ public final class Smof implements Closeable {
 		final SmofCollection<T> collection = dispatcher.getCollection(elementClass);
 		return collection.query();
 	}
+	
+	public <T extends Element> SmofCollection<T> getCollection(Class<T> type) {
+		return dispatcher.getCollection(type);
+	}
 
 	@Override
 	public void close() {

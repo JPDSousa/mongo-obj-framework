@@ -31,10 +31,6 @@ import static org.smof.parsers.SmofType.*;
 @SuppressWarnings("javadoc")
 public class SmofParserPool {
 	
-	public static SmofParserPool create(SmofParser parserContext, SmofDispatcher dispatcher) {
-		return new SmofParserPool(parserContext, dispatcher);
-	}
-	
 	private final Map<SmofType, BsonParser> parsers;
 	
 	private SmofParserPool(SmofParser parserContext, SmofDispatcher dispatcher) {
@@ -55,5 +51,9 @@ public class SmofParserPool {
 	
 	public BsonParser get(SmofType type) {
 		return parsers.get(type);
+	}
+	
+	public static SmofParserPool create(SmofParser parserContext, SmofDispatcher dispatcher) {
+		return new SmofParserPool(parserContext, dispatcher);
 	}
 }
