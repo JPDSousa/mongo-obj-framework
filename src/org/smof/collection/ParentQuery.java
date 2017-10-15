@@ -46,7 +46,7 @@ public class ParentQuery<T extends Element> extends AbstractQuery<T, ParentQuery
 	
 	@Override
 	public SmofResults<T> results() {
-		return new SmofResults<T>(getParser(), getElementClass(), cache, collection, query);
+		return new SmofResultsImpl<T>(getParser(), getElementClass(), cache, collection, query);
 	}
 
 	public T byElement(T element) {

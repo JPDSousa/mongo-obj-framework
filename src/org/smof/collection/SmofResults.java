@@ -10,7 +10,7 @@ public interface SmofResults<T extends Element> {
 
     List asList();
 
-    Element first();
+    T first();
 
     long count();
 }
