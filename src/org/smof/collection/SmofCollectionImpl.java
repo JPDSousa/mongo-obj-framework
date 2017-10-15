@@ -153,7 +153,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
 	@Override
 	public SmofUpdate<T> update() {
-		return new SmofUpdate<>(this);
+		return new SmofUpdateImpl<>(this);
 	}
 
 	private SmofInsertResult replace(T element, SmofOpOptions options) {
