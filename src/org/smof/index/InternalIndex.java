@@ -118,7 +118,7 @@ public class InternalIndex {
 
 	private static Bson nextIndex(StringTokenizer tokens) {
 		final Bson index;
-		StringBuilder indexName = new StringBuilder(tokens.nextToken());
+		final StringBuilder indexName = new StringBuilder(tokens.nextToken());
 		String indexTypeStr = tokens.nextToken();
 		IndexType indexT;
 		
