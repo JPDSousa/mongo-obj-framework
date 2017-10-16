@@ -11,8 +11,6 @@ import org.junit.Test;
 import org.smof.annnotations.SmofBoolean;
 import org.smof.annnotations.SmofNumber;
 import org.smof.annnotations.SmofString;
-import org.smof.field.MasterField;
-import org.smof.field.PrimaryField;
 import org.smof.parsers.SmofType;
 
 @SuppressWarnings("javadoc")

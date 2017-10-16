@@ -24,14 +24,12 @@ package org.smof.collection;
 import static org.junit.Assert.*;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.smof.collection.CollectionOptions;
 import org.smof.dataModel.Brand;
 import org.smof.dataModel.Location;
 import org.smof.dataModel.StaticDB;

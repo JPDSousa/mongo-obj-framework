@@ -10,9 +10,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.smof.TestUtils;
 import org.smof.collection.Smof;
-import org.smof.gridfs.SmofGridRef;
-import org.smof.gridfs.SmofGridRefFactory;
-import org.smof.gridfs.SmofGridStreamManager;
 
 import com.mongodb.MongoGridFSException;
 import com.mongodb.client.gridfs.model.GridFSFile;

@@ -10,8 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.smof.annnotations.SmofParam;
 import org.smof.annnotations.SmofString;
-import org.smof.field.ParameterField;
-import org.smof.field.PrimaryField;
 import org.smof.parsers.SmofType;
 
 @SuppressWarnings("javadoc")
