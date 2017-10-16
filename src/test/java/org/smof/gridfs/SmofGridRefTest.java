@@ -5,8 +5,6 @@ import static org.smof.TestUtils.*;
 
 import org.bson.types.ObjectId;
 import org.junit.Test;
-import org.smof.gridfs.SmofGridRef;
-import org.smof.gridfs.SmofGridRefFactory;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;

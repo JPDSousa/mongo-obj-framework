@@ -8,7 +8,7 @@ import org.smof.collection.Smof;
 @SuppressWarnings("javadoc")
 public class TestUtils {
 
-	public static final Path RESOURCES = Paths.get("testResources");
+	public static final Path RESOURCES = Paths.get("src", "test", "resources");
 	public static final Path RESOURCES_4MB = RESOURCES.resolve("test4mb.jpg");
 	public static final Path RESOURCES_1MB = RESOURCES.resolve("test1mb.jpg");
 	public static final Path RECOURCES_EL_GUITAR = RESOURCES.resolve("elecGuitar.jpg");

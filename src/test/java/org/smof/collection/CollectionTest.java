@@ -8,7 +8,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.smof.collection.Smof;
 import org.smof.dataModel.Brand;
 import org.smof.dataModel.Guitar;
 import org.smof.dataModel.Model;
