@@ -85,4 +85,15 @@ public class SmofQueryTest {
 		assertTrue(result.containsAll(Arrays.asList(GUITAR_1, GUITAR_2)));
 	}
 
+	@Test
+	public final void testWithFieldNotIn() {
+		final SmofResults<Guitar> query = smof.find(Guitar.class)
+				.withFieldNotIn(Guitar.TYPE, new Object[]{TypeGuitar.ACOUSTIC})
+				.results();
+		List<Guitar> result = query.stream().collect(Collectors.toList());
+
+		assertEquals(2, result.size());
+		assertTrue(result.containsAll(Arrays.asList(GUITAR_1, GUITAR_2)));
+	}
+
 }
