@@ -37,6 +37,8 @@ import org.smof.parsers.SmofParserPool;
 
 class SmofTypeContextImpl implements SmofTypeContext {
 
+	private static final long serialVersionUID = 1L;
+
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}

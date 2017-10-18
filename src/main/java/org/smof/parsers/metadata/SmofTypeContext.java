@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.smof.element.Element;
@@ -28,7 +29,7 @@ import org.smof.index.InternalIndex;
 import org.smof.parsers.SmofParserPool;
 
 @SuppressWarnings("javadoc")
-public interface SmofTypeContext {
+public interface SmofTypeContext extends Serializable {
 	
 	static SmofTypeContext create() {
 		return new SmofTypeContextImpl();
