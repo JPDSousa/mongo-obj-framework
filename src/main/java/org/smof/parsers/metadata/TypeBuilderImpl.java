@@ -39,6 +39,8 @@ import org.smof.field.PrimaryField;
 
 class TypeBuilderImpl<T> implements TypeBuilder<T> {
 
+	private static final long serialVersionUID = 1L;
+
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}

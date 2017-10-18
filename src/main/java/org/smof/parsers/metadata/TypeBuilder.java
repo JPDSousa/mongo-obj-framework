@@ -21,13 +21,14 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.bson.Document;
 import org.smof.field.ParameterField;
 
 @SuppressWarnings("javadoc")
-public interface TypeBuilder<T> {
+public interface TypeBuilder<T> extends Serializable {
 
 	void setTypes(TypeParser<?> parser);
 
