@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +29,7 @@ import java.util.Set;
 import org.smof.field.PrimaryField;
 
 @SuppressWarnings("javadoc")
-public interface TypeParser<T> {
+public interface TypeParser<T> extends Serializable {
 	
 	static <T> TypeParser<T> create(Class<T> type) {
 		return new TypeParserImpl<>(type);

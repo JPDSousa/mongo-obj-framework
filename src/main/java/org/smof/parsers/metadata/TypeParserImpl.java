@@ -36,6 +36,8 @@ import org.smof.parsers.SmofType;
 
 class TypeParserImpl<T> implements TypeParser<T> {
 
+	private static final long serialVersionUID = 1L;
+
 	private final Class<T> type;
 
 	private final Map<String, PrimaryField> fields;
