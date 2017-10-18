@@ -28,6 +28,8 @@ import org.smof.collection.SmofDispatcher;
 
 class NumberParser extends AbstractBsonParser {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final Class<?>[] VALID_TYPES = {Integer.class, 
 			Long.class, Short.class, Double.class, Float.class};
 	

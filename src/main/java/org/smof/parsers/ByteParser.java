@@ -27,6 +27,8 @@ import org.smof.collection.SmofDispatcher;
 
 class ByteParser extends AbstractBsonParser {
 
+	private static final long serialVersionUID = 1L;
+	
 	private static final SmofBytesCodecProvider PROVIDER = new SmofBytesCodecProvider();
 	private static final Class<?>[] VALID_TYPES = {Byte[].class, byte[].class};
 

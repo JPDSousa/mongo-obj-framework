@@ -28,6 +28,8 @@ import org.smof.collection.SmofDispatcher;
 
 class StringParser extends AbstractBsonParser {
 
+	private static final long serialVersionUID = 1L;
+	
 	private static final Class<?>[] VALID_TYPES = {
 			String.class, Enum.class, Integer.class};
 	static final SmofCodecProvider PROVIDER = new SmofStringCodecProvider();

@@ -33,6 +33,8 @@ import org.smof.collection.SmofDispatcher;
 
 class DateTimeParser extends AbstractBsonParser {
 	
+	private static final long serialVersionUID = 1L;
+	
 	private static final Class<?>[] VALID_TYPES = {Instant.class, LocalDate.class, LocalDateTime.class, 
 			ZonedDateTime.class};
 	static final SmofCodecProvider PROVIDER = new SmofDateCodecProvider();

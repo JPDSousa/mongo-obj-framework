@@ -31,6 +31,8 @@ import org.smof.collection.SmofDispatcher;
 @SuppressWarnings("javadoc")
 public class BooleanParser extends AbstractBsonParser {
 
+	private static final long serialVersionUID = 1L;
+	
 	private static final SmofCodecProvider PROVIDER = new SmofBooleanCodecProvider();
 	private static final Class<?>[] VALID_TYPES = {Boolean.class, String.class, Integer.class};
 

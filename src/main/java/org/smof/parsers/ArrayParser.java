@@ -37,6 +37,8 @@ import org.smof.field.SmofField;
 
 class ArrayParser extends AbstractBsonParser {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final Class<?>[] VALID_TYPES = {};
 	
 	private final SerializationContext serializationContext;

@@ -52,6 +52,8 @@ import static com.google.common.base.Preconditions.*;
 
 abstract class AbstractBsonParser implements BsonParser {
 	
+	private static final long serialVersionUID = 1L;
+	
 	protected final SmofCodecProvider provider;
 	protected final SmofParser topParser;
 	protected final CodecRegistry registry;

@@ -21,11 +21,13 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.io.Serializable;
+
 import org.bson.BsonValue;
 import org.smof.field.SmofField;
 
 @SuppressWarnings("javadoc")
-public interface BsonParser {
+public interface BsonParser extends Serializable {
 
 	BsonValue toBson(Object value, SmofField fieldOpts);
 	
