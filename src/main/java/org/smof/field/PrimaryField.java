@@ -45,7 +45,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	private String name;
 	private boolean required;
 	private Annotation annotation;
-	private final Field field;
+	private final transient Field field;
 	private final boolean external;
 	private boolean builder;
 	
