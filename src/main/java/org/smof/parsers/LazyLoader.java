@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,7 +41,9 @@ import net.bytebuddy.implementation.InvocationHandlerAdapter;
 import net.bytebuddy.matcher.ElementMatchers;
 
 @SuppressWarnings("javadoc")
-public class LazyLoader {
+public class LazyLoader implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
