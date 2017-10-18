@@ -39,6 +39,8 @@ import org.smof.parsers.SmofType;
 @SuppressWarnings("javadoc")
 public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 
+	private static final long serialVersionUID = 1L;
+	
 	private final SmofType type;
 	private String name;
 	private boolean required;

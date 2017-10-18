@@ -26,6 +26,8 @@ import org.smof.parsers.SmofType;
 @SuppressWarnings("javadoc")
 public class MasterField implements SmofField {
 
+	private static final long serialVersionUID = 1L;
+	
 	private final SmofType type;
 	private final Class<?> elementClass;
 	

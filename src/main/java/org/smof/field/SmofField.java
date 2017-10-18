@@ -21,10 +21,12 @@
  ******************************************************************************/
 package org.smof.field;
 
+import java.io.Serializable;
+
 import org.smof.parsers.SmofType;
 
 @SuppressWarnings("javadoc")
-public interface SmofField {
+public interface SmofField extends Serializable {
 	
 	SmofType getType();
 	
