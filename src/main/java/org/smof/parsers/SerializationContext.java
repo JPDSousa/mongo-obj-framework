@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,8 +29,10 @@ import org.bson.BsonValue;
 
 import com.google.common.collect.Maps;
 
-class SerializationContext {
+class SerializationContext implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
+
 	public static SerializationContext create() {
 		return new SerializationContext();
 	}
