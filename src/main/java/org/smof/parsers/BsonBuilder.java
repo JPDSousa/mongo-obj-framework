@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,8 +32,10 @@ import org.smof.exception.SmofException;
 import org.smof.field.PrimaryField;
 import org.smof.parsers.metadata.TypeBuilder;
 
-final class BsonBuilder<T> {
+final class BsonBuilder<T> implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	private final Document fields;
 	private final Map<Field, Object> addFields;
 	private final Map<PrimaryField, ObjectId> lazyElements;
