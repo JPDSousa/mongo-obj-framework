@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.index;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -40,7 +41,9 @@ import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 
 @SuppressWarnings("javadoc")
-public class InternalIndex {
+public class InternalIndex implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	private static final String UNIQUE = "unique";
 
