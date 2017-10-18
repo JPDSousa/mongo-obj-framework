@@ -35,7 +35,6 @@ import org.smof.parsers.SmofParser;
 
 import com.google.common.base.Preconditions;
 
-@SuppressWarnings("javadoc")
 class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 	
 	private BsonDocument update;
@@ -61,20 +60,24 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		return field;
 	}
 	
+	@Override
 	public SmofUpdate<T> setUpsert(boolean upsert) {
 		options.upsert(upsert);
 		return this;
 	}
 	
+	@Override
 	public SmofUpdateQuery<T> where() {
 		return new SmofUpdateQuery<>(update, collection, options, fields);
 	}
 	
+	@Override
 	public void fromElement(T element) {
 		collection.insert(element, options);
 		parser.reset();
 	}
 
+	@Override
 	public SmofUpdate<T> increase(Number value, String fieldName) {
 		final SmofField field = validateFieldName(fieldName);
 		final BsonValue number = parser.toBson(value, field);
@@ -84,6 +87,7 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		return this;
 	}
 	
+	@Override
 	public SmofUpdate<T> multiply(Number value, String fieldName) {
 		final SmofField field = validateFieldName(fieldName);
 		final BsonValue number = parser.toBson(value, field);
@@ -92,6 +96,7 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		return this;
 	}
 	
+	@Override
 	public SmofUpdate<T> rename(String newName, String fieldName) {
 		validateFieldName(fieldName);
 		final BsonDocument doc = new BsonDocument();
@@ -100,12 +105,14 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		return this;
 	}
 	
+	@Override
 	public SmofUpdate<T> set(BsonValue bson, String fieldName) {
 		final BsonDocument doc = new BsonDocument(fieldName, bson);
 		putOrAppend(SET, doc);
 		return this;
 	}
 	
+	@Override
 	public SmofUpdate<T> set(Object obj, String fieldName) {
 		final SmofField field = validateFieldName(fieldName);
 		final BsonValue value = parser.toBson(obj, field);

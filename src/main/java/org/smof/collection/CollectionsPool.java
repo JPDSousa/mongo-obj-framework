@@ -26,12 +26,13 @@ import org.smof.element.Element;
 
 import java.util.Iterator;
 
+@SuppressWarnings("javadoc")
 public interface CollectionsPool extends Iterable<SmofCollection<?>> {
+	
     void put(String bucketName, GridFSBucket bucket);
 
     <T extends Element> void put(Class<T> elClass, SmofCollection<T> collection);
 
-    @SuppressWarnings("unchecked")
     <T extends Element> SmofCollection<T> getCollection(Class<T> elClass);
 
     GridFSBucket getBucket(String bucketName);

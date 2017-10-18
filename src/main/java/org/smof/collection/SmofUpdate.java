@@ -24,6 +24,7 @@ package org.smof.collection;
 import org.bson.BsonValue;
 import org.smof.element.Element;
 
+@SuppressWarnings("javadoc")
 public interface SmofUpdate<T extends Element> {
 
     SmofUpdate<T> setUpsert(boolean upsert);

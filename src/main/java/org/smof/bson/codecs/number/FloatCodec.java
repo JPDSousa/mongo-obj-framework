@@ -69,7 +69,8 @@ class FloatCodec implements Codec<Float> {
             case DOUBLE:
                 doubleValue = reader.readDouble();
                 break;
-            default:
+            //$CASES-OMITTED$
+		default:
                 throw new BsonInvalidOperationException(format("Invalid numeric type, found: %s", bsonType));
         }
         return doubleValue;

@@ -31,6 +31,8 @@ import org.smof.exception.SmofException;
 @SuppressWarnings("javadoc")
 public abstract class AbstractElement implements Element {
 	
+	private static final long serialVersionUID = 1L;
+	
 	@SmofObjectId(name = ID, ref = "")
 	private ObjectId id;
 	

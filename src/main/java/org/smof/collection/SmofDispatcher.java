@@ -28,7 +28,9 @@ import org.smof.element.Element;
 import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridStreamManager;
 
+@SuppressWarnings("javadoc")
 public interface SmofDispatcher {
+	
     void put(String bucketName, GridFSBucket bucket);
 
     <T extends Element> void put(Class<T> elClass, SmofCollection<T> collection);
@@ -47,10 +49,8 @@ public interface SmofDispatcher {
 
     <T extends Element> boolean insert(T element);
 
-    @SuppressWarnings("unchecked")
     <T extends Element> boolean insert(T element, SmofOpOptions options);
 
-    @SuppressWarnings("cast")
     <T extends Element> T findById(ObjectId id, Class<T> elementClass);
 
     GridFSFile loadMetadata(SmofGridRef ref);

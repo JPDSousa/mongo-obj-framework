@@ -33,6 +33,8 @@ import com.google.common.base.Preconditions;
 
 class SmofGridRefImpl extends AbstractElement implements SmofGridRef {
 
+	private static final long serialVersionUID = 1L;
+	
 	private Path attachedFile;
 	private ByteArrayInputStream byteStream;
 	private String bucketName;

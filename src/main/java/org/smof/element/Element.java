@@ -21,12 +21,13 @@
  ******************************************************************************/
 package org.smof.element;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import org.bson.types.ObjectId;
 
 @SuppressWarnings("javadoc")
-public interface Element {
+public interface Element extends Serializable {
 
 	String ID = "_id";
 	String OID = "$oid";

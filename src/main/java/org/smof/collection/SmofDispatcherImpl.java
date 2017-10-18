@@ -59,7 +59,6 @@ import org.smof.utils.BsonUtils;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
 
-
 @SuppressWarnings("javadoc")
 public class SmofDispatcherImpl implements SmofDispatcher {
 
@@ -174,8 +173,7 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 	}
 
 	@Override
-    @SuppressWarnings("cast")
-	public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
+    public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
 		return collections.getCollection(elementClass).findById(id);
 	}
 	
