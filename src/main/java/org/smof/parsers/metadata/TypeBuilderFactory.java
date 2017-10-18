@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -30,8 +31,10 @@ import org.smof.exception.InvalidSmofTypeException;
 import org.smof.exception.SmofException;
 
 @SuppressWarnings("javadoc")
-public class TypeBuilderFactory {
+public class TypeBuilderFactory implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	private static TypeBuilderFactory singleton;
 	
 	public static TypeBuilderFactory getDefault() {
