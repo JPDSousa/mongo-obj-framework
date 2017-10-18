@@ -36,6 +36,8 @@ import org.smof.parsers.SmofType;
 
 class TypeStructureImpl<T> implements TypeStructure<T>{
 
+	private static final long serialVersionUID = 1L;
+
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}

@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ import org.smof.field.PrimaryField;
 import org.smof.index.InternalIndex;
 
 @SuppressWarnings("javadoc")
-public interface TypeStructure<T> {
+public interface TypeStructure<T> extends Serializable {
 	
 	static <T> TypeStructure<T> create(Class<T> type, TypeBuilder<T> builder) {
 		return new TypeStructureImpl<>(type, builder);
