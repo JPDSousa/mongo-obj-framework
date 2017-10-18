@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -48,7 +49,9 @@ import org.smof.parsers.metadata.TypeStructure;
 import com.mongodb.MongoClient;
 
 @SuppressWarnings("javadoc")
-public class SmofParser {
+public class SmofParser implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	public static final String ON_INSERT = "onInsert";
 
