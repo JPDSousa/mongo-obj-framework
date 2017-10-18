@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -29,7 +30,9 @@ import org.smof.collection.SmofDispatcher;
 import static org.smof.parsers.SmofType.*;
 
 @SuppressWarnings("javadoc")
-public class SmofParserPool {
+public class SmofParserPool implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	private final Map<SmofType, BsonParser> parsers;
 	
