@@ -39,8 +39,6 @@ import org.smof.parsers.SmofType;
 @SuppressWarnings("javadoc")
 public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 
-	private static final long serialVersionUID = 1L;
-	
 	private final SmofType type;
 	private String name;
 	private boolean required;
@@ -60,7 +58,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		final SmofByte smofByte;
 		final SmofBoolean smofBoolean;
 		boolean external = false;
-
+		
 		switch(type) {
 		case ARRAY:
 			smofArray = field.getAnnotation(SmofArray.class);

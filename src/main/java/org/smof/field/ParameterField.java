@@ -29,8 +29,6 @@ import org.smof.parsers.SmofType;
 @SuppressWarnings("javadoc")
 public class ParameterField implements SmofField {
 	
-	private static final long serialVersionUID = 1L;
-	
 	private final Parameter parameter;
 	private final SmofParam note;
 	private PrimaryField primaryField;

@@ -26,8 +26,6 @@ import org.smof.parsers.SmofType;
 @SuppressWarnings("javadoc")
 public class SecondaryField implements SmofField {
 
-	private static final long serialVersionUID = 1L;
-	
 	private final SmofType type;
 	private final String name;
 	private final Class<?> fieldClass;
