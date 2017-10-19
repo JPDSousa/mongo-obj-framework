@@ -24,6 +24,7 @@ package org.smof.parsers;
 import java.io.Serializable;
 
 import org.bson.BsonValue;
+import org.bson.codecs.configuration.CodecProvider;
 import org.smof.field.SmofField;
 
 @SuppressWarnings("javadoc")
@@ -38,4 +39,6 @@ public interface BsonParser extends Serializable {
 	boolean isValidType(Class<?> type);
 	
 	boolean isValidBson(BsonValue value);
+	
+	CodecProvider getProvider();
 }

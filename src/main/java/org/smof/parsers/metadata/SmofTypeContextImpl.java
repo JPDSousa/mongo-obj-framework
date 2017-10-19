@@ -21,6 +21,10 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +48,7 @@ class SmofTypeContextImpl implements SmofTypeContext {
 	}
 
 	private final Map<Class<?>, TypeStructure<?>> types;
-	private final TypeBuilderFactory factory;
+	private transient TypeBuilderFactory factory;
 
 	SmofTypeContextImpl() {
 		types = new LinkedHashMap<>();
@@ -152,6 +156,15 @@ class SmofTypeContextImpl implements SmofTypeContext {
 	@Override
 	public <T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass) {
 		return types.get(elClass).getIndexes();
+	}
+	
+	private void writeObject(ObjectOutputStream stream) throws IOException {
+		stream.defaultWriteObject();
+	}
+
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		factory = TypeBuilderFactory.getDefault();
 	}
 
 }

@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,13 +37,15 @@ import java.util.stream.Collectors;
 import org.smof.field.PrimaryField;
 import org.smof.parsers.SmofType;
 
+import com.google.common.collect.Maps;
+
 class TypeParserImpl<T> implements TypeParser<T> {
 
 	private static final long serialVersionUID = 1L;
 
 	private final Class<T> type;
 
-	private final Map<String, PrimaryField> fields;
+	private transient Map<String, PrimaryField> fields;
 
 	TypeParserImpl(Class<T> type) {
 		this.type = type;
@@ -93,6 +98,16 @@ class TypeParserImpl<T> implements TypeParser<T> {
 		return getAllFields().stream()
 				.filter(f -> !f.isBuilder())
 				.collect(Collectors.toSet());
+	}
+	
+	private void writeObject(ObjectOutputStream stream) throws IOException {
+		stream.defaultWriteObject();
+	}
+
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		fields = Maps.newLinkedHashMap();
+		fillFields();
 	}
 
 }

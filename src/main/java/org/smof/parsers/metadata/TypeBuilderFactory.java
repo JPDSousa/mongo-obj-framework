@@ -31,10 +31,8 @@ import org.smof.exception.InvalidSmofTypeException;
 import org.smof.exception.SmofException;
 
 @SuppressWarnings("javadoc")
-public class TypeBuilderFactory implements Serializable {
+public class TypeBuilderFactory {
 
-	private static final long serialVersionUID = 1L;
-	
 	private static TypeBuilderFactory singleton;
 	
 	public static TypeBuilderFactory getDefault() {

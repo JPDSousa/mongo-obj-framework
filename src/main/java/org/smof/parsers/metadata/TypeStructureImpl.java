@@ -21,6 +21,9 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -34,19 +37,18 @@ import org.smof.field.PrimaryField;
 import org.smof.index.InternalIndex;
 import org.smof.parsers.SmofType;
 
+@SuppressWarnings("serial")
 class TypeStructureImpl<T> implements TypeStructure<T>{
-
-	private static final long serialVersionUID = 1L;
 
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}
 
-	private final TypeBuilder<T> defaultTypeBuilder;
+	private transient TypeBuilder<T> defaultTypeBuilder;
 	private final Map<Class<?>, TypeParser<?>> subTypes;
-	private final Map<String, PrimaryField> allFields;
+	private transient Map<String, PrimaryField> allFields;
 	private final Class<T> type;
-	private final Set<InternalIndex> indexes;
+	private transient Set<InternalIndex> indexes;
 
 	TypeStructureImpl(Class<T> type, TypeBuilder<T> builder) {
 		this.type = type;
@@ -139,5 +141,19 @@ class TypeStructureImpl<T> implements TypeStructure<T>{
 	@Override
 	public Map<String, PrimaryField> getAllFields() {
 		return allFields;
+	}
+	
+	private void writeObject(ObjectOutputStream stream) throws IOException {
+		stream.defaultWriteObject();
+	}
+
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		if(hasIndexes()) {
+			fillIndexes();	
+		}
+		subTypes.values().stream()
+		.flatMap(parser -> parser.getAllFields().stream())
+		.forEach(pField -> allFields.put(pField.getName(), pField));
 	}
 }

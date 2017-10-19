@@ -34,6 +34,7 @@ import org.bson.BsonValue;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
+import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.smof.bson.codecs.SmofCodecProvider;
 import org.smof.collection.SmofDispatcher;
@@ -56,28 +57,35 @@ abstract class AbstractBsonParser implements BsonParser {
 	
 	protected final SmofCodecProvider provider;
 	protected final SmofParser topParser;
-	protected final CodecRegistry registry;
 	protected final SmofDispatcher dispatcher;
 	private final Class<?>[] types;
 	
 	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser topParser, SmofCodecProvider provider, Class<?>[] types) {
 		this.provider = provider;
 		this.topParser = topParser;
-		this.registry = topParser != null ? topParser.getRegistry() : null;
 		this.dispatcher = dispatcher;
 		this.types = types;
+	}
+	
+	protected CodecRegistry getRegistry() {
+		return topParser != null ? topParser.getRegistry() : null;
 	}
 	
 	protected void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}
+	
+	@Override
+	public CodecProvider getProvider() {
+		return provider;
+	}
 
 	@SuppressWarnings("unchecked")
 	private <T> Codec<T> getCodec(final Class<T> clazz) {
 		final Class<T> wrapperClass = (Class<T>) ClassUtils.primitiveToWrapper(clazz);
-		final Codec<T> codec = provider != null ? provider.get(wrapperClass, registry) : null;
-		if(codec == null && registry != null) {
-			return registry.get(wrapperClass);			
+		final Codec<T> codec = provider != null ? provider.get(wrapperClass, getRegistry()) : null;
+		if(codec == null && getRegistry() != null) {
+			return getRegistry().get(wrapperClass);			
 		}
 		return codec;
 	}

@@ -26,8 +26,6 @@ import org.smof.bson.codecs.SmofCodecProvider;
 import org.smof.bson.codecs.bool.SmofBooleanCodecProvider;
 import org.smof.collection.SmofDispatcher;
 
-
-
 @SuppressWarnings("javadoc")
 public class BooleanParser extends AbstractBsonParser {
 
