@@ -62,6 +62,8 @@ import com.mongodb.client.gridfs.model.GridFSFile;
 @SuppressWarnings("javadoc")
 public class SmofDispatcherImpl implements SmofDispatcher {
 
+	private static final long serialVersionUID = 1L;
+
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}

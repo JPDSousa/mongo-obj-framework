@@ -23,13 +23,16 @@ package org.smof.collection;
 
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
+
+import java.io.Serializable;
+
 import org.bson.types.ObjectId;
 import org.smof.element.Element;
 import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridStreamManager;
 
 @SuppressWarnings("javadoc")
-public interface SmofDispatcher {
+public interface SmofDispatcher extends Serializable {
 	
     void put(String bucketName, GridFSBucket bucket);
 
