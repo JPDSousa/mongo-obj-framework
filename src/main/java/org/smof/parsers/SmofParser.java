@@ -21,8 +21,11 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import org.bson.BsonDocument;
@@ -32,6 +35,7 @@ import org.bson.BsonValue;
 import org.bson.BsonWriter;
 import org.bson.codecs.Codec;
 import org.bson.codecs.EncoderContext;
+import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.types.ObjectId;
@@ -46,42 +50,42 @@ import org.smof.index.InternalIndex;
 import org.smof.parsers.metadata.SmofTypeContext;
 import org.smof.parsers.metadata.TypeStructure;
 
+import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 
-@SuppressWarnings("javadoc")
+@SuppressWarnings({ "javadoc", "serial" })
 public class SmofParser implements Serializable {
-	
-	private static final long serialVersionUID = 1L;
-	
-	public static final String ON_INSERT = "onInsert";
 
+	public static final String ON_INSERT = "onInsert";
+	
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
-	}
-	
-	public static CodecRegistry getDefaultCodecRegistry() {
-		return CodecRegistries.fromProviders(
-				DateTimeParser.PROVIDER);
 	}
 
 	private final SmofTypeContext context;
 	private final SmofParserPool parsers;
 	private final LazyLoader lazyLoader;
 	private final SerializationContext serContext;
-	private final CodecRegistry registry;
+	private transient CodecRegistry registry;
 
 	public SmofParser(SmofDispatcher dispatcher) {
-		this(dispatcher, CodecRegistries.fromRegistries(Arrays.asList(getDefaultCodecRegistry(), MongoClient.getDefaultCodecRegistry())));
+		this(dispatcher, MongoClient.getDefaultCodecRegistry());
 	}
-	
+
 	public SmofParser(SmofDispatcher dispatcher, CodecRegistry registry) {
 		this.context = SmofTypeContext.create();
-		this.registry = registry;
 		serContext = SerializationContext.create();
 		parsers = SmofParserPool.create(this, dispatcher);
+		this.registry = loadRegistries(registry);
 		lazyLoader = LazyLoader.create(dispatcher);
 	}
 	
+	private CodecRegistry loadRegistries(CodecRegistry base) {
+		final List<CodecProvider> providers = Lists.newArrayList();
+		parsers.forEach(parser -> providers.add(parser.getProvider()));
+		return CodecRegistries.fromRegistries(base, CodecRegistries.fromProviders(providers));
+	}
+
 	public CodecRegistry getRegistry() {
 		return registry;
 	}
@@ -89,15 +93,15 @@ public class SmofParser implements Serializable {
 	protected SmofTypeContext getContext() {
 		return context;
 	}
-	
+
 	protected SerializationContext getSerializationContext() {
 		return serContext;
 	}
-	
+
 	public <T> TypeStructure<T> getTypeStructure(Class<T> type) {
 		return getContext().getTypeStructure(type, parsers);
 	}
-	
+
 	protected <T extends Element> T createLazyInstance(Class<T> type, ObjectId id) {
 		return lazyLoader.createLazyInstance(type, id);
 	}
@@ -106,7 +110,7 @@ public class SmofParser implements Serializable {
 		context.put(type, parsers);
 	}
 
-	public void registerType(Class<?> type, Object factory){
+	public void registerType(Class<?> type, Serializable factory){
 		context.putWithFactory(type, factory, parsers);
 	}
 
@@ -137,10 +141,10 @@ public class SmofParser implements Serializable {
 	public BsonDocument toBson(Element value) {
 		final BsonParser parser = parsers.get(SmofType.OBJECT);
 		final MasterField field = new MasterField(value.getClass());
-		
+
 		return (BsonDocument) parser.toBson(value, field);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public <T> BsonValue toBson(Object value, Class<T> clazz) {
 		if(value == null) {
@@ -195,5 +199,14 @@ public class SmofParser implements Serializable {
 
 	public PrimaryField getField(Class<?> type, String fieldName) {
 		return getTypeStructure(type).getAllFields().get(fieldName);
+	}
+
+	private void writeObject(ObjectOutputStream stream) throws IOException {
+		stream.defaultWriteObject();
+	}
+
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		registry = loadRegistries(MongoClient.getDefaultCodecRegistry());
 	}
 }
