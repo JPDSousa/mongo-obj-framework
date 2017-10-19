@@ -23,6 +23,7 @@ package org.smof;
 
 import static org.junit.Assert.*;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 import org.bson.BsonDocument;
@@ -75,8 +76,10 @@ public class ObjectInheritanceTest {
 		String getStr1();
 	}
 	
-	private static class IaFactory {
+	private static class IaFactory implements Serializable {
 		
+		private static final long serialVersionUID = 1L;
+
 		private IaFactory() {}
 		
 		@SmofBuilder
@@ -92,6 +95,7 @@ public class ObjectInheritanceTest {
 	
 	private static class A extends AbstractElement implements Ia {
 		
+		private static final long serialVersionUID = 1L;
 		@SmofNumber(name="num1")
 		private final long num1;
 		@SmofNumber(name="num2")
@@ -162,6 +166,8 @@ public class ObjectInheritanceTest {
 	
 	private static class A1 extends A {
 		
+		private static final long serialVersionUID = 1L;
+
 		private A1(Long num1, Integer num2, String str1) {
 			super(num1, num2, str1);
 		}
@@ -169,6 +175,7 @@ public class ObjectInheritanceTest {
 
 	private static class B extends AbstractElement implements Element {
 		
+		private static final long serialVersionUID = 1L;
 		@SmofString(name="str1")
 		private final String str1;
 		@SmofDate(name="instant")
