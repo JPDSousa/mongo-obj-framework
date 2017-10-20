@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -60,7 +61,7 @@ public class TypeBuilderFactory {
 		return null;
 	}
 
-	public <T> TypeBuilder<T> create(Class<T> type, Object factory) {
+	public <T> TypeBuilder<T> create(Class<T> type, Serializable factory) {
 		if(factory == null) {
 			return create(type);
 		}

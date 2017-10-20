@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.smof.element.Element;
@@ -38,7 +39,7 @@ public interface SmofTypeContext {
 	
 	void put(Class<?> type, SmofParserPool parsers);
 
-	<T> void putWithFactory(Class<T> type, Object factory, SmofParserPool parsers);
+	<T> void putWithFactory(Class<T> type, Serializable factory, SmofParserPool parsers);
 
 	<T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass);
 

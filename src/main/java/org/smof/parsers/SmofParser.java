@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -103,7 +104,7 @@ public class SmofParser {
 		context.put(type, parsers);
 	}
 
-	public void registerType(Class<?> type, Object factory){
+	public void registerType(Class<?> type, Serializable factory){
 		context.putWithFactory(type, factory, parsers);
 	}
 
