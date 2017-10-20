@@ -38,7 +38,7 @@ public interface SmofTypeContext {
 	
 	void put(Class<?> type, SmofParserPool parsers);
 
-	<T> void putWithFactory(Class<T> type, Object factory, SmofParserPool parsers);
+	<T> void putWithFactory(Class<T> type, Serializable factory, SmofParserPool parsers);
 
 	<T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass);
 
