@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.smof.element.Element;

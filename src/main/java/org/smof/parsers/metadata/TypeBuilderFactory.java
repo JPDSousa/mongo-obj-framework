@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.parsers.metadata;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

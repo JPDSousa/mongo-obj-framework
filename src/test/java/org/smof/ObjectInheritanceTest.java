@@ -23,6 +23,7 @@ package org.smof;
 
 import static org.junit.Assert.*;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 import org.bson.BsonDocument;
@@ -75,8 +76,10 @@ public class ObjectInheritanceTest {
 		String getStr1();
 	}
 	
-	private static class IaFactory {
+	private static class IaFactory implements Serializable {
 		
+		private static final long serialVersionUID = 1L;
+
 		private IaFactory() {}
 		
 		@SmofBuilder
