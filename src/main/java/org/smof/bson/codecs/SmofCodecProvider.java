@@ -21,11 +21,16 @@
  ******************************************************************************/
 package org.smof.bson.codecs;
 
+import org.bson.codecs.Codec;
 import org.bson.codecs.configuration.CodecProvider;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.smof.field.SmofField;
 
 @SuppressWarnings("javadoc")
 public interface SmofCodecProvider extends CodecProvider {
 	
 	boolean contains(Class<?> clazz);
+	
+	<T> Codec<T> get(Class<T> type, CodecRegistry registry, SmofField field);
 	
 }

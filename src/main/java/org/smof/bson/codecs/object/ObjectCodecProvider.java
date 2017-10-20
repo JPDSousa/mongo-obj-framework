@@ -7,42 +7,46 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.smof.bson.codecs.SmofCodecProvider;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
-import org.smof.parsers.SmofParser;
+import org.smof.field.SmofField;
 
 import com.google.common.collect.Maps;
 
 @SuppressWarnings("javadoc")
 public class ObjectCodecProvider implements SmofCodecProvider {
 	
-	private final Map<Class<?>, Codec<?>> codecs;
 	private final LazyLoader lazyLoader;
+	private final ObjectCodecContext encoderContext;
 	
 	public ObjectCodecProvider(SmofDispatcher dispatcher) {
-		codecs = Maps.newLinkedHashMap();
 		lazyLoader = LazyLoader.create(dispatcher);
+		encoderContext = ObjectCodecContext.create();
 	}
 	
-	private <T> void put(Codec<T> codec) {
-		codecs.put(codec.getEncoderClass(), codec);
+	@Override
+	public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
+		return get(clazz, registry, null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
-		if(Element.class.isAssignableFrom(clazz)) {
-			return (Codec<T>) createElementReferenceCodec((Class<Element>) clazz, registry);
+	public <T> Codec<T> get(Class<T> type, CodecRegistry registry, SmofField field) {
+		if(field == null) {
+			//returns the default codec
+			return new ObjectCodec<>();
+		}
+		if(Element.class.isAssignableFrom(type)) {
+			return (Codec<T>) createElementReferenceCodec((Class<Element>) type, registry);
 		}
 		return null;
 	}
 
 	@Override
 	public boolean contains(Class<?> clazz) {
-		return Element.class.isAssignableFrom(clazz)
-				|| codecs.containsKey(clazz);
+		return !clazz.isPrimitive() && !clazz.isArray()	&& !clazz.isEnum();
 	}
 	
-	private <T extends Element> ElementReferenceCodec<T> createElementReferenceCodec(Class<T> type, CodecRegistry registry) {
-		return new ElementReferenceCodec<>(type, registry, lazyLoader);
+	private <T extends Element> ReferenceElementCodec<T> createElementReferenceCodec(Class<T> type, CodecRegistry registry) {
+		return new ReferenceElementCodec<>(type, registry, lazyLoader);
 	}
 
 }

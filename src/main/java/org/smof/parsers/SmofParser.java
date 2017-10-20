@@ -35,6 +35,8 @@ import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.types.ObjectId;
+import org.smof.bson.codecs.object.LazyLoader;
+import org.smof.bson.codecs.object.ObjectCodecContext;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.InvalidBsonTypeException;
@@ -65,7 +67,7 @@ public class SmofParser {
 	private final SmofTypeContext context;
 	private final SmofParserPool parsers;
 	private final LazyLoader lazyLoader;
-	private final SerializationContext serContext;
+	private final EncoderContext serContext;
 	private final CodecRegistry registry;
 
 	public SmofParser(SmofDispatcher dispatcher) {
@@ -75,7 +77,7 @@ public class SmofParser {
 	public SmofParser(SmofDispatcher dispatcher, CodecRegistry registry) {
 		this.context = SmofTypeContext.create();
 		this.registry = registry;
-		serContext = SerializationContext.create();
+		serContext = EncoderContext.create();
 		parsers = SmofParserPool.create(this, dispatcher);
 		lazyLoader = LazyLoader.create(dispatcher);
 	}
@@ -88,7 +90,7 @@ public class SmofParser {
 		return context;
 	}
 	
-	protected SerializationContext getSerializationContext() {
+	protected EncoderContext getSerializationContext() {
 		return serContext;
 	}
 	

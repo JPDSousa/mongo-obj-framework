@@ -35,6 +35,7 @@ import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.types.ObjectId;
 import org.smof.annnotations.SmofObject;
+import org.smof.bson.codecs.object.ObjectCodecContext;
 import org.smof.collection.SmofDispatcher;
 import org.smof.collection.SmofOpOptions;
 import org.smof.collection.SmofOpOptionsImpl;
@@ -58,7 +59,7 @@ class ObjectParser extends AbstractBsonParser {
 	private static final Class<?>[] VALID_TYPES = {};
 	private static final String ENUM_NAME = "_enumValue";
 	
-	private final SerializationContext serializationContext;
+	private final ObjectCodecContext serializationContext;
 
 	ObjectParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, null, VALID_TYPES);
@@ -99,7 +100,7 @@ class ObjectParser extends AbstractBsonParser {
 		return serValue;
 	}
 
-	private boolean contextContains(Object value, SmofField fieldOpts, SerializationContext serContext) {
+	private boolean contextContains(Object value, SmofField fieldOpts, ObjectCodecContext serContext) {
 		return !(fieldOpts instanceof MasterField) && serContext.contains(value, fieldOpts.getType());
 	}
 
@@ -127,12 +128,12 @@ class ObjectParser extends AbstractBsonParser {
 		return new BsonObjectId(fileRef.getId());
 	}
 
-	private BsonDocument fromMasterField(Element value, SmofField fieldOpts, SerializationContext serContext) {
+	private BsonDocument fromMasterField(Element value, SmofField fieldOpts, ObjectCodecContext serContext) {
 		serContext.put(value, fieldOpts.getType(), BsonUtils.toBsonObjectId(value));
 		return fromObject(value);
 	}
 
-	private BsonValue fromElement(Element value, PrimaryField fieldOpts, SerializationContext serContext) {
+	private BsonValue fromElement(Element value, PrimaryField fieldOpts, ObjectCodecContext serContext) {
 		SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
 		if(annotation.preInsert()) {
 			return fromElement(value, serContext);
@@ -140,7 +141,7 @@ class ObjectParser extends AbstractBsonParser {
 		return new BsonLazyObjectId(fieldOpts.getName(), value);
 	}
 	
-	private BsonValue fromElement(Element value, SerializationContext serContext) {
+	private BsonValue fromElement(Element value, ObjectCodecContext serContext) {
 		final SmofOpOptions options = new SmofOpOptionsImpl();
 		options.bypassCache(true);
 		dispatcher.insert(value, options);
@@ -192,7 +193,7 @@ class ObjectParser extends AbstractBsonParser {
 		}
 	}
 
-	private BsonDocument fromEnum(Enum<?> value, SerializationContext serContext) {
+	private BsonDocument fromEnum(Enum<?> value, ObjectCodecContext serContext) {
 		final BsonDocument document = fromObject(value);
 		final BsonString name = new BsonString(value.name());
 		document.append(ENUM_NAME, name);
@@ -200,7 +201,7 @@ class ObjectParser extends AbstractBsonParser {
 		return document;
 	}
 
-	private BsonDocument fromMap(Map<?, ?> value, PrimaryField mapField, SerializationContext serContext) {
+	private BsonDocument fromMap(Map<?, ?> value, PrimaryField mapField, ObjectCodecContext serContext) {
 		final Pair<SecondaryField, SecondaryField> fields = getMapFields(mapField);
 		final BsonDocument document = new BsonDocument();
 		for(Object key : value.keySet()) {

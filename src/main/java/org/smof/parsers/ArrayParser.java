@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.bson.BsonArray;
 import org.bson.BsonValue;
+import org.smof.bson.codecs.object.ObjectCodecContext;
 import org.smof.collection.SmofDispatcher;
 import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
@@ -39,7 +40,7 @@ class ArrayParser extends AbstractBsonParser {
 
 	private static final Class<?>[] VALID_TYPES = {};
 	
-	private final SerializationContext serializationContext;
+	private final ObjectCodecContext serializationContext;
 	
 	ArrayParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, null, VALID_TYPES);

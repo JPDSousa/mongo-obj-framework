@@ -9,13 +9,13 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.types.ObjectId;
 import org.smof.element.Element;
 
-class ElementReferenceCodec<T extends Element> implements Codec<T> {
+class ReferenceElementCodec<T extends Element> implements Codec<T> {
 	
 	private final CodecRegistry registry;
 	private final LazyLoader lazyLoader;
 	private final Class<T> type;
 	
-	ElementReferenceCodec(Class<T> type, CodecRegistry registry, LazyLoader lazyLoader) {
+	ReferenceElementCodec(Class<T> type, CodecRegistry registry, LazyLoader lazyLoader) {
 		this.registry = registry;
 		this.lazyLoader = lazyLoader;
 		this.type = type;

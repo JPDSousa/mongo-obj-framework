@@ -19,41 +19,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof.parsers;
+package org.smof.bson.codecs.object;
 
-import java.util.Map;
-
-import org.apache.commons.lang3.tuple.Pair;
 import org.bson.BsonValue;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
-class SerializationContext {
+class ObjectCodecContext {
 	
-	public static SerializationContext create() {
-		return new SerializationContext();
+	public static ObjectCodecContext create() {
+		return new ObjectCodecContext();
 	}
 
-	private final Map<Pair<Object, SmofType>, BsonValue> serializationStack;
+	private final BiMap<Object, BsonValue> codecCache;
 	
-	private SerializationContext() {
-		serializationStack = Maps.newLinkedHashMap();
+	private ObjectCodecContext() {
+		codecCache = HashBiMap.create();
 	}
 	
-	void put(Object object, SmofType type, BsonValue serializedValue) {
-		serializationStack.put(Pair.of(object, type), serializedValue);
+	void put(Object object, BsonValue serializedValue) {
+		codecCache.put(object, serializedValue);
 	}
 	
-	boolean contains(Object object, SmofType type) {
-		return serializationStack.containsKey(Pair.of(object, type));
+	boolean containsObject(Object object) {
+		return codecCache.containsKey(object);
 	}
 	
-	BsonValue get(Object object, SmofType type) {
-		return serializationStack.get(Pair.of(object, type));
+	boolean containsBsonValue(BsonValue value) {
+		return codecCache.inverse().containsKey(value);
+	}
+	
+	BsonValue getBsonValue(Object object) {
+		return codecCache.get(object);
+	}
+	
+	Object getObject(BsonValue value) {
+		return codecCache.inverse().get(value);
 	}
 	
 	void clear() {
-		serializationStack.clear();
+		codecCache.clear();
 	}	
 	
 }
