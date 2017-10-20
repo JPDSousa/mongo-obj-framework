@@ -60,7 +60,7 @@ class SmofTypeContextImpl implements SmofTypeContext {
 		putWithFactory(type, null, parsers);
 	}
 
-	private <T> TypeStructure<T> handleSupertype(Class<T> type, Object factory, SmofParserPool parsers) {
+	private <T> TypeStructure<T> handleSupertype(Class<T> type, Serializable factory, SmofParserPool parsers) {
 		final TypeBuilder<T> builder = this.factory.create(type, factory);
 		final TypeStructure<T> typeStructure = TypeStructure.create(type, builder);
 		this.types.put(type, typeStructure);
@@ -89,7 +89,7 @@ class SmofTypeContextImpl implements SmofTypeContext {
 	}
 
 	@Override
-	public <T> void putWithFactory(Class<T> type, Object factory, SmofParserPool parsers) {
+	public <T> void putWithFactory(Class<T> type, Serializable factory, SmofParserPool parsers) {
 		if(containsSubOrSuperType(type)) {
 			handleSubtype(type, parsers);
 		}

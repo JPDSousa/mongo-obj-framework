@@ -61,7 +61,7 @@ public class TypeBuilderFactory {
 		return null;
 	}
 
-	public <T> TypeBuilder<T> create(Class<T> type, Object factory) {
+	public <T> TypeBuilder<T> create(Class<T> type, Serializable factory) {
 		if(factory == null) {
 			return create(type);
 		}

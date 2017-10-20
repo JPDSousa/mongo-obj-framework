@@ -22,6 +22,8 @@
 package org.smof.collection;
 
 import java.io.Closeable;
+import java.io.Serializable;
+import java.util.Arrays;
 
 import org.bson.BsonDocument;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -175,7 +177,7 @@ public final class Smof implements Closeable {
 	 * @param elClass element class
 	 * @param factory third-party object with the element class' {@link SmofBuilder}.
 	 */
-	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass, Object factory) {
+	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass, Serializable factory) {
 		loadCollection(collectionName, elClass, factory, CollectionOptions.create());
 	}
 	
@@ -192,7 +194,7 @@ public final class Smof implements Closeable {
 	 * @param factory third-party object with the element class' {@link SmofBuilder}.
 	 * @param options collection options
 	 */
-	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass, Object factory, CollectionOptions<T> options) {
+	public <T extends Element> void loadCollection(String collectionName, Class<T> elClass, Serializable factory, CollectionOptions<T> options) {
 		parser.registerType(elClass, factory);
 		loadCollection(collectionName, elClass, parser, options);
 	}
@@ -224,7 +226,7 @@ public final class Smof implements Closeable {
 	 * @param type type to register
 	 * @param factory object or class with the type's {@link SmofBuilder}
 	 */
-	public <T> void registerSmofFactory(Class<T> type, Object factory) {
+	public <T> void registerSmofFactory(Class<T> type, Serializable factory) {
 		parser.registerType(type, factory);
 	}
 
@@ -269,7 +271,7 @@ public final class Smof implements Closeable {
 	 * @param elClass element class
 	 * @param factory third-party object with element class' {@link SmofBuilder}
 	 */
-	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, Object factory) {
+	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, Serializable factory) {
 		createCollection(collectionName, elClass, factory, CollectionOptions.create());
 	}
 	
@@ -285,7 +287,7 @@ public final class Smof implements Closeable {
 	 * @param factory third-party object with element class' {@link SmofBuilder}
 	 * @param options additional collection options
 	 */
-	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, Object factory, CollectionOptions<T> options) {
+	public <T extends Element> void createCollection(String collectionName, Class<T> elClass, Serializable factory, CollectionOptions<T> options) {
 		database.createCollection(collectionName);
 		loadCollection(collectionName, elClass, factory, options);
 	}
