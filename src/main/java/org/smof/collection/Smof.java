@@ -23,6 +23,7 @@ package org.smof.collection;
 
 import java.io.Closeable;
 import java.io.Serializable;
+import java.util.Arrays;
 
 import org.bson.BsonDocument;
 import org.bson.codecs.configuration.CodecRegistries;
