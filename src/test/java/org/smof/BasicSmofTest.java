@@ -179,7 +179,7 @@ public class BasicSmofTest {
 		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
 		smof.insert(brand);
 		brand.setCapital(1000);
-		smof.update(Brand.class).fromElement(brand);
+		smof.replace(Brand.class, brand);
 		assertEquals(brand, smof.find(Brand.class).byElement(brand));
 	}
 	
@@ -189,7 +189,7 @@ public class BasicSmofTest {
 		final long inc = 75L;
 		smof.insert(brand);
 		smof.update(Brand.class)
-		.increase(inc, Brand.CAPITAL)
+		.increase(Brand.CAPITAL, inc)
 		.where()
 		.fieldEq(Brand.NAME, "Gibson")
 		.execute();
@@ -215,7 +215,7 @@ public class BasicSmofTest {
 		final long mul = 2L;
 		smof.insert(brand);
 		smof.update(Brand.class)
-		.multiply(mul, Brand.CAPITAL)
+		.multiply(Brand.CAPITAL, mul)
 		.where()
 		.fieldEq(Brand.NAME, "Gibson")
 		.execute();
@@ -230,7 +230,7 @@ public class BasicSmofTest {
 		smof.insert(brand);
 		Location newLocation = new Location("New York", "USA");
 		smof.update(Brand.class)
-		.set(newLocation, Brand.LOCATION)
+		.set(Brand.LOCATION, newLocation)
 		.where()
 		.fieldEq(Brand.NAME, "Gibson")
 		.execute();
@@ -246,8 +246,8 @@ public class BasicSmofTest {
 		Location newLocation1 = new Location("New York", "USA");
 		Location newLocation2 = new Location("Los-Angeles", "USA");
 		smof.update(Brand.class)
-		.set(newLocation1, Brand.LOCATION)
-		.set(newLocation2, Brand.LOCATION)
+		.set(Brand.LOCATION, newLocation1)
+		.set(Brand.LOCATION, newLocation2)
 		.where()
 		.fieldEq(Brand.NAME, "Gibson")
 		.execute();

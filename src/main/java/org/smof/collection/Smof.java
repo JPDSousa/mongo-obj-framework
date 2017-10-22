@@ -353,6 +353,14 @@ public final class Smof implements Closeable {
 		final SmofCollection<T> collection = dispatcher.getCollection(elementClass);
 		return collection.update();
 	}
+	
+	public <T extends Element> void replace(Class<T> type, T element) {
+		final SmofCollection<T> collection = dispatcher.getCollection(type);
+		final SmofOpOptions options = new SmofOpOptionsImpl();
+		options.upsert(true);
+		options.bypassCache(true);
+		collection.insert(element, options);
+	}
 
 	/**
 	 * Creates and returns a new {@link ParentQuery} that allows the user to perform a read operation.

@@ -165,7 +165,7 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 				final BsonObjectId id;
 				updateSuccess = insert(currentElement);
 				id = BsonUtils.toBsonObjectId(currentElement);
-				update.set(id, current.getLeft());
+				update.set(current.getLeft(), id);
 			}
 			update.where().idEq(element.getId());
 			return updateSuccess;
@@ -174,8 +174,7 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 	}
 
 	@Override
-    @SuppressWarnings("cast")
-	public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
+    public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
 		return collections.getCollection(elementClass).findById(id);
 	}
 	
