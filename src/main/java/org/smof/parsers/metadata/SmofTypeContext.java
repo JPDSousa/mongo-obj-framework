@@ -35,12 +35,12 @@ public interface SmofTypeContext {
 		return new SmofTypeContextImpl();
 	}
 
-	<T> TypeStructure<T> getTypeStructure(Class<T> type, SmofParserPool parsers);
+	<T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass);
 	
+	<T> TypeStructure<T> getTypeStructure(Class<T> type, SmofParserPool parsers);
+
 	void put(Class<?> type, SmofParserPool parsers);
 
 	<T> void putWithFactory(Class<T> type, Serializable factory, SmofParserPool parsers);
-
-	<T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass);
-
+	
 }

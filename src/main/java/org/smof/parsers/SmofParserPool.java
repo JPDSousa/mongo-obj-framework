@@ -31,13 +31,21 @@ import static org.smof.parsers.SmofType.*;
 @SuppressWarnings("javadoc")
 public class SmofParserPool {
 	
-	private final Map<SmofType, BsonParser> parsers;
+	public static SmofParserPool create(SmofParser parserContext, SmofDispatcher dispatcher) {
+		return new SmofParserPool(parserContext, dispatcher);
+	}
 	
+	private final Map<SmofType, BsonParser> parsers;
+
 	private SmofParserPool(SmofParser parserContext, SmofDispatcher dispatcher) {
 		parsers = new LinkedHashMap<>();
 		createParsers(parserContext, dispatcher);
 	}
-
+	
+	public BsonParser get(SmofType type) {
+		return parsers.get(type);
+	}
+	
 	private void createParsers(SmofParser parserContext, SmofDispatcher dispatcher) {
 		parsers.put(ARRAY, new ArrayParser(parserContext, dispatcher));
 		parsers.put(DATETIME, new DateTimeParser(parserContext, dispatcher));
@@ -47,13 +55,5 @@ public class SmofParserPool {
 		parsers.put(STRING, new StringParser(parserContext, dispatcher));
 		parsers.put(BYTE, new ByteParser(dispatcher, parserContext));
 		parsers.put(BOOLEAN, new BooleanParser(parserContext, dispatcher));
-	}
-	
-	public BsonParser get(SmofType type) {
-		return parsers.get(type);
-	}
-	
-	public static SmofParserPool create(SmofParser parserContext, SmofDispatcher dispatcher) {
-		return new SmofParserPool(parserContext, dispatcher);
 	}
 }
