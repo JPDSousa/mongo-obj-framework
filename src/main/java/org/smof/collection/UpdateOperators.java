@@ -24,15 +24,28 @@ package org.smof.collection;
 @SuppressWarnings("javadoc")
 public enum UpdateOperators {
 	
+	// numbers
 	INCREASE("inc"),
 	MULTIPLY("mul"),
-	RENAME("rename"),
+	MINIMUM("min"),
+	MAXIMUM("max"),
+	// registers
 	SET_ON_INSERT("setOnInsert"),
 	SET("set"),
 	UNSET("unset"),
-	MINIMUM("min"),
-	MAXIMUM("miax"),
-	CURRENT_DATE("currentDate");
+	// date
+	CURRENT_DATE("currentDate"),
+	// arrays
+	ADD_TO_SET("addToSet"),
+	POP("pop"),
+	PULL("pull"),
+	PULL_ALL("pullAll"),
+	PUSH("push"),
+	// modifiers
+	EACH("each"),
+	POSITION("position"),
+	SLICE("slice"),
+	SORT("sort");
 	
 	private final String operator;
 	
