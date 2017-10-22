@@ -271,4 +271,9 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		Preconditions.checkArgument(expectedType == null || expectedType == field.getType(), fieldName + " is not of type: " + expectedType);
 		return field;
 	}
+
+	@Override
+	public String toString() {
+		return update.toJson();
+	}
 }
