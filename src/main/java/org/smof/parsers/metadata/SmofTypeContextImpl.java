@@ -123,6 +123,7 @@ class SmofTypeContextImpl implements SmofTypeContext {
 	}
 	
 	private TypeStructure<?> getTypeStructureFromSub(Class<?> type) {
+		// TODO find a more efficient way to run this
 		for(Class<?> t : types.keySet()) {
 			if(t.isAssignableFrom(type)) {
 				return types.get(t);
