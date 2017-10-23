@@ -47,14 +47,12 @@ import java.io.IOException;
 import java.util.Stack;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.bson.BsonObjectId;
 import org.bson.types.ObjectId;
 
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
 import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridStreamManager;
-import org.smof.utils.BsonUtils;
 
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
@@ -162,10 +160,8 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 			while(!stack.isEmpty() && updateSuccess) {
 				final Pair<String, Element> current = stack.pop();
 				final Element currentElement = current.getRight();
-				final BsonObjectId id;
 				updateSuccess = insert(currentElement);
-				id = BsonUtils.toBsonObjectId(currentElement);
-				update.set(id, current.getLeft());
+				update.set(current.getLeft(), currentElement.getId());
 			}
 			update.where().idEq(element.getId());
 			return updateSuccess;
@@ -174,8 +170,7 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 	}
 
 	@Override
-    @SuppressWarnings("cast")
-	public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
+    public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
 		return collections.getCollection(elementClass).findById(id);
 	}
 	

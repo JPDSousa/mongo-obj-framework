@@ -144,6 +144,9 @@ public class SmofParser {
 		if(value == null) {
 			return new BsonNull();
 		}
+		if(value instanceof BsonValue) {
+			return (BsonValue) value;
+		}
 		final Codec<T> codec = registry.get(clazz);
 		final String key = "value";
 		final BsonDocument document = new BsonDocument();
@@ -158,6 +161,9 @@ public class SmofParser {
 	public BsonValue toBson(Object value, SmofField field) {
 		if(value == null) {
 			return new BsonNull();
+		}
+		if(value instanceof BsonValue) {
+			return (BsonValue) value;
 		}
 		if(field == null) {
 			return toBson(value, value.getClass());

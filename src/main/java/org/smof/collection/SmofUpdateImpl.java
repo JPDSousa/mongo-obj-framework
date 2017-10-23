@@ -22,28 +22,34 @@
 package org.smof.collection;
 
 import static org.smof.collection.UpdateOperators.*;
+import static org.smof.parsers.SmofType.*;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
+import org.apache.commons.lang3.ClassUtils;
+import org.bson.BsonBoolean;
 import org.bson.BsonDocument;
+import org.bson.BsonInt32;
 import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.smof.element.Element;
 import org.smof.field.PrimaryField;
 import org.smof.field.SmofField;
 import org.smof.parsers.SmofParser;
+import org.smof.parsers.SmofType;
 
 import com.google.common.base.Preconditions;
 
-@SuppressWarnings("javadoc")
 class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 	
-	private BsonDocument update;
-	private final SmofParser parser;
-	private final Map<String, PrimaryField> fields;
-	private final Class<T> type;
 	private final SmofCollection<T> collection;
+	private final Map<String, PrimaryField> fields;
 	private final SmofOpOptions options;
+	private final SmofParser parser;
+	private final Class<T> type;
+	private BsonDocument update;
 	
 	SmofUpdateImpl(SmofCollection<T> collection) {
 		update = new BsonDocument();
@@ -55,65 +61,194 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		options.bypassCache(true);
 	}
 	
-	private SmofField validateFieldName(String fieldName) {
-		final PrimaryField field = fields.get(fieldName);
-		Preconditions.checkArgument(field != null, fieldName + " is not a valid field name for type " + type.getName());
-		return field;
+	@Override
+	public SmofUpdate<T> addToSet(String fieldName, Collection<?> values) {
+		final SmofField field = validateFieldName(fieldName, ARRAY);
+		final BsonValue bsonValue = parser.toBson(values, field);
+		putOrAppend(ADD_TO_SET, fieldName, bsonValue);
+		return this;
 	}
 	
+	@Override
+	public SmofUpdate<T> addToSet(String fieldName, Object value) {
+		final PrimaryField field = validateFieldName(fieldName, ARRAY);
+		final BsonValue bsonValue = parser.toBson(value, field.getSecondaryField());
+		putOrAppend(ADD_TO_SET, fieldName, bsonValue);
+		return this;
+	}
+	
+	@Override
+	public SmofUpdate<T> currentDate(String fieldName) {
+		validateFieldName(fieldName, DATETIME);
+		putOrAppend(CURRENT_DATE, fieldName, new BsonBoolean(true));
+		return this;
+	}
+
+	@Override
+	public SmofUpdate<T> decrease(String fieldName, Number value) {
+		return increase(fieldName, symmetric(value));
+	}
+	
+	private Number symmetric(Number value) {
+		final Class<?> wrapper = ClassUtils.primitiveToWrapper(value.getClass());
+		if(Integer.class.equals(wrapper)) {
+			return -value.intValue();
+		}
+		else if(Short.class.equals(wrapper)) {
+			return -value.shortValue();
+		}
+		else if(Float.class.equals(wrapper)) {
+			return -value.floatValue();
+		}
+		else if(Double.class.equals(wrapper)) {
+			return -value.doubleValue();
+		}
+		else if(Long.class.equals(wrapper)) {
+			return -value.longValue();
+		}
+		else {
+			throw new NumberFormatException(value + "is not in a valid format");
+		}
+	}
+	
+	@Override
+	public SmofUpdate<T> divide(String fieldName, Number value) {
+		return multiply(fieldName, inverse(value));
+	}
+	
+	private Number inverse(Number value) {
+		final Class<?> wrapper = ClassUtils.primitiveToWrapper(value.getClass());
+		if(Integer.class.equals(wrapper)) {
+			return 1.0/value.intValue();
+		}
+		else if(Short.class.equals(wrapper)) {
+			return 1.0/value.shortValue();
+		}
+		else if(Float.class.equals(wrapper)) {
+			return 1/value.floatValue();
+		}
+		else if(Double.class.equals(wrapper)) {
+			return 1/value.doubleValue();
+		}
+		else if(Long.class.equals(wrapper)) {
+			return 1.0/value.longValue();
+		}
+		else {
+			throw new NumberFormatException(value + "is not in a valid format");
+		}
+	}
+	
+	@Override
+	public SmofUpdate<T> increase(String fieldName, Number value) {
+		final SmofField field = validateFieldName(fieldName, NUMBER);
+		final BsonValue number = parser.toBson(value, field);
+		putOrAppend(INCREASE, fieldName, number);
+		return this;
+	}
+	
+	@Override
+	public SmofUpdate<T> maximum(String fieldName, Number value) {
+		final SmofField field = validateFieldName(fieldName, NUMBER);
+		final BsonValue bsonValue = parser.toBson(fieldName, field);
+		putOrAppend(MAXIMUM, fieldName, bsonValue);
+		return this;
+	}
+
+	@Override
+	public SmofUpdate<T> minimum(String fieldName, Number value) {
+		final SmofField field = validateFieldName(fieldName, NUMBER);
+		final BsonValue bsonValue = parser.toBson(fieldName, field);
+		putOrAppend(MINIMUM, fieldName, bsonValue);
+		return this;
+	}
+
+	@Override
+	public SmofUpdate<T> multiply(String fieldName, Number value) {
+		final SmofField field = validateFieldName(fieldName, NUMBER);
+		final BsonValue number = parser.toBson(value, field);
+		putOrAppend(MULTIPLY, fieldName, number);
+		return this;
+	}
+
+	@Override
+	public SmofUpdate<T> pop(String fieldName, boolean removeFirst) {
+		validateFieldName(fieldName, ARRAY);
+		final BsonValue bsonValue = new BsonInt32(removeFirst ? -1 : 1);
+		putOrAppend(POP, fieldName, bsonValue);
+		return this;
+	}
+
+	@Override
+	public SmofUpdate<T> pull(String fieldName, Object value) {
+		final PrimaryField field = validateFieldName(fieldName, ARRAY);
+		final BsonValue bsonValue = parser.toBson(value, field.getSecondaryField());
+		putOrAppend(PULL, fieldName, bsonValue);
+		return this;
+	}
+
+	@Override
+	public SmofUpdate<T> pullAll(String fieldName, Collection<?> values) {
+		final SmofField field = validateFieldName(fieldName, ARRAY);
+		final BsonValue bsonValue = parser.toBson(values, field);
+		putOrAppend(PULL_ALL, fieldName, bsonValue);
+		return this;
+	}
+
+	@Override
+	public SmofUpdate<T> push(String fieldName, int index, Object value) {
+		return pushAll(fieldName, index, Arrays.asList(value));
+	}
+
+	@Override
+	public SmofUpdate<T> push(String fieldName, Object value) {
+		final PrimaryField field = validateFieldName(fieldName, ARRAY);
+		final BsonValue bsonValue = parser.toBson(value, field.getSecondaryField());
+		putOrAppend(PUSH, fieldName, bsonValue);
+		return this;
+	}
+
+	@Override
+	public SmofUpdate<T> pushAll(String fieldName, Collection<?> values) {
+		final SmofField field = validateFieldName(fieldName, ARRAY);
+		final BsonValue bsonValue = new BsonDocument(EACH.getOperator(), parser.toBson(values, field));
+		putOrAppend(PUSH, fieldName, bsonValue);
+		return this;
+	}
+
+	@Override
+	public SmofUpdate<T> pushAll(String fieldName, int index, Collection<?> values) {
+		final SmofField field = validateFieldName(fieldName, ARRAY);
+		final BsonValue bsonValue = parser.toBson(values, field);
+		final BsonDocument bsonDocument = new BsonDocument(EACH.getOperator(), bsonValue);
+		bsonDocument.append(POSITION.getOperator(), new BsonInt32(index));
+		putOrAppend(PUSH, fieldName, bsonDocument);
+		return this;
+	}
+
+	@Override
+	public SmofUpdate<T> set(String fieldName, Object value) {
+		final SmofField field = validateFieldName(fieldName, null);
+		final BsonValue bsonValue = parser.toBson(value, field);
+		putOrAppend(SET, fieldName, bsonValue);
+		return this;
+	}
+
+	@Override
 	public SmofUpdate<T> setUpsert(boolean upsert) {
 		options.upsert(upsert);
 		return this;
 	}
-	
-	public SmofUpdateQuery<T> where() {
-		return new SmofUpdateQuery<>(update, collection, options, fields);
-	}
-	
-	public void fromElement(T element) {
-		collection.insert(element, options);
-		parser.reset();
+
+	@Override
+	public SmofUpdate<T> unset(String fieldName) {
+		validateFieldName(fieldName, null);
+		putOrAppend(UNSET, fieldName, new BsonString(""));
+		return this;
 	}
 
-	public SmofUpdate<T> increase(Number value, String fieldName) {
-		final SmofField field = validateFieldName(fieldName);
-		final BsonValue number = parser.toBson(value, field);
-		final BsonDocument doc = new BsonDocument();
-		doc.put(fieldName, number);
-		putOrAppend(INCREASE, doc);
-		return this;
-	}
-	
-	public SmofUpdate<T> multiply(Number value, String fieldName) {
-		final SmofField field = validateFieldName(fieldName);
-		final BsonValue number = parser.toBson(value, field);
-		final BsonDocument doc = new BsonDocument(fieldName, number);
-		putOrAppend(MULTIPLY, doc);
-		return this;
-	}
-	
-	public SmofUpdate<T> rename(String newName, String fieldName) {
-		validateFieldName(fieldName);
-		final BsonDocument doc = new BsonDocument();
-		doc.put(fieldName, new BsonString(newName));
-		putOrAppend(RENAME, doc);
-		return this;
-	}
-	
-	public SmofUpdate<T> set(BsonValue bson, String fieldName) {
-		final BsonDocument doc = new BsonDocument(fieldName, bson);
-		putOrAppend(SET, doc);
-		return this;
-	}
-	
-	public SmofUpdate<T> set(Object obj, String fieldName) {
-		final SmofField field = validateFieldName(fieldName);
-		final BsonValue value = parser.toBson(obj, field);
-		return set(value, fieldName);
-	}
-	
-	private void putOrAppend(UpdateOperators op, BsonDocument doc) {
-		putOrAppend(op.getOperator(), doc);
+	@Override
+	public SmofUpdateQuery<T> where() {
+		return new SmofUpdateQuery<>(update, collection, options, fields);
 	}
 
 	private void putOrAppend(String key, BsonDocument doc) {
@@ -123,5 +258,22 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		else {
 			update.put(key, doc);
 		}
+	}
+	
+	private void putOrAppend(UpdateOperators op, String fieldName, BsonValue value) {
+		Preconditions.checkArgument(!value.isNull(), "Cannot update a value with NULL, use $unset instead");
+		putOrAppend(op.getOperator(), new BsonDocument(fieldName, value));
+	}
+
+	private PrimaryField validateFieldName(String fieldName, SmofType expectedType) {
+		final PrimaryField field = fields.get(fieldName);
+		Preconditions.checkArgument(field != null, fieldName + " is not a valid field name for type " + type.getName());
+		Preconditions.checkArgument(expectedType == null || expectedType == field.getType(), fieldName + " is not of type: " + expectedType);
+		return field;
+	}
+
+	@Override
+	public String toString() {
+		return update.toJson();
 	}
 }

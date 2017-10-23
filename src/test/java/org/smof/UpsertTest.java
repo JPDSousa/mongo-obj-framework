@@ -82,9 +82,7 @@ public class UpsertTest {
 	public void testUpsert() {
 		createCollections(true, true, true);
 		final Brand brand = Brand.create("Gibson", new Location("Nashville", "USA"), Collections.singletonList(OWNER_1));
-		connection.update(Brand.class)
-			.setUpsert(true)
-			.fromElement(brand);
+		connection.replace(Brand.class, brand);
 		assertEquals(brand, connection.find(Brand.class).byElement(brand));
 	}
 	

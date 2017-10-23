@@ -21,24 +21,40 @@
  ******************************************************************************/
 package org.smof.collection;
 
-import org.bson.BsonValue;
+import java.util.Collection;
+
 import org.smof.element.Element;
 
+@SuppressWarnings("javadoc")
 public interface SmofUpdate<T extends Element> {
 
     SmofUpdate<T> setUpsert(boolean upsert);
 
     SmofUpdateQuery<T> where();
 
-    void fromElement(T element);
+    SmofUpdate<T> set(String fieldName, Object value);
+    SmofUpdate<T> unset(String fieldName);
+    
+    SmofUpdate<T> currentDate(String fieldName);
+    
+    SmofUpdate<T> increase(String fieldName, Number value);
+    SmofUpdate<T> decrease(String fieldName, Number value);
+    SmofUpdate<T> multiply(String fieldName, Number value);
+    SmofUpdate<T> divide(String fieldName, Number value);
+    
+    SmofUpdate<T> minimum(String fieldName, Number value);
+    SmofUpdate<T> maximum(String fieldName, Number value);
+    
+    SmofUpdate<T> addToSet(String fieldName, Object value);
+    SmofUpdate<T> addToSet(String fieldName, Collection<?> values);
+    SmofUpdate<T> pop(String fieldName, boolean removeFirst);
+    
+    SmofUpdate<T> push(String fieldName, Object value);
+    SmofUpdate<T> push(String fieldName, int index, Object value);
+    SmofUpdate<T> pushAll(String fieldName, Collection<?> values);
+    SmofUpdate<T> pushAll(String fieldName, int index, Collection<?> values);
+    
+    SmofUpdate<T> pull(String fieldName, Object value);
+    SmofUpdate<T> pullAll(String fieldName, Collection<?> values);
 
-    SmofUpdate<T> increase(Number value, String fieldName);
-
-    SmofUpdate<T> multiply(Number value, String fieldName);
-
-    SmofUpdate<T> rename(String newName, String fieldName);
-
-    SmofUpdate<T> set(BsonValue bson, String fieldName);
-
-    SmofUpdate<T> set(Object obj, String fieldName);
 }
