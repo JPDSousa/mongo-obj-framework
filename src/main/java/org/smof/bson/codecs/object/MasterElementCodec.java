@@ -7,7 +7,6 @@ import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.smof.element.Element;
-import org.smof.parsers.SmofType;
 
 class MasterElementCodec<T extends Element> implements Codec<T> {
 	
@@ -23,7 +22,7 @@ class MasterElementCodec<T extends Element> implements Codec<T> {
 
 	@Override
 	public void encode(BsonWriter writer, T value, org.bson.codecs.EncoderContext encoderContext) {
-		this.encoderContext.put(value, SmofType.OBJECT, new BsonObjectId(value.getId()));
+		this.encoderContext.put(value, new BsonObjectId(value.getId()));
 		registry.get(getEncoderClass()).encode(writer, value, encoderContext);
 	}
 
