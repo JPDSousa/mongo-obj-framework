@@ -71,9 +71,9 @@ abstract class AbstractBsonParser implements BsonParser {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> Codec<T> getCodec(final Class<T> clazz) {
+	private <T> Codec<T> getCodec(Class<T> clazz, SmofField field) {
 		final Class<T> wrapperClass = (Class<T>) ClassUtils.primitiveToWrapper(clazz);
-		final Codec<T> codec = provider != null ? provider.get(wrapperClass, registry) : null;
+		final Codec<T> codec = provider != null ? provider.get(wrapperClass, registry, field) : null;
 		if(codec == null && registry != null) {
 			return registry.get(wrapperClass);			
 		}
@@ -86,10 +86,9 @@ abstract class AbstractBsonParser implements BsonParser {
 		return serializeToBson(value, fieldOpts);
 	}
 	
-	@SuppressWarnings("unused")
-	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
+	protected BsonValue serializeToBson(Object value, SmofField field) {
 		final Class<?> clazz = value.getClass();
-		final Codec<?> codec = getCodec(clazz);
+		final Codec<?> codec = getCodec(clazz, field);
 		return serializeWithCodec(codec, value);
 	}
 
@@ -107,14 +106,14 @@ abstract class AbstractBsonParser implements BsonParser {
 	}
 	
 	@Override
-	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
+	public <T> T fromBson(BsonValue value, Class<T> type, SmofField field) {
 		checkArgument(value != null, "A value must be specified.");
 		checkArgument(type != null, "A type must be specified.");
-		final Codec<T> codec = getCodec(type);
+		final Codec<T> codec = getCodec(type, field);
 		try {
 			return deserializeWithCodec(codec, value);
 		} catch (BsonInvalidOperationException e) {
-			handleError(new RuntimeException("Cannot parse value for type: " + fieldOpts.getName(), e));
+			handleError(new RuntimeException("Cannot parse value for type: " + field.getName(), e));
 			return null;
 		}
 	}

@@ -35,6 +35,7 @@ import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.types.ObjectId;
 import org.smof.annnotations.SmofObject;
+import org.smof.bson.codecs.object.BsonBuilder;
 import org.smof.bson.codecs.object.ObjectCodecContext;
 import org.smof.collection.SmofDispatcher;
 import org.smof.collection.SmofOpOptions;
@@ -59,18 +60,12 @@ class ObjectParser extends AbstractBsonParser {
 	private static final Class<?>[] VALID_TYPES = {};
 	private static final String ENUM_NAME = "_enumValue";
 	
-	private final ObjectCodecContext serializationContext;
-
 	ObjectParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, null, VALID_TYPES);
-		serializationContext = parser != null ? parser.getSerializationContext() : null;
 	}
 
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
-		if(contextContains(value, fieldOpts, serializationContext)) {
-			return serializationContext.get(value, fieldOpts.getType());
-		}
 		final Class<?> type = value.getClass();
 		final BsonDocument serValue;
 

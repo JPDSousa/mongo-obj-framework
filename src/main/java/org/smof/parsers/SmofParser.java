@@ -36,7 +36,6 @@ import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.types.ObjectId;
 import org.smof.bson.codecs.object.LazyLoader;
-import org.smof.bson.codecs.object.ObjectCodecContext;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.InvalidBsonTypeException;
@@ -64,10 +63,9 @@ public class SmofParser {
 				DateTimeParser.PROVIDER);
 	}
 
+	private final SmofDispatcher dispatcher;
 	private final SmofTypeContext context;
 	private final SmofParserPool parsers;
-	private final LazyLoader lazyLoader;
-	private final EncoderContext serContext;
 	private final CodecRegistry registry;
 
 	public SmofParser(SmofDispatcher dispatcher) {
@@ -75,31 +73,22 @@ public class SmofParser {
 	}
 	
 	public SmofParser(SmofDispatcher dispatcher, CodecRegistry registry) {
+		this.dispatcher = dispatcher;
 		this.context = SmofTypeContext.create();
 		this.registry = registry;
-		serContext = EncoderContext.create();
 		parsers = SmofParserPool.create(this, dispatcher);
-		lazyLoader = LazyLoader.create(dispatcher);
 	}
 	
 	public CodecRegistry getRegistry() {
 		return registry;
 	}
 
-	protected SmofTypeContext getContext() {
+	public SmofTypeContext getContext() {
 		return context;
-	}
-	
-	protected EncoderContext getSerializationContext() {
-		return serContext;
 	}
 	
 	public <T> TypeStructure<T> getTypeStructure(Class<T> type) {
 		return getContext().getTypeStructure(type, parsers);
-	}
-	
-	protected <T extends Element> T createLazyInstance(Class<T> type, ObjectId id) {
-		return lazyLoader.createLazyInstance(type, id);
 	}
 
 	public void registerType(Class<?> type) {
@@ -116,7 +105,7 @@ public class SmofParser {
 		return parser.fromBson(document, type, field);
 	}
 
-	protected Object fromBson(BsonValue value, SmofField field) {
+	public Object fromBson(BsonValue value, SmofField field) {
 		if(value.isNull()) {
 			return null;
 		}
@@ -181,7 +170,7 @@ public class SmofParser {
 		return parser.isValidType(field.getFieldClass());
 	}
 
-	protected SmofParserPool getParsers() {
+	public SmofParserPool getParsers() {
 		return parsers;
 	}
 
@@ -195,5 +184,9 @@ public class SmofParser {
 
 	public PrimaryField getField(Class<?> type, String fieldName) {
 		return getTypeStructure(type).getAllFields().get(fieldName);
+	}
+
+	public SmofDispatcher getDispatcher() {
+		return dispatcher;
 	}
 }
