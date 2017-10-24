@@ -40,6 +40,7 @@ public class SmofDateCodecProvider implements SmofCodecProvider {
 		put(new JavaLocalDateCodec());
 		put(new JavaLocalDateTimeCodec());
 		put(new JavaZonedDateTimeCodec());
+		put(new JavaDurationCodec());
 	}
 	
 	private <T> void put(Codec<T> codec) {
