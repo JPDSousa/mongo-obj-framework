@@ -25,8 +25,23 @@ import java.util.Stack;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.BsonArray;
+import org.bson.BsonBoolean;
+import org.bson.BsonDateTime;
 import org.bson.BsonDocument;
+import org.bson.BsonDouble;
+import org.bson.BsonInt32;
+import org.bson.BsonInt64;
+import org.bson.BsonJavaScript;
+import org.bson.BsonMaxKey;
+import org.bson.BsonMinKey;
+import org.bson.BsonNull;
 import org.bson.BsonObjectId;
+import org.bson.BsonReader;
+import org.bson.BsonString;
+import org.bson.BsonSymbol;
+import org.bson.BsonType;
+import org.bson.BsonUndefined;
+import org.bson.BsonValue;
 import org.bson.types.ObjectId;
 import org.smof.element.Element;
 import org.smof.parsers.BsonLazyObjectId;
@@ -53,6 +68,79 @@ public class BsonUtils {
 			.map(id -> Pair.of(id.getFieldName(), id.getElement()))
 			.forEach(posInsertions::push);
 		return posInsertions;
+	}
+	
+	public static BsonDocument readDocument(BsonReader reader) {
+		final BsonDocument document = new BsonDocument();
+		reader.readStartDocument();
+		while(reader.getCurrentBsonType() != BsonType.END_OF_DOCUMENT) {
+			document.append(reader.readName(), readValue(reader));
+		}
+		reader.readEndDocument();
+		return document;
+	}
+	
+	public static BsonValue readValue(BsonReader reader) {
+		switch(reader.getCurrentBsonType()) {
+		case ARRAY:
+			return readArray(reader);
+		case BINARY:
+			return reader.readBinaryData();
+		case BOOLEAN:
+			return new BsonBoolean(reader.readBoolean());
+		case DATE_TIME:
+			return new BsonDateTime(reader.readDateTime());
+		case DB_POINTER:
+			return reader.readDBPointer();
+		case DOCUMENT:
+			return readDocument(reader);
+		case DOUBLE:
+			return new BsonDouble(reader.readDouble());
+		case END_OF_DOCUMENT:
+			return null;
+		case INT32:
+			return new BsonInt32(reader.readInt32());
+		case INT64:
+			return new BsonInt64(reader.readInt64());
+		case JAVASCRIPT:
+			return new BsonJavaScript(reader.readJavaScript());
+		case JAVASCRIPT_WITH_SCOPE:
+			return null;
+		case MAX_KEY:
+			reader.readMaxKey();
+			return new BsonMaxKey();
+		case MIN_KEY:
+			reader.readMinKey();
+			return new BsonMinKey();
+		case NULL:
+			reader.readNull();
+			return new BsonNull();
+		case OBJECT_ID:
+			return new BsonObjectId(reader.readObjectId());
+		case REGULAR_EXPRESSION:
+			return reader.readRegularExpression();
+		case STRING:
+			return new BsonString(reader.readString());
+		case SYMBOL:
+			return new BsonSymbol(reader.readSymbol());
+		case TIMESTAMP:
+			return reader.readTimestamp();
+		case UNDEFINED:
+			reader.readUndefined();
+			return new BsonUndefined();
+		default:
+			return null;
+		}
+	}
+
+	public static BsonArray readArray(BsonReader reader) {
+		final BsonArray array = new BsonArray();
+		reader.readStartArray();
+		while(reader.getCurrentBsonType() != BsonType.END_OF_DOCUMENT) {
+			array.add(readValue(reader));
+		}
+		reader.readEndArray();
+		return array;
 	}
 
 }
