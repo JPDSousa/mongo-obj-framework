@@ -26,7 +26,9 @@ import org.smof.element.Element;
 
 import java.util.Stack;
 
+@SuppressWarnings("javadoc")
 public interface SmofInsertResult {
+	
     boolean isSuccess();
 
     void setSuccess(boolean success);
