@@ -44,7 +44,6 @@
  */
 package org.smof.collection;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import org.smof.element.Element;
@@ -61,12 +60,14 @@ public class CollectionsPoolImpl implements CollectionsPool {
 		throw new SmofException(cause);
 	}
 	
-	private final Map<Class<? extends Element>, SmofCollection<? extends Element>> collections;
+	private final Map<Class<? extends Element>, SmofCollection<? extends Element>> collectionsByType;
+	private final Map<String, SmofCollection<? extends Element>> collectionsByName;
 	private final Map<String, GridFSBucket> fsBuckets;
 	
 	public CollectionsPoolImpl() {
-		collections = Maps.newLinkedHashMap();
-		fsBuckets = Maps.newLinkedHashMap();
+		collectionsByType = Maps.newHashMap();
+		collectionsByName = Maps.newHashMap();
+		fsBuckets = Maps.newHashMap();
 	}
 	
 	@Override
@@ -76,7 +77,8 @@ public class CollectionsPoolImpl implements CollectionsPool {
 	
 	@Override
     public <T extends Element> void put(Class<T> elClass, SmofCollection<T> collection) {
-		collections.put(elClass, collection);
+		collectionsByType.put(elClass, collection);
+		collectionsByName.put(collection.getCollectionName(), collection);
 	}
 	
 	@Override
@@ -87,9 +89,14 @@ public class CollectionsPoolImpl implements CollectionsPool {
 			handleError(new NoSuchCollection(elClass));
 			return null;
 		}
-		return (SmofCollection<T>) collections.get(validSuperType);
+		return (SmofCollection<T>) collectionsByType.get(validSuperType);
 	}
 	
+	@Override
+	public SmofCollection<? extends Element> getCollection(String name) {
+		return collectionsByName.get(name);
+	}
+
 	@Override
     public GridFSBucket getBucket(String bucketName) {
 		return fsBuckets.get(bucketName);
@@ -101,22 +108,21 @@ public class CollectionsPoolImpl implements CollectionsPool {
 	}
 	
 	@Override
-    public void removeBucket(String bucketName) {
+    public void dropBucket(String bucketName) {
 		fsBuckets.remove(bucketName);
 	}
 	
 	@Override
-    public void clearBuckets() {
+    public void dropAllBuckets() {
+		fsBuckets.values().forEach(GridFSBucket::drop);
 		fsBuckets.clear();
 	}
 
-	@Override
-	public Iterator<SmofCollection<?>> iterator() {
-		return collections.values().iterator();
-	}
-
 	private Class<? extends Element> getValidSuperType(Class<? extends Element> elClass) {
-		for(Class<? extends Element> type : collections.keySet()) {
+		if(elClass == null) {
+			return null;
+		}
+		for(Class<? extends Element> type : collectionsByType.keySet()) {
 			if(type.isAssignableFrom(elClass)) {
 				return type;
 			}
@@ -125,13 +131,27 @@ public class CollectionsPoolImpl implements CollectionsPool {
 	}
 
 	@Override
-    public void remove(SmofCollection<?> collection) {
-		collections.remove(collection.getType());
+    public boolean dropCollection(Class<? extends Element> type) {
+		final SmofCollection<? extends Element> collection = collectionsByType.remove(type);
+		if(collection != null) {
+			collectionsByName.remove(collection.getCollectionName());
+		}
+		return collection != null;
 	}
 	
 	@Override
-    public void clearCollections() {
-		collections.clear();
+	public boolean dropCollection(String collectionName) {
+		final SmofCollection<? extends Element> collection = collectionsByName.remove(collectionName);
+		if(collection != null) {
+			collectionsByType.remove(collection.getType());
+		}
+		return collection != null;
+	}
+	
+	@Override
+    public void dropAllCollections() {
+		collectionsByType.values().forEach(SmofCollection::drop);
+		collectionsByType.clear();
 	}
 
 }

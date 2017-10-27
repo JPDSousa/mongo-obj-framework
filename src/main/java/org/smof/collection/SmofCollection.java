@@ -69,4 +69,6 @@ public interface SmofCollection<T extends Element> {
 	
 	CollectionOptions<T> getCollectionOptions();
 	
+	void drop();
+	
 }
