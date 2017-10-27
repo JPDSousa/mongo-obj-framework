@@ -37,7 +37,7 @@ class CollectionOptionsImpl<E extends Element> implements CollectionOptions<E> {
 	private boolean throwOnInsertDuplicate;
 	
 	CollectionOptionsImpl() {
-		constraints = Lists.newArrayList();
+		constraints = Lists.newLinkedList();
 		throwOnConstraintBreach = true;
 		upsert = true;
 		throwOnInsertDuplicate = false;
