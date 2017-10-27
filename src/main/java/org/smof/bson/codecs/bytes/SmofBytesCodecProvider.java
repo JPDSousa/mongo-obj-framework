@@ -36,7 +36,7 @@ public class SmofBytesCodecProvider implements SmofCodecProvider {
 	private final Map<Class<?>, Codec<?>> codecs;
 	
 	public SmofBytesCodecProvider() {
-		codecs = Maps.newLinkedHashMap();
+		codecs = Maps.newHashMapWithExpectedSize(2);
 		put(new PrimitiveByteArrayCodec());
 		put(new GenericByteArrayCodec());
 	}
