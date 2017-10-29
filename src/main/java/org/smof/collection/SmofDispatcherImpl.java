@@ -87,7 +87,7 @@ public class SmofDispatcherImpl implements SmofDispatcher {
     public void dropBucket(String bucketName) {
 		final GridFSBucket bucket = collections.getBucket(bucketName);
 		bucket.drop();
-		collections.removeBucket(bucketName);
+		collections.dropBucket(bucketName);
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 		for(String bucketName : collections.getAllBuckets()) {
 			collections.getBucket(bucketName).drop();
 		}
-		collections.clearBuckets();
+		collections.dropAllBuckets();
 	}
 
 	@Override
@@ -105,27 +105,12 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 
 	@Override
     public boolean dropCollection(String collectionName) {
-		SmofCollection<?> toDrop = null;
-		for(SmofCollection<?> collection : collections) {
-			if(collectionName.equals(collection.getCollectionName())) {
-				toDrop = collection;
-				break;
-			}
-		}
-		if(toDrop != null) {
-			toDrop.getMongoCollection().drop();
-			collections.remove(toDrop);
-			return true;
-		}
-		return false;
+		return collections.dropCollection(collectionName);
 	}
 
 	@Override
     public void dropCollections() {
-		for(SmofCollection<?> collection : collections) {
-			collection.getMongoCollection().drop();
-		}
-		collections.clearCollections();
+		collections.dropAllCollections();
 	}
 	
 	@Override

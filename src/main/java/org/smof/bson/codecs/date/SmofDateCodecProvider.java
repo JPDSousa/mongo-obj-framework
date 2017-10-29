@@ -35,7 +35,7 @@ public class SmofDateCodecProvider implements SmofCodecProvider {
 	private final Map<Class<?>, Codec<?>> codecs;
 	
 	public SmofDateCodecProvider() {
-		codecs = Maps.newLinkedHashMap();
+		codecs = Maps.newHashMapWithExpectedSize(4);
 		put(new JavaInstantCodec());
 		put(new JavaLocalDateCodec());
 		put(new JavaLocalDateTimeCodec());

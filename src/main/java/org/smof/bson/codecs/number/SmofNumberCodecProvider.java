@@ -35,12 +35,7 @@ public class SmofNumberCodecProvider implements SmofCodecProvider {
 	private final Map<Class<?>, Codec<?>> codecs;
 	
 	public SmofNumberCodecProvider() {
-		codecs = Maps.newLinkedHashMap();
-		put(new FloatCodec());
-	}
-	
-	private void put(Codec<?> codec) {
-		codecs.put(codec.getEncoderClass(), codec);
+		codecs = Maps.newHashMapWithExpectedSize(1);
 	}
 	
 	@SuppressWarnings("unchecked")
