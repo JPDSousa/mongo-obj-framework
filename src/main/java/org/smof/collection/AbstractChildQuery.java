@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.collection;
 
+import org.bson.BsonDocument;
 import org.smof.element.Element;
 
 abstract class AbstractChildQuery<T extends Element, Query extends SmofQuery<T, ?>> extends AbstractQuery<T, Query> {
@@ -43,4 +44,10 @@ abstract class AbstractChildQuery<T extends Element, Query extends SmofQuery<T, 
 	public SmofResults<T> results() {
 		return end().results();
 	}
+
+	@Override
+	public BsonDocument asBson() {
+		return end().asBson();
+	}
+	
 }
