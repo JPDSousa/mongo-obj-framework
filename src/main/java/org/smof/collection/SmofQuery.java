@@ -23,6 +23,7 @@ package org.smof.collection;
 
 import java.util.regex.Pattern;
 
+import org.bson.BsonDocument;
 import org.smof.element.Element;
 
 @SuppressWarnings("javadoc")
@@ -54,4 +55,6 @@ public interface SmofQuery<E extends Element, T extends SmofQuery<E, ?>> {
 	DocumentQuery<E> beginNot();
 	
 	SmofResults<E> results();
+	
+	BsonDocument asBson();
 }
