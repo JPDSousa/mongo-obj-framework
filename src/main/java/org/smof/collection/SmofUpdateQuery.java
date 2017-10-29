@@ -66,6 +66,11 @@ public class SmofUpdateQuery<T extends Element> {
 		return field;
 	}
 	
+	public SmofUpdateQuery<T> withFilter(BsonDocument filter) {
+		this.filter = filter;
+		return this;
+	}
+	
 	public SmofUpdateQuery<T> fieldEq(String fieldName, Object value) {
 		final SmofField field = validateFieldName(fieldName);
 		filter.append(fieldName, parser.toBson(value, field));
