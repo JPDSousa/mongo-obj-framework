@@ -1,3 +1,5 @@
+package org.smof.dataModel;
+
 /*******************************************************************************
  * Copyright (C) 2017 Joao Sousa
  * 
@@ -19,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof.dataModel;
 
 import java.util.List;
 
@@ -36,13 +37,43 @@ import org.smof.element.Element;
 import org.smof.index.IndexType;
 
 @SuppressWarnings("javadoc")
-@SmofIndexes({
-		@SmofIndex(fields = { @SmofIndexField(name = "units", type = IndexType.ASCENDING),
-				@SmofIndexField(name = "popularity", type = IndexType.DESCENDING) }),
-		@SmofIndex(fields = { @SmofIndexField(name = "name", type = IndexType.TEXT),
-				@SmofIndexField(name = "creator", type = IndexType.TEXT) }, 
-				pfe = @SmofPFEQuery(expression = @SmofQueryA(name = "name", query = {
-						@SmofFilter(operator = OperatorType.exists, value = "true") }))) })
+@SmofIndexes(
+	{
+		@SmofIndex(fields = { 
+				@SmofIndexField(
+						name = "units", 
+						type = IndexType.ASCENDING
+						),
+				@SmofIndexField(
+						name = "popularity", 
+						type = IndexType.DESCENDING
+						) 
+				}
+		),
+		@SmofIndex(fields = { 
+				@SmofIndexField(
+						name = "name", 
+						type = IndexType.TEXT
+						),
+				@SmofIndexField(
+						name = "creator", 
+						type = IndexType.TEXT
+						) 
+				}, 
+				pfe = 
+				@SmofPFEQuery(expression = @SmofQueryA(
+						name = "name", 
+						query = {
+						@SmofFilter(
+								operator = OperatorType.exists, 
+								value = "true"
+								) 
+						}
+					)
+				)
+			) 
+		}
+)
 public interface Model extends Element {
 
 	String UNITS = "units";
