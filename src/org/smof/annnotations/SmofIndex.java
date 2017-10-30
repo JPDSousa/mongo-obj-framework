@@ -27,10 +27,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+
 @SuppressWarnings("javadoc")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ANNOTATION_TYPE)
 public @interface SmofIndex {
 	SmofIndexField[] fields();
 	boolean unique() default false;
+	SmofPFEQuery pfe() default @SmofPFEQuery(name="default");
 }

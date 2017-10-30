@@ -30,9 +30,14 @@ import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 import org.bson.BsonDocument;
+import org.bson.BsonString;
+import org.bson.BsonValue;
 import org.bson.conversions.Bson;
+import org.smof.annnotations.SmofFilter;
 import org.smof.annnotations.SmofIndex;
 import org.smof.annnotations.SmofIndexField;
+import org.smof.annnotations.SmofPFEQuery;
+import org.smof.annnotations.SmofQueryA;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
 
@@ -86,6 +91,16 @@ public class InternalIndex {
 	private static IndexOptions createOptions(SmofIndex note) {
 		final IndexOptions options = new IndexOptions();
 		options.unique(note.unique());
+		SmofPFEQuery pfe=note.pfe();
+		if(!pfe.name().equals("default")){
+			BsonDocument bson=new BsonDocument();
+			SmofQueryA[] query=pfe.expression();
+			BsonDocument bson1=new BsonDocument();
+			SmofFilter[] filter=query[0].query();
+			bson1.append(filter[0].operator().getMongoToken(),new BsonString(filter[0].value()));
+			bson.append(query[0].name(),bson1);
+			options.partialFilterExpression(bson);
+		}
 		return options;
 	}
 

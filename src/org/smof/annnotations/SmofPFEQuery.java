@@ -7,12 +7,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-import org.smof.dataModel.SmofQueryA;
 
 @SuppressWarnings("javadoc")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ANNOTATION_TYPE)
 public @interface SmofPFEQuery {
-	String name();
-	SmofQueryA[] expression();
+	String name() default "partialFilterExpression";
+	SmofQueryA[] expression() default {};
 }

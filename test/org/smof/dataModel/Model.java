@@ -2,18 +2,24 @@ package org.smof.dataModel;
 
 import java.util.List;
 
+import org.smof.annnotations.OperatorType;
 import org.smof.annnotations.SmofBuilder;
+import org.smof.annnotations.SmofFilter;
 import org.smof.annnotations.SmofIndex;
 import org.smof.annnotations.SmofIndexField;
 import org.smof.annnotations.SmofIndexes;
+import org.smof.annnotations.SmofPFEQuery;
 import org.smof.annnotations.SmofParam;
+import org.smof.annnotations.SmofQueryA;
 import org.smof.element.Element;
 import org.smof.index.IndexType;
 
 @SuppressWarnings("javadoc")
 @SmofIndexes({
 	@SmofIndex(fields = {@SmofIndexField(name = "units", type = IndexType.ASCENDING), @SmofIndexField(name = "popularity", type = IndexType.DESCENDING)}),
-	@SmofIndex(fields = {@SmofIndexField(name = "name", type = IndexType.TEXT), @SmofIndexField(name = "creator", type = IndexType.TEXT)})
+	@SmofIndex(fields = {@SmofIndexField(name = "name", type = IndexType.TEXT), @SmofIndexField(name = "creator", type = IndexType.TEXT)},
+			   pfe=@SmofPFEQuery(expression=@SmofQueryA(name = "name",query={@SmofFilter(operator = OperatorType.exists, value = "true")})
+		))
 	})
 public interface Model extends Element {
 

@@ -1,4 +1,4 @@
-package org.smof.dataModel;
+package org.smof.annnotations;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -11,7 +11,7 @@ import org.smof.annnotations.OperatorType;
 @SuppressWarnings("javadoc")
 @Retention(RUNTIME)
 @Target(ANNOTATION_TYPE)
-public @interface SmofFilter {
-	OperatorType operator();
-	String value();
+public @interface SmofQueryA {
+	String name();
+	SmofFilter[] query() default {};
 }
