@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2017 Joao
+ * Copyright (C) 2017 Joao Sousa
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,7 @@ public final class BasicWriteExample {
 		//fill the bottle
 		bottle.fill(0.5);
 		//update the object on the database
-		smof.update(Bottle.class).fromElement(bottle);
+		smof.replace(Bottle.class, bottle);
 		
 		smof.close();
 	}
