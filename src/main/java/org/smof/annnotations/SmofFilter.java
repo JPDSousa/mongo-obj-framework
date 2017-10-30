@@ -6,12 +6,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.smof.annnotations.OperatorType;
 
 @SuppressWarnings("javadoc")
 @Retention(RUNTIME)
 @Target(ANNOTATION_TYPE)
-public @interface SmofQueryA {
-	String name();
-	SmofFilter[] query() default {};
+public @interface SmofFilter {
+	OperatorType operator();
+	String value();
 }

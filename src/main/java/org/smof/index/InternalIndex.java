@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 
 import org.bson.BsonDocument;
 import org.bson.BsonString;
-import org.bson.BsonValue;
 import org.bson.conversions.Bson;
 import org.smof.annnotations.SmofFilter;
 import org.smof.annnotations.SmofIndex;
