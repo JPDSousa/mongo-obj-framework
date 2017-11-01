@@ -1,3 +1,4 @@
+package org.smof.index;
 /*******************************************************************************
  * Copyright (C) 2017 Joao Sousa
  * 
@@ -19,8 +20,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof.index;
 
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -28,45 +30,44 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
-
 import org.bson.BsonDocument;
+import org.bson.BsonString;
 import org.bson.conversions.Bson;
+import org.smof.annnotations.SmofFilter;
 import org.smof.annnotations.SmofIndex;
 import org.smof.annnotations.SmofIndexField;
+import org.smof.annnotations.SmofPFEQuery;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
 
-import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.model.Indexes;
 
 @SuppressWarnings("javadoc")
 public class InternalIndex {
-	
-	private static final String UNIQUE = "unique";
 
-	private static void handleError(Throwable cause) {
-		throw new SmofException(cause);
-	}
-	
-	public static InternalIndex fromSmofIndex(SmofIndex note) {
-		return new InternalIndex(createRawIndexes(note.fields()), createOptions(note));
-	}
-	
-	private static Set<Bson> createRawIndexes(SmofIndexField[] fields) {
-		final Set<Bson> indexes = new LinkedHashSet<>();
-		if(fields.length == 1) {
-			indexes.add(fromSmofIndexField(fields[0]));
-		}
-		else if(fields.length > 1) {
-			indexes.addAll(fromSmofIndexFields(fields));
-		}
-		return indexes;
-	}
-	
-	private static Bson fromSmofIndexField(SmofIndexField field) {
-		final String fieldName = field.name();
-		switch(field.type()) {
-		case ASCENDING:
+  private static final String UNIQUE = "unique";
+
+  private static void handleError(Throwable cause) {
+    throw new SmofException(cause);
+  }
+    
+  public static InternalIndex fromSmofIndex(SmofIndex note) {
+    return new InternalIndex(createRawIndexes(note.fields()), createOptions(note));
+  }
+    
+  private static Set<Bson> createRawIndexes(SmofIndexField[] fields) {
+    final Set<Bson> indexes = new LinkedHashSet<>();
+    if (fields.length == 1) {
+      indexes.add(fromSmofIndexField(fields[0]));
+    } else if (fields.length > 1) {
+      indexes.addAll(fromSmofIndexFields(fields));
+    }
+    return indexes;
+  }
+  
+  private static Bson fromSmofIndexField(SmofIndexField field) {
+  final String fieldName = field.name();
+  switch(field.type()) {
+  	case ASCENDING:
 			return Indexes.ascending(fieldName);
 		case DESCENDING:
 			return Indexes.descending(fieldName);
@@ -86,6 +87,16 @@ public class InternalIndex {
 	private static IndexOptions createOptions(SmofIndex note) {
 		final IndexOptions options = new IndexOptions();
 		options.unique(note.unique());
+		SmofPFEQuery pfe=note.pfe();
+		if(!pfe.name().equals("default")){
+			BsonDocument partialFilterExpression=new BsonDocument();
+			String name = pfe.name();
+			BsonDocument indexFilter=new BsonDocument();
+			SmofFilter[] filter=pfe.query();
+			indexFilter.append(filter[0].operator().getMongoToken(),new BsonString(filter[0].value()));
+			partialFilterExpression.append(name,indexFilter);
+			options.partialFilterExpression(partialFilterExpression);
+		}
 		return options;
 	}
 
