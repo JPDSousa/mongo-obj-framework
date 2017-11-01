@@ -26,6 +26,7 @@ import java.util.Map;
 import org.bson.codecs.*;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.smof.bson.codecs.SmofCodecProvider;
+import org.smof.bson.codecs.date.JavaDurationCodec;
 
 import com.google.common.collect.Maps;
 
@@ -40,6 +41,7 @@ public class SmofNumberCodecProvider implements SmofCodecProvider {
 		put(new BigDecimalCodec());
 		put(new DoubleCodec());
 		put(new LongCodec());
+		put(new JavaDurationCodec());
 	}
 
 	private void put(Codec<?> codec) {

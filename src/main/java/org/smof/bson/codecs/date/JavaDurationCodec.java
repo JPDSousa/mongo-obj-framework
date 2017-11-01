@@ -5,7 +5,8 @@ import java.time.Duration;
 import org.bson.BsonWriter;
 import org.bson.codecs.EncoderContext;
 
-class JavaDurationCodec extends AbstractTimeCodec<Duration> {
+@SuppressWarnings("javadoc")
+public class JavaDurationCodec extends AbstractTimeCodec<Duration> {
 
 	@Override
 	public void encode(BsonWriter writer, Duration value, EncoderContext encoderContext) {
