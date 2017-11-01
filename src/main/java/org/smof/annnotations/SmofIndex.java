@@ -34,5 +34,5 @@ import java.lang.annotation.Target;
 public @interface SmofIndex {
 	SmofIndexField[] fields();
 	boolean unique() default false;
-	SmofPFEQuery pfe() default @SmofPFEQuery(name = "default");
+	SmofPFEQuery pfe() default @SmofPFEQuery(name = "default", query = { @SmofFilter(operator = OperatorType.none, value = "") });
 }

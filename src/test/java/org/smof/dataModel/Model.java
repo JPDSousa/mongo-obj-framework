@@ -32,7 +32,6 @@ import org.smof.annnotations.SmofIndexField;
 import org.smof.annnotations.SmofIndexes;
 import org.smof.annnotations.SmofPFEQuery;
 import org.smof.annnotations.SmofParam;
-import org.smof.annnotations.SmofQueryA;
 import org.smof.element.Element;
 import org.smof.index.IndexType;
 
@@ -41,10 +40,6 @@ import org.smof.index.IndexType;
 	{
 		@SmofIndex(fields = { 
 				@SmofIndexField(
-						name = "units", 
-						type = IndexType.ASCENDING
-						),
-				@SmofIndexField(
 						name = "popularity", 
 						type = IndexType.DESCENDING
 						) 
@@ -52,27 +47,21 @@ import org.smof.index.IndexType;
 		),
 		@SmofIndex(fields = { 
 				@SmofIndexField(
-						name = "name", 
-						type = IndexType.TEXT
+						name = "units", 
+						type = IndexType.ASCENDING
 						),
-				@SmofIndexField(
-						name = "creator", 
-						type = IndexType.TEXT
-						) 
 				}, 
-				pfe = 
-				@SmofPFEQuery(expression = @SmofQueryA(
-						name = "name", 
-						query = {
-						@SmofFilter(
-								operator = OperatorType.exists, 
-								value = "true"
+				pfe = @SmofPFEQuery(
+						name = "units", 
+						query = { 
+								@SmofFilter(
+										operator = OperatorType.greaterThan, 
+										value = "10"
 								) 
 						}
-					)
 				)
-			) 
-		}
+		)
+	}
 )
 public interface Model extends Element {
 

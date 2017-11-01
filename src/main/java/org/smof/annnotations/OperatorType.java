@@ -44,7 +44,11 @@ public enum OperatorType {
     /**
     * $exists represents exists.
     */
-    exists("exists");
+    exists("$exists"),
+	/**
+	 * its for default.
+	 */
+	none("none");
 
   private final String mongoToken;
 
