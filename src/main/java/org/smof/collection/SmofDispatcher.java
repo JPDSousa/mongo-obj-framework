@@ -54,4 +54,7 @@ public interface SmofDispatcher {
     <T extends Element> T findById(ObjectId id, Class<T> elementClass);
 
     GridFSFile loadMetadata(SmofGridRef ref);
+    
+    boolean contains(Class<? extends Element> type);
+    boolean contains(String name);
 }
