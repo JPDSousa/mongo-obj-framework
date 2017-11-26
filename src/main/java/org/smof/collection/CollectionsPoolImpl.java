@@ -152,6 +152,17 @@ public class CollectionsPoolImpl implements CollectionsPool {
     public void dropAllCollections() {
 		collectionsByType.values().forEach(SmofCollection::drop);
 		collectionsByType.clear();
+		collectionsByName.clear();
+	}
+
+	@Override
+	public boolean contains(Class<? extends Element> type) {
+		return collectionsByType.containsKey(type);
+	}
+
+	@Override
+	public boolean contains(String name) {
+		return collectionsByName.containsKey(name);
 	}
 
 }

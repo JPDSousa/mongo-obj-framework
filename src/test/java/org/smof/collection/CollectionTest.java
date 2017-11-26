@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.smof.dataModel.Brand;
 import org.smof.dataModel.Guitar;
 import org.smof.dataModel.Model;
+import org.smof.exception.SmofException;
 
 
 @SuppressWarnings("javadoc")
@@ -55,12 +56,18 @@ public class CollectionTest {
 		connection.dropAllCollections();
 	}
 	
-	@Test
+	@Test(expected = SmofException.class)
 	public final void testDuplicateCollectionLoading() {
 		connection.loadCollection(BRANDS, Brand.class);
 		connection.loadCollection(BRANDS, Brand.class);
 		//A collection can be loaded multiple times
 		//Collection loading is idempotent ;)
+	}
+	
+	@Test(expected = SmofException.class)
+	public final void testOneClassTwoNamesLoading() {
+		connection.loadCollection("brands1", Brand.class);
+		connection.loadCollection("brands2", Brand.class);
 	}
 	
 	@Test

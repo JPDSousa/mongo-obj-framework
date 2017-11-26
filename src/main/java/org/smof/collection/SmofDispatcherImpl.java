@@ -178,5 +178,15 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 			return false;
 		}
 	}
+
+	@Override
+	public boolean contains(Class<? extends Element> type) {
+		return collections.contains(type);
+	}
+
+	@Override
+	public boolean contains(String name) {
+		return collections.contains(name);
+	}
 	
 }
