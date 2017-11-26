@@ -91,20 +91,6 @@ public class BasicSmofTest {
 	}
 	
 	@Test
-	public void testIndexUpdating() {
-		final Set<InternalIndex> before = new LinkedHashSet<>();
-		final Set<InternalIndex> after = new LinkedHashSet<>();
-		for(BsonDocument doc : database.getCollection(GUITARS).listIndexes(BsonDocument.class)) {
-			before.add(InternalIndex.fromBson(doc));
-		}
-		smof.loadCollection(GUITARS, Guitar.class);
-		for(BsonDocument doc : database.getCollection(GUITARS).listIndexes(BsonDocument.class)) {
-			after.add(InternalIndex.fromBson(doc));
-		}
-		assertEquals(before, after);
-	}
-	
-	@Test
 	public void testInternalIndexEquals() {
 		final InternalIndex i1 = InternalIndex.fromBson(database.getCollection(GUITARS).listIndexes(BsonDocument.class).first());
 		final InternalIndex i2 = InternalIndex.fromBson(database.getCollection(GUITARS).listIndexes(BsonDocument.class).first());
