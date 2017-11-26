@@ -26,6 +26,10 @@ public class SmofException extends RuntimeException{
 
 	private static final long serialVersionUID = 1L;
 
+	public SmofException(String message) {
+		super(message);
+	}
+	
 	public SmofException(Throwable cause) {
 		super(cause);
 	}

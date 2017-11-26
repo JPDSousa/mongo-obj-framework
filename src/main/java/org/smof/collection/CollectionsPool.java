@@ -33,6 +33,9 @@ public interface CollectionsPool {
 
     <T extends Element> SmofCollection<T> getCollection(Class<T> elClass);
     SmofCollection<? extends Element> getCollection(String name);
+    
+    boolean contains(Class<? extends Element> type);
+    boolean contains(String name);
 
     GridFSBucket getBucket(String bucketName);
 
