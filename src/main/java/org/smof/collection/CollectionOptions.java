@@ -21,6 +21,7 @@
  ******************************************************************************/
 package org.smof.collection;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.smof.element.Element;
@@ -32,8 +33,10 @@ public interface CollectionOptions<E extends Element> {
 		return new CollectionOptionsImpl<>();
 	}
 	
-	void addConstraint(Predicate<E> constraint);
+	void addPreHook(Consumer<E> hook);
+	Iterable<Consumer<E>> getPreHooks();
 	
+	void addConstraint(Predicate<E> constraint);
 	Iterable<Predicate<E>> getConstraints();
 	
 	boolean isValid(E element);
