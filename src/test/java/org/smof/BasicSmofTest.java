@@ -25,6 +25,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDate;
 import java.util.*;
 
 import org.apache.commons.io.IOUtils;
@@ -37,6 +38,7 @@ import org.junit.Test;
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofIndex;
 import org.smof.annnotations.SmofIndexes;
+import org.smof.collection.CollectionOptions;
 import org.smof.collection.Smof;
 import org.smof.dataModel.Brand;
 import org.smof.dataModel.Guitar;
@@ -137,6 +139,21 @@ public class BasicSmofTest {
 		for(Guitar g : ALL_GUITARS) {
 			smof.insert(g);
 		}
+	}
+	
+	@Test
+	public final void testPreHooks() {
+		smof.dropAllCollections();
+		smof.dropAllBuckets();
+		final long expected = 5252;
+		final CollectionOptions<Brand> options = CollectionOptions.create();
+		options.addPreHook(b -> b.setCapital(expected));
+		smof.createCollection("Owner", Owner.class);
+		smof.createCollection("PreHooks", Brand.class, options);
+		final Owner owner = Owner.create("me", LocalDate.now());
+		final Brand brand = Brand.create("brandName", new Location("here", "there"), Arrays.asList(owner));
+		smof.insert(brand);
+		assertEquals(expected, brand.getCapital(), 0);
 	}
 	
 	@Test
