@@ -144,6 +144,7 @@ public class CollectionsPoolImpl implements CollectionsPool {
 		final SmofCollection<? extends Element> collection = collectionsByName.remove(collectionName);
 		if(collection != null) {
 			collectionsByType.remove(collection.getType());
+			collection.drop();
 		}
 		return collection != null;
 	}
