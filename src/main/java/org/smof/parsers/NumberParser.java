@@ -41,7 +41,9 @@ class NumberParser extends AbstractBsonParser {
 
 	@Override
 	public boolean isValidBson(BsonValue value) {
-		return value.isNumber() || super.isValidBson(value);
+		return value.isNumber() 
+				|| value.isDateTime() 
+				|| super.isValidBson(value);
 	}
 
 }
