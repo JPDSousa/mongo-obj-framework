@@ -187,9 +187,14 @@ public class BasicSmofTest {
 
 	@Test
 	public final void testDrop() {
-		final String name = "drop";
+		final String name = "drop_a_collection";
 		smof.createCollection(name, ToDrop.class);
 		smof.dropCollection(name);
+		// if collection already exists, it will fail 
+		smof.createCollection(name, ToDrop.class);
+		smof.dropAllCollections();
+		// if collection already exists, it will fail
+		smof.createCollection(name, ToDrop.class);
 	}
 
 	private static class ToDrop extends AbstractElement {
