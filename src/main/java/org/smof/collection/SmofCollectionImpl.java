@@ -102,6 +102,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		final SmofInsertResult result;
 		final boolean isValid = this.options.isValid(element);
 		if(isValid) {
+			this.options.getPreHooks().forEach(hook -> hook.accept(element));
 			if(this.options.isUpsert()) {
 				return replace(element, options);
 			}
