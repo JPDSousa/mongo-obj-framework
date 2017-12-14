@@ -141,15 +141,12 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 		final Stack<Pair<String, Element>> stack = result.getPostInserts();
 		if(!stack.isEmpty()) {
 			final SmofUpdate<T> update = new SmofUpdateImpl<>(collection);
-			boolean updateSuccess = true;
-			while(!stack.isEmpty() && updateSuccess) {
+			while(!stack.isEmpty()) {
 				final Pair<String, Element> current = stack.pop();
 				final Element currentElement = current.getRight();
-				updateSuccess = insert(currentElement);
-				update.set(current.getLeft(), currentElement.getId());
+				update.set(current.getLeft(), currentElement);
 			}
 			update.where().idEq(element.getId());
-			return updateSuccess;
 		}
 		return true;
 	}

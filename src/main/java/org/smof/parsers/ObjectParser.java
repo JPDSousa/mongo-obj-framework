@@ -119,9 +119,10 @@ class ObjectParser extends AbstractBsonParser {
 				fileRef.setBucketName(annotation.bucketName());
 			}
 			//TODO test if upload file adds id to fileRef
-			if(!annotation.preInsert()) {
+			if(!annotation.preInsert() && !fieldOpts.isForcePreInsert()) {
 				return new BsonLazyObjectId(fieldOpts.getName(), fileRef);
 			}
+			fieldOpts.setForcePreInsert(false);
 			dispatcher.insert(fileRef);
 		}
 		final BsonDocument bsonRef = new BsonDocument("id", new BsonObjectId(fileRef.getId()))
@@ -135,8 +136,9 @@ class ObjectParser extends AbstractBsonParser {
 	}
 
 	private BsonValue fromElement(Element value, PrimaryField fieldOpts, SerializationContext serContext) {
-		SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
-		if(annotation.preInsert()) {
+		final SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
+		if(annotation.preInsert() || fieldOpts.isForcePreInsert()) {
+			fieldOpts.setForcePreInsert(false);
 			return fromElement(value, serContext);
 		}
 		return new BsonLazyObjectId(fieldOpts.getName(), value);
