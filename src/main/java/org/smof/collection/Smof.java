@@ -32,6 +32,7 @@ import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofObject;
 import org.smof.element.Element;
 import org.smof.exception.NoSuchCollection;
+import org.smof.exception.SmofException;
 import org.smof.gridfs.SmofGridStreamManager;
 import org.smof.parsers.SmofParser;
 
@@ -199,6 +200,12 @@ public final class Smof implements Closeable {
 	}
 
 	private <T extends Element> void loadCollection(String collectionName, Class<T> elClass, SmofParser parser, CollectionOptions<T> options) {
+		if(dispatcher.contains(elClass)) {
+			throw new SmofException(elClass + " is already registered under a different name");
+		}
+		if(dispatcher.contains(collectionName)) {
+			throw new SmofException(collectionName + " is already registered");
+		}
 		final MongoCollection<BsonDocument> collection = database.getCollection(collectionName, BsonDocument.class);
 		dispatcher.put(elClass, new SmofCollectionImpl<>(collectionName, collection, elClass, parser, options));
 	}
@@ -352,6 +359,14 @@ public final class Smof implements Closeable {
 	public <T extends Element> SmofUpdate<T> update(Class<T> elementClass) {
 		final SmofCollection<T> collection = dispatcher.getCollection(elementClass);
 		return collection.update();
+	}
+	
+	public <T extends Element> void replace(Class<T> type, T element) {
+		final SmofCollection<T> collection = dispatcher.getCollection(type);
+		final SmofOpOptions options = new SmofOpOptionsImpl();
+		options.upsert(true);
+		options.bypassCache(true);
+		collection.insert(element, options);
 	}
 
 	/**

@@ -80,7 +80,7 @@ public static void main(String[] args) {
   bottle.fill(0.5);
   
   //update the object on the database
-  smof.update(Bottle.class).fromElement(bottle);
+  smof.replace(Bottle.class, bottle);
 
   smof.close();
 }

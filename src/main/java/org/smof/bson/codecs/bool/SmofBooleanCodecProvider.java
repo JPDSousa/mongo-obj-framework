@@ -37,7 +37,7 @@ public class SmofBooleanCodecProvider implements SmofCodecProvider {
 	private final Map<Class<?>, Codec<?>> codecs;
 	
 	public SmofBooleanCodecProvider() {
-		codecs = Maps.newLinkedHashMap();
+		codecs = Maps.newHashMapWithExpectedSize(3);
 		put(new BooleanCodec());
 		put(new StringCodec());
 		put(new IntegerCodec());

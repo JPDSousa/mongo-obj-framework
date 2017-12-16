@@ -22,6 +22,7 @@
 package org.smof.collection;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.smof.element.Element;
@@ -32,12 +33,14 @@ import com.google.common.collect.Lists;
 class CollectionOptionsImpl<E extends Element> implements CollectionOptions<E> {
 
 	private final List<Predicate<E>> constraints;
+	private final List<Consumer<E>> preHooks;
 	private boolean throwOnConstraintBreach;
 	private boolean upsert;
 	private boolean throwOnInsertDuplicate;
 	
 	CollectionOptionsImpl() {
-		constraints = Lists.newArrayList();
+		preHooks = Lists.newLinkedList();
+		constraints = Lists.newLinkedList();
 		throwOnConstraintBreach = true;
 		upsert = true;
 		throwOnInsertDuplicate = false;
@@ -86,6 +89,17 @@ class CollectionOptionsImpl<E extends Element> implements CollectionOptions<E> {
 	@Override
 	public boolean isThrowOnInsertDuplicate() {
 		return throwOnInsertDuplicate;
+	}
+
+	@Override
+	public void addPreHook(Consumer<E> hook) {
+		// TODO check if not null
+		preHooks.add(hook);
+	}
+
+	@Override
+	public Iterable<Consumer<E>> getPreHooks() {
+		return preHooks;
 	}
 	
 	

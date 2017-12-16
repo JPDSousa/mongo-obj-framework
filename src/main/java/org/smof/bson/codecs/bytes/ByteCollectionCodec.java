@@ -22,8 +22,8 @@
 package org.smof.bson.codecs.bytes;
 
 import java.util.Collection;
+import java.util.Iterator;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.bson.BsonBinary;
 import org.bson.BsonInvalidOperationException;
 import org.smof.utils.CollectionUtils;
@@ -44,8 +44,13 @@ class ByteCollectionCodec extends AbstractBytesCodec<Collection<Byte>> {
 
 	@Override
 	protected BsonBinary encode(Collection<Byte> value) {
-		final Byte[] data = value.toArray(new Byte[value.size()]);
-		return new BsonBinary(ArrayUtils.toPrimitive(data));
+		final byte[] data = new byte[value.size()];
+		final Iterator<Byte> iterator = value.iterator();
+		int i = 0;
+		while(iterator.hasNext()) {
+			data[i++] = iterator.next();
+		}
+		return new BsonBinary(data);
 	}
 
 	@Override

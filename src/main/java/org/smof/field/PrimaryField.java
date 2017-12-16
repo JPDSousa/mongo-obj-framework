@@ -46,6 +46,7 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	private final Field field;
 	private final boolean external;
 	private boolean builder;
+	private boolean forcePreInsert;
 	
 	public PrimaryField(Field field, SmofType type) {
 		checkValidField(field);
@@ -119,6 +120,14 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		if (field == null) {
 			throw new IllegalArgumentException("The field cannot be null");
 		}
+	}
+
+	public boolean isForcePreInsert() {
+		return forcePreInsert;
+	}
+
+	public void setForcePreInsert(boolean forcePreInsert) {
+		this.forcePreInsert = forcePreInsert;
 	}
 
 	@Override

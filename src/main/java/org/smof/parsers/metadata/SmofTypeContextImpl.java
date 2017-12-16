@@ -42,8 +42,8 @@ class SmofTypeContextImpl implements SmofTypeContext {
 		throw new SmofException(cause);
 	}
 
-	private final Map<Class<?>, TypeStructure<?>> types;
 	private final TypeBuilderFactory factory;
+	private final Map<Class<?>, TypeStructure<?>> types;
 
 	SmofTypeContextImpl() {
 		types = new LinkedHashMap<>();
@@ -51,25 +51,88 @@ class SmofTypeContextImpl implements SmofTypeContext {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		SmofTypeContextImpl other = (SmofTypeContextImpl) obj;
+		if (types == null) {
+			if (other.types != null) {
+				return false;
+			}
+		} else if (!types.equals(other.types)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public <T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass) {
+		return types.get(elClass).getIndexes();
+	}
+	
+	@Override
+	public <T> TypeStructure<T> getTypeStructure(Class<T> type, SmofParserPool parsers) {
+		return getOrCreateParser(type, parsers);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((types == null) ? 0 : types.hashCode());
+		return result;
+	}
+	
+	@Override
 	public void put(Class<?> type, SmofParserPool parsers) {
 		putWithFactory(type, null, parsers);
 	}
 
-	private <T> TypeStructure<T> handleSupertype(Class<T> type, Serializable factory, SmofParserPool parsers) {
-		final TypeBuilder<T> builder = this.factory.create(type, factory);
-		final TypeStructure<T> typeStructure = TypeStructure.create(type, builder);
-		this.types.put(type, typeStructure);
-		handleTypeParser(type, typeStructure, parsers);
-		return typeStructure;
+	@Override
+	public <T> void putWithFactory(Class<T> type, Serializable factory, SmofParserPool parsers) {
+		if(containsSubOrSuperType(type)) {
+			handleSubtype(type, parsers);
+		}
+		else {
+			handleSupertype(type, factory, parsers);
+		}
+	}
+
+	private void checkValidSmofField(SmofField field, SmofParserPool parsers) {
+		final BsonParser parser = parsers.get(field.getType());
+		if(!parser.isValidType(field)) {
+			handleError(new InvalidTypeException(field.getFieldClass(), field.getType()));
+		}
+	}
+
+	private boolean containsSubOrSuperType(Class<?> type) {
+		return types.keySet().stream().anyMatch(t -> t.isAssignableFrom(type));
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> TypeStructure<T> getOrCreateParser(Class<?> type, SmofParserPool parsers) {
+		final TypeStructure<T> struct = (TypeStructure<T>) getTypeStructureFromSub(type);
+		if(struct != null) {
+			return putIfAbsent(struct, type, parsers);
+		}
+		return (TypeStructure<T>) handleSupertype(type, null, parsers);
 	}
 	
-	private <T> void handleTypeParser(Class<T> type, TypeStructure<?> typeStructure, SmofParserPool parsers) {
-		handleForceInspection(type, typeStructure, parsers);
-		if (!type.isInterface()) {
-			final TypeParser<T> typeParser = TypeParser.create(type);
-			validateParserFields(typeParser, parsers);
-			typeStructure.addSubType(type, typeParser);
+	private TypeStructure<?> getTypeStructureFromSub(Class<?> type) {
+		// TODO find a more efficient way to run this
+		for(Class<?> t : types.keySet()) {
+			if(t.isAssignableFrom(type)) {
+				return types.get(t);
+			}
 		}
+		return null;
 	}
 
 	private <T> void handleForceInspection(Class<T> type, TypeStructure<?> typeStructure, SmofParserPool parsers) {
@@ -83,16 +146,6 @@ class SmofTypeContextImpl implements SmofTypeContext {
 		}
 	}
 
-	@Override
-	public <T> void putWithFactory(Class<T> type, Serializable factory, SmofParserPool parsers) {
-		if(containsSubOrSuperType(type)) {
-			handleSubtype(type, parsers);
-		}
-		else {
-			handleSupertype(type, factory, parsers);
-		}
-	}
-
 	private void handleSubtype(Class<?> type, SmofParserPool parsers) {
 		final TypeStructure<?> typeStructure = getTypeStructureFromSub(type);
 		if (typeStructure != null) {
@@ -100,18 +153,21 @@ class SmofTypeContextImpl implements SmofTypeContext {
 		}
 	}
 
-	@Override
-	public <T> TypeStructure<T> getTypeStructure(Class<T> type, SmofParserPool parsers) {
-		return getOrCreateParser(type, parsers);
+	private <T> TypeStructure<T> handleSupertype(Class<T> type, Serializable factory, SmofParserPool parsers) {
+		final TypeBuilder<T> builder = this.factory.create(type, factory);
+		final TypeStructure<T> typeStructure = TypeStructure.create(type, builder);
+		this.types.put(type, typeStructure);
+		handleTypeParser(type, typeStructure, parsers);
+		return typeStructure;
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> TypeStructure<T> getOrCreateParser(Class<?> type, SmofParserPool parsers) {
-		final TypeStructure<T> struct = (TypeStructure<T>) getTypeStructureFromSub(type);
-		if(struct != null) {
-			return putIfAbsent(struct, type, parsers);
+	private <T> void handleTypeParser(Class<T> type, TypeStructure<?> typeStructure, SmofParserPool parsers) {
+		handleForceInspection(type, typeStructure, parsers);
+		if (!type.isInterface()) {
+			final TypeParser<T> typeParser = TypeParser.create(type);
+			validateParserFields(typeParser, parsers);
+			typeStructure.addSubType(type, typeParser);
 		}
-		return (TypeStructure<T>) handleSupertype(type, null, parsers);
 	}
 
 	private <T> TypeStructure<T> putIfAbsent(TypeStructure<T> struct, Class<?> type, SmofParserPool parsers) {
@@ -121,36 +177,11 @@ class SmofTypeContextImpl implements SmofTypeContext {
 		}
 		return struct;
 	}
-	
-	private TypeStructure<?> getTypeStructureFromSub(Class<?> type) {
-		for(Class<?> t : types.keySet()) {
-			if(t.isAssignableFrom(type)) {
-				return types.get(t);
-			}
-		}
-		return null;
-	}
-
-	private boolean containsSubOrSuperType(Class<?> type) {
-		return types.keySet().stream().anyMatch(t -> t.isAssignableFrom(type));
-	}
-
-	private void checkValidSmofField(SmofField field, SmofParserPool parsers) {
-		final BsonParser parser = parsers.get(field.getType());
-		if(!parser.isValidType(field)) {
-			handleError(new InvalidTypeException(field.getFieldClass(), field.getType()));
-		}
-	}
 
 	private void validateParserFields(TypeParser<?> parser, SmofParserPool parsers) {
 		for(PrimaryField field : parser.getAllFields()) {
 			checkValidSmofField(field, parsers);
 		}
-	}
-
-	@Override
-	public <T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass) {
-		return types.get(elClass).getIndexes();
 	}
 
 }

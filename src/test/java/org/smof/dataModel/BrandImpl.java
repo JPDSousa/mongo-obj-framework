@@ -47,7 +47,7 @@ class BrandImpl extends AbstractElement implements Brand {
 	private final Location headQuarters;
 	
 	@SmofNumber(name = CAPITAL)
-	private long capital;
+	private double capital;
 
 	BrandImpl(String name, Location headQuarters, List<Owner> owners) {
 		super();
@@ -74,32 +74,35 @@ class BrandImpl extends AbstractElement implements Brand {
 	}
 
 	@Override
-	public long getCapital() {
+	public double getCapital() {
 		return capital;
 	}
 
 	@Override
-	public void setCapital(long value) {
+	public void setCapital(double value) {
 		this.capital = value;
 	}
 
 	@Override
-	public void increaseCapital(long value) {
+	public void increaseCapital(double value) {
 		this.capital += value;
 	}
 
 	@Override
-	public void multiplyCapital(long value) {
+	public void multiplyCapital(double value) {
 		this.capital *= value;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (capital ^ (capital >>> 32));
+		int result = super.hashCode();
+		long temp;
+		temp = Double.doubleToLongBits(capital);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((founding == null) ? 0 : founding.hashCode());
 		result = prime * result + ((headQuarters == null) ? 0 : headQuarters.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((owners == null) ? 0 : owners.hashCode());
 		return result;
 	}
@@ -109,14 +112,14 @@ class BrandImpl extends AbstractElement implements Brand {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (!super.equals(obj)) {
 			return false;
 		}
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		BrandImpl other = (BrandImpl) obj;
-		if (capital != other.capital) {
+		if (Double.doubleToLongBits(capital) != Double.doubleToLongBits(other.capital)) {
 			return false;
 		}
 		if (founding == null) {
@@ -131,6 +134,13 @@ class BrandImpl extends AbstractElement implements Brand {
 				return false;
 			}
 		} else if (!headQuarters.equals(other.headQuarters)) {
+			return false;
+		}
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
 			return false;
 		}
 		if (owners == null) {

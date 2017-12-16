@@ -58,13 +58,13 @@ public interface Brand extends Element{
 	
 	LocalDate getFoundingDate();
 	
-	long getCapital();
+	double getCapital();
 	
-	void setCapital(long value);
+	void setCapital(double value);
 	
-	void increaseCapital(long value);
+	void increaseCapital(double value);
 	
 	Location getLocation();
 
-	void multiplyCapital(long value);
+	void multiplyCapital(double value);
 }

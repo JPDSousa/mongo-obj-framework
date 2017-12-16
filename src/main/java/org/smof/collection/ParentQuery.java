@@ -64,5 +64,10 @@ public class ParentQuery<T extends Element> extends AbstractQuery<T, ParentQuery
 	protected BsonValue getFilter() {
 		return query;
 	}
+
+	@Override
+	public BsonDocument asBson() {
+		return query;
+	}
 	
 }

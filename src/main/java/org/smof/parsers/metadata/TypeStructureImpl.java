@@ -138,4 +138,58 @@ class TypeStructureImpl<T> implements TypeStructure<T>{
 	public Map<String, PrimaryField> getAllFields() {
 		return allFields;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((defaultTypeBuilder == null) ? 0 : defaultTypeBuilder.hashCode());
+		result = prime * result + ((indexes == null) ? 0 : indexes.hashCode());
+		result = prime * result + ((subTypes == null) ? 0 : subTypes.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		TypeStructureImpl<?> other = (TypeStructureImpl<?>) obj;
+		if (defaultTypeBuilder == null) {
+			if (other.defaultTypeBuilder != null) {
+				return false;
+			}
+		} else if (!defaultTypeBuilder.equals(other.defaultTypeBuilder)) {
+			return false;
+		}
+		if (indexes == null) {
+			if (other.indexes != null) {
+				return false;
+			}
+		} else if (!indexes.equals(other.indexes)) {
+			return false;
+		}
+		if (subTypes == null) {
+			if (other.subTypes != null) {
+				return false;
+			}
+		} else if (!subTypes.equals(other.subTypes)) {
+			return false;
+		}
+		if (type == null) {
+			if (other.type != null) {
+				return false;
+			}
+		} else if (!type.equals(other.type)) {
+			return false;
+		}
+		return true;
+	}
 }

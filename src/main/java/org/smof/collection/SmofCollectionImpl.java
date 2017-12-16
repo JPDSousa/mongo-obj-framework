@@ -44,7 +44,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
@@ -53,7 +52,7 @@ import com.mongodb.client.model.ReturnDocument;
 
 class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 
-	private static final int CACHE_SIZE = 200;
+	private static final int CACHE_SIZE = 256;
 
 	private static void handleError(Throwable cause) {
 		throw new SmofException(cause);
@@ -82,8 +81,8 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	private Set<InternalIndex> loadDBIndexes() {
-		final Set<InternalIndex> indexes = Sets.newLinkedHashSet();
 		final ListIndexesIterable<BsonDocument> bsonIndexes = collection.listIndexes(BsonDocument.class);
+		final Set<InternalIndex> indexes = Sets.newLinkedHashSet();
 		for(BsonDocument bsonIndex : bsonIndexes) {
 			indexes.add(InternalIndex.fromBson(bsonIndex));
 		}
@@ -103,6 +102,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		final SmofInsertResult result;
 		final boolean isValid = this.options.isValid(element);
 		if(isValid) {
+			this.options.getPreHooks().forEach(hook -> hook.accept(element));
 			if(this.options.isUpsert()) {
 				return replace(element, options);
 			}
@@ -174,7 +174,7 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	private Bson createUniquenessQuery(BsonDocument element) {
-		final List<Bson> filters = Lists.newArrayList();
+		final List<Bson> filters = Lists.newLinkedList();
 		filters.add(Filters.eq(Element.ID, element.get(Element.ID)));
 		indexes.stream()
 		.filter(i -> i.getOptions().isUnique())
@@ -185,8 +185,8 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	}
 
 	private Bson createFilterFromIndex(InternalIndex index, BsonDocument element) {
-		final List<Bson> filters = Lists.newArrayList();
-		final BsonDocument indexDoc = index.getIndex().toBsonDocument(BsonDocument.class, MongoClient.getDefaultCodecRegistry());
+		final BsonDocument indexDoc = index.getIndex().toBsonDocument(BsonDocument.class, parser.getRegistry());
+		final List<Bson> filters = Lists.newLinkedList();
 
 		for(String key : indexDoc.keySet()) {
 			filters.add(Filters.eq(key, element.get(key)));
@@ -235,6 +235,11 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	@Override
 	public CollectionOptions<T> getCollectionOptions() {
 		return options;
+	}
+
+	@Override
+	public void drop() {
+		collection.drop();
 	}
 
 }

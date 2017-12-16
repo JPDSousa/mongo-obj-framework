@@ -47,14 +47,12 @@ import java.io.IOException;
 import java.util.Stack;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.bson.BsonObjectId;
 import org.bson.types.ObjectId;
 
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
 import org.smof.gridfs.SmofGridRef;
 import org.smof.gridfs.SmofGridStreamManager;
-import org.smof.utils.BsonUtils;
 
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.model.GridFSFile;
@@ -89,7 +87,7 @@ public class SmofDispatcherImpl implements SmofDispatcher {
     public void dropBucket(String bucketName) {
 		final GridFSBucket bucket = collections.getBucket(bucketName);
 		bucket.drop();
-		collections.removeBucket(bucketName);
+		collections.dropBucket(bucketName);
 	}
 
 	@Override
@@ -97,7 +95,7 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 		for(String bucketName : collections.getAllBuckets()) {
 			collections.getBucket(bucketName).drop();
 		}
-		collections.clearBuckets();
+		collections.dropAllBuckets();
 	}
 
 	@Override
@@ -107,27 +105,12 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 
 	@Override
     public boolean dropCollection(String collectionName) {
-		SmofCollection<?> toDrop = null;
-		for(SmofCollection<?> collection : collections) {
-			if(collectionName.equals(collection.getCollectionName())) {
-				toDrop = collection;
-				break;
-			}
-		}
-		if(toDrop != null) {
-			toDrop.getMongoCollection().drop();
-			collections.remove(toDrop);
-			return true;
-		}
-		return false;
+		return collections.dropCollection(collectionName);
 	}
 
 	@Override
     public void dropCollections() {
-		for(SmofCollection<?> collection : collections) {
-			collection.getMongoCollection().drop();
-		}
-		collections.clearCollections();
+		collections.dropAllCollections();
 	}
 	
 	@Override
@@ -158,24 +141,18 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 		final Stack<Pair<String, Element>> stack = result.getPostInserts();
 		if(!stack.isEmpty()) {
 			final SmofUpdate<T> update = new SmofUpdateImpl<>(collection);
-			boolean updateSuccess = true;
-			while(!stack.isEmpty() && updateSuccess) {
+			while(!stack.isEmpty()) {
 				final Pair<String, Element> current = stack.pop();
 				final Element currentElement = current.getRight();
-				final BsonObjectId id;
-				updateSuccess = insert(currentElement);
-				id = BsonUtils.toBsonObjectId(currentElement);
-				update.set(id, current.getLeft());
+				update.set(current.getLeft(), currentElement);
 			}
 			update.where().idEq(element.getId());
-			return updateSuccess;
 		}
 		return true;
 	}
 
 	@Override
-    @SuppressWarnings("cast")
-	public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
+    public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
 		return collections.getCollection(elementClass).findById(id);
 	}
 	
@@ -197,6 +174,16 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 			handleError(e);
 			return false;
 		}
+	}
+
+	@Override
+	public boolean contains(Class<? extends Element> type) {
+		return collections.contains(type);
+	}
+
+	@Override
+	public boolean contains(String name) {
+		return collections.contains(name);
 	}
 	
 }
