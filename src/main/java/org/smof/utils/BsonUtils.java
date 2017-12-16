@@ -27,6 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bson.BsonArray;
 import org.bson.BsonBoolean;
 import org.bson.BsonDateTime;
+import org.bson.BsonDecimal128;
 import org.bson.BsonDocument;
 import org.bson.BsonDouble;
 import org.bson.BsonInt32;
@@ -42,6 +43,8 @@ import org.bson.BsonSymbol;
 import org.bson.BsonType;
 import org.bson.BsonUndefined;
 import org.bson.BsonValue;
+import org.bson.codecs.Codec;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.types.ObjectId;
 import org.smof.element.Element;
 import org.smof.parsers.BsonLazyObjectId;
@@ -54,6 +57,14 @@ public class BsonUtils {
 	/* 
 	/**/
 	private BsonUtils() {}
+	
+	public static <T> Codec<T> getCodecOrThrow(Class<T> clazz, CodecRegistry registry) {
+		final Codec<T> codec = registry.get(clazz);
+		if(codec == null) {
+			throw new RuntimeException("Cannot find a valid codec for " + clazz.getName());
+		}
+		return codec;
+	}
 	
 	public static BsonObjectId toBsonObjectId(Element value) {
 		final ObjectId id = value.getId();
@@ -128,6 +139,8 @@ public class BsonUtils {
 		case UNDEFINED:
 			reader.readUndefined();
 			return new BsonUndefined();
+		case DECIMAL128:
+			return new BsonDecimal128(reader.readDecimal128());
 		default:
 			return null;
 		}
@@ -141,6 +154,12 @@ public class BsonUtils {
 		}
 		reader.readEndArray();
 		return array;
+	}
+	
+	public static void setElementMetadata(BsonDocument document, Object obj) {
+		if(obj instanceof Element) {
+			((Element) obj).setId(document.getObjectId(Element.ID).getValue());
+		}
 	}
 
 }

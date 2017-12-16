@@ -24,7 +24,7 @@ package org.smof.parsers;
 import java.time.Duration;
 
 import org.bson.BsonValue;
-import org.smof.bson.codecs.SmofCodecProvider;
+import org.bson.codecs.configuration.CodecProvider;
 import org.smof.bson.codecs.number.SmofNumberCodecProvider;
 import org.smof.collection.SmofDispatcher;
 
@@ -33,7 +33,7 @@ class NumberParser extends AbstractBsonParser {
 	private static final Class<?>[] VALID_TYPES = {Integer.class, 
 			Long.class, Short.class, Double.class, Float.class, Duration.class};
 	
-	private static final SmofCodecProvider PROVIDER = new SmofNumberCodecProvider();
+	static final CodecProvider PROVIDER = new SmofNumberCodecProvider();
 
 	NumberParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, PROVIDER, VALID_TYPES);

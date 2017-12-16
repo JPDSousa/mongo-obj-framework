@@ -34,8 +34,10 @@ import org.bson.BsonValue;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
+import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
-import org.smof.bson.codecs.SmofCodecProvider;
+import org.smof.bson.codecs.SmofCodec;
+import org.smof.bson.codecs.SmofEncoderContext;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
@@ -48,17 +50,19 @@ import org.smof.parsers.metadata.TypeBuilder;
 import org.smof.parsers.metadata.TypeParser;
 import org.smof.parsers.metadata.TypeStructure;
 
+import com.google.common.collect.Lists;
+
 import static com.google.common.base.Preconditions.*;
 
 abstract class AbstractBsonParser implements BsonParser {
 	
-	protected final SmofCodecProvider provider;
+	protected final CodecProvider provider;
 	protected final SmofParser topParser;
 	protected final CodecRegistry registry;
 	protected final SmofDispatcher dispatcher;
 	private final Class<?>[] types;
 	
-	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser topParser, SmofCodecProvider provider, Class<?>[] types) {
+	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser topParser, CodecProvider provider, Class<?>[] types) {
 		this.provider = provider;
 		this.topParser = topParser;
 		this.registry = topParser != null ? topParser.getRegistry() : null;
@@ -71,9 +75,9 @@ abstract class AbstractBsonParser implements BsonParser {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> Codec<T> getCodec(Class<T> clazz, SmofField field) {
+	private <T> Codec<T> getCodec(Class<T> clazz) {
 		final Class<T> wrapperClass = (Class<T>) ClassUtils.primitiveToWrapper(clazz);
-		final Codec<T> codec = provider != null ? provider.get(wrapperClass, registry, field) : null;
+		final Codec<T> codec = provider != null ? provider.get(wrapperClass, registry) : null;
 		if(codec == null && registry != null) {
 			return registry.get(wrapperClass);			
 		}
@@ -88,19 +92,42 @@ abstract class AbstractBsonParser implements BsonParser {
 	
 	protected BsonValue serializeToBson(Object value, SmofField field) {
 		final Class<?> clazz = value.getClass();
-		final Codec<?> codec = getCodec(clazz, field);
-		return serializeWithCodec(codec, value);
+		final Codec<?> codec = getCodec(clazz);
+		return serializeWithCodec(codec, value, field);
 	}
 
 	@SuppressWarnings("unchecked")
-	protected final <T> BsonValue serializeWithCodec(Codec<T> codec, Object value) {
+	protected final <T> BsonValue serializeWithCodec(Codec<T> codec, Object value, SmofField field) {
 		checkArgument(codec != null, "Cannot find a valid codec to serialize: " + value);
 		final BsonDocument document = new BsonDocument();
 		final String name = "result";
 		final BsonDocumentWriter writer = new BsonDocumentWriter(document);
 		writer.writeStartDocument();
 		writer.writeName(name);
-		codec.encode(writer, (T) value, EncoderContext.builder().build());
+		if(codec instanceof SmofCodec) {
+			final SmofEncoderContext context = new SmofEncoderContext(Lists.newArrayList(), field);
+			((SmofCodec<T>) codec).encode(writer, (T) value, context);
+			// TODO handle post hooks!!!
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+			// TODO
+		}
+		else {
+			codec.encode(writer, (T) value, EncoderContext.builder().build());
+		}
 		writer.writeEndDocument();
 		return document.get(name);
 	}

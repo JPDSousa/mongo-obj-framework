@@ -23,10 +23,14 @@ package org.smof.parsers;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.bson.BsonDocument;
 import org.bson.BsonDocumentWriter;
+import org.bson.BsonElement;
 import org.bson.BsonNull;
 import org.bson.BsonValue;
 import org.bson.BsonWriter;
@@ -34,8 +38,7 @@ import org.bson.codecs.Codec;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.types.ObjectId;
-import org.smof.bson.codecs.object.LazyLoader;
+import org.smof.bson.codecs.object.ParserCache;
 import org.smof.collection.SmofDispatcher;
 import org.smof.element.Element;
 import org.smof.exception.InvalidBsonTypeException;
@@ -47,6 +50,9 @@ import org.smof.index.InternalIndex;
 import org.smof.parsers.metadata.SmofTypeContext;
 import org.smof.parsers.metadata.TypeStructure;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import com.mongodb.MongoClient;
 
 @SuppressWarnings("javadoc")
@@ -60,13 +66,20 @@ public class SmofParser {
 	
 	public static CodecRegistry getDefaultCodecRegistry() {
 		return CodecRegistries.fromProviders(
-				DateTimeParser.PROVIDER);
+				BooleanParser.PROVIDER,
+				ByteParser.PROVIDER,
+				DateTimeParser.PROVIDER,
+				NumberParser.PROVIDER,
+				StringParser.PROVIDER);
 	}
 
 	private final SmofDispatcher dispatcher;
 	private final SmofTypeContext context;
 	private final SmofParserPool parsers;
 	private final CodecRegistry registry;
+	
+	private final ParserCache parserCache;
+	private final Map<Object, List<Callable<BsonElement>>> posInsertionHooks;
 
 	public SmofParser(SmofDispatcher dispatcher) {
 		this(dispatcher, CodecRegistries.fromRegistries(Arrays.asList(getDefaultCodecRegistry(), MongoClient.getDefaultCodecRegistry())));
@@ -77,8 +90,18 @@ public class SmofParser {
 		this.context = SmofTypeContext.create();
 		this.registry = registry;
 		parsers = SmofParserPool.create(this, dispatcher);
+		parserCache = ParserCache.create();
+		posInsertionHooks = Maps.newHashMap();
 	}
 	
+	public ParserCache getCache() {
+		return parserCache;
+	}
+	
+	public Map<Object, List<Callable<BsonElement>>> getPosInsertionHooks() {
+		return posInsertionHooks;
+	}
+
 	public CodecRegistry getRegistry() {
 		return registry;
 	}
@@ -182,10 +205,6 @@ public class SmofParser {
 
 	public <T extends Element> Set<InternalIndex> getIndexes(Class<T> elClass) {
 		return context.getIndexes(elClass);
-	}
-
-	public void reset() {
-		serContext.clear();
 	}
 
 	public PrimaryField getField(Class<?> type, String fieldName) {

@@ -1,6 +1,7 @@
 package org.smof.bson.codecs.object;
 
-import java.lang.reflect.Field;
+import static org.smof.bson.codecs.object.ObjectUtils.*;
+import static org.smof.utils.BsonUtils.*;
 
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
@@ -9,10 +10,10 @@ import org.bson.BsonNull;
 import org.bson.BsonReader;
 import org.bson.BsonValue;
 import org.bson.BsonWriter;
-import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
-import org.smof.element.Element;
-import org.smof.exception.MissingRequiredFieldException;
+import org.bson.codecs.EncoderContext;
+import org.smof.bson.codecs.SmofCodec;
+import org.smof.bson.codecs.SmofEncoderContext;
 import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 import org.smof.gridfs.SmofGridRef;
@@ -23,31 +24,36 @@ import org.smof.parsers.metadata.TypeParser;
 import org.smof.parsers.metadata.TypeStructure;
 import org.smof.utils.BsonUtils;
 
-class ObjectCodec<T> implements Codec<T> {
+class ObjectCodec<T> implements SmofCodec<T> {
 
-	private final ObjectCodecContext encoderContext;
+	private final ParserCache parserCache;
 	private final SmofParser topParser;
 	private final Class<T> type;
 	
-	ObjectCodec(Class<T> type, ObjectCodecContext encoderContext, SmofParser topParser) {
-		this.encoderContext = encoderContext;
+	ObjectCodec(Class<T> type, SmofParser topParser) {
+		this.parserCache = topParser.getCache();
 		this.topParser = topParser;
 		this.type = type;
 	}
 
 	@Override
-	public void encode(BsonWriter writer, T value, org.bson.codecs.EncoderContext encoderContext) {
-		final BsonValue cachedValue = this.encoderContext.getBsonValue(value);
+	public void encode(BsonWriter writer, T value, EncoderContext encoderContext) {
+		final BsonValue cachedValue = this.parserCache.getBsonValue(value);
 		if(cachedValue != null) {
 			writeBsonValue(writer, cachedValue);
 		}
 		else {
 			final BsonDocument encodeObject = encodeObject(value);
-			this.encoderContext.put(value, encodeObject);
+			this.parserCache.put(value, encodeObject);
 			writer.pipe(new BsonDocumentReader(encodeObject));
 		}
 	}
 	
+	@Override
+	public void encode(BsonWriter writer, T value, SmofEncoderContext context) {
+		encode(writer, value, (EncoderContext) null);
+	}
+
 	private <E> TypeStructure<E> getTypeStructure(Class<E> type) {
 		return topParser.getContext().getTypeStructure(type, topParser.getParsers());
 	}
@@ -78,26 +84,6 @@ class ObjectCodec<T> implements Codec<T> {
 		return document;
 	}
 	
-	private Object extractValue(Object element, PrimaryField field) {
-		try {
-			final Field rawField = field.getRawField();
-			final Object value;
-			rawField.setAccessible(true);
-			value = rawField.get(element);
-			rawField.setAccessible(false);
-			return value;
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	private void checkRequired(PrimaryField field, Object value) {
-		if(field.isRequired() && value == null) {
-			final String name = field.getName();
-			throw new RuntimeException(new MissingRequiredFieldException(name));
-		}
-	}
-
 	private void writeBsonValue(BsonWriter writer, BsonValue value) {
 		if(value.isObjectId()) {
 			writer.writeObjectId(value.asObjectId().getValue());
@@ -141,12 +127,6 @@ class ObjectCodec<T> implements Codec<T> {
 				parsedObj = topParser.fromBson(fieldValue, field);
 				builder.append2AdditionalFields(field.getRawField(), parsedObj);
 			}
-		}
-	}
-
-	private void setElementMetadata(BsonDocument document, Object obj) {
-		if(obj instanceof Element) {
-			((Element) obj).setId(document.getObjectId(Element.ID).getValue());
 		}
 	}
 

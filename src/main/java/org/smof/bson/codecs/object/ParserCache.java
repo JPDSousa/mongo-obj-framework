@@ -19,18 +19,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof.bson.codecs;
+package org.smof.bson.codecs.object;
 
-import org.bson.codecs.Codec;
-import org.bson.codecs.configuration.CodecProvider;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.smof.field.SmofField;
+import java.util.Map;
+
+import org.bson.BsonValue;
+
+import com.google.common.collect.Maps;
 
 @SuppressWarnings("javadoc")
-public interface SmofCodecProvider extends CodecProvider {
+public class ParserCache {
 	
-	boolean contains(Class<?> clazz);
+	public static ParserCache create() {
+		return new ParserCache();
+	}
+
+	private final Map<Object, BsonValue> parserCache;
 	
-	<T> Codec<T> get(Class<T> type, CodecRegistry registry, SmofField field);
+	private ParserCache() {
+		parserCache = Maps.newHashMap();
+	}
+	
+	public void put(Object object, BsonValue serializedValue) {
+		parserCache.put(object, serializedValue);
+	}
+	
+	public boolean containsObject(Object object) {
+		return parserCache.containsKey(object);
+	}
+	
+	public BsonValue getBsonValue(Object object) {
+		return parserCache.get(object);
+	}
+	
+	public void remove(Object key) {
+		parserCache.remove(key);
+	}	
 	
 }

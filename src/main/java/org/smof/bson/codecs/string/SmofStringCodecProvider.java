@@ -21,16 +21,12 @@
  ******************************************************************************/
 package org.smof.bson.codecs.string;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.bson.codecs.Codec;
+import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
-import org.smof.bson.codecs.SmofCodecProvider;
-import org.smof.field.SmofField;
 
 @SuppressWarnings("javadoc")
-public class SmofStringCodecProvider implements SmofCodecProvider {
-	
-	private static final Class<?>[] TYPES = {String.class, Integer.class};
+public class SmofStringCodecProvider implements CodecProvider {
 	
 	private final Codec<String> stringCodec;
 	private final Codec<Integer> integerCodec;
@@ -40,27 +36,17 @@ public class SmofStringCodecProvider implements SmofCodecProvider {
 		integerCodec = new IntegerCodec();
 	}
 
-	@Override
-	public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
-		return get(clazz, registry, null);
-	}
-
-	@Override
-	public boolean contains(Class<?> clazz) {
-		return ArrayUtils.contains(TYPES, clazz) || Enum.class.isAssignableFrom(clazz);
-	}
-
 	@SuppressWarnings({ "unchecked", "cast", "rawtypes" })
 	@Override
-	public <T> Codec<T> get(Class<T> type, CodecRegistry registry, SmofField field) {
-		if(Integer.class.equals(type)) {
+	public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
+		if(Integer.class.equals(clazz)) {
 			return (Codec<T>) integerCodec;
 		}
-		if(String.class.equals(type)) {
+		if(String.class.equals(clazz)) {
 			return (Codec<T>) stringCodec;
 		}
-		if(Enum.class.isAssignableFrom(type)) {
-			return (Codec<T>) new EnumCodec(type);
+		if(Enum.class.isAssignableFrom(clazz)) {
+			return (Codec<T>) new EnumCodec(clazz);
 		}
 		return null;
 	}

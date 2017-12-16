@@ -30,6 +30,8 @@ import org.smof.element.Element;
 @SuppressWarnings("javadoc")
 public interface SmofGridRef extends Element {
 	
+	String BUCKET = "bucket";
+	
 	String getBucketName();
 	void setBucketName(String bucketName);
 	

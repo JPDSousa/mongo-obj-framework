@@ -10,7 +10,7 @@ public class JavaDurationCodec extends AbstractTimeCodec<Duration> {
 
 	@Override
 	public void encode(BsonWriter writer, Duration value, EncoderContext encoderContext) {
-		writer.writeDateTime(value.toMillis());
+		writer.writeInt64(value.toMillis());
 	}
 
 	@Override

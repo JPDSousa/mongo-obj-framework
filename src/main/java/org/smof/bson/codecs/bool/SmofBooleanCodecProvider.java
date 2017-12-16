@@ -25,14 +25,13 @@ import java.util.Map;
 
 import org.bson.codecs.BooleanCodec;
 import org.bson.codecs.Codec;
+import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
-import org.smof.bson.codecs.SmofCodecProvider;
-import org.smof.field.SmofField;
 
 import com.google.common.collect.Maps;
 
 @SuppressWarnings("javadoc")
-public class SmofBooleanCodecProvider implements SmofCodecProvider {
+public class SmofBooleanCodecProvider implements CodecProvider {
 
 	private final Map<Class<?>, Codec<?>> codecs;
 	
@@ -47,20 +46,10 @@ public class SmofBooleanCodecProvider implements SmofCodecProvider {
 		codecs.put(codec.getEncoderClass(), codec);
 	}
 	
-	@Override
-	public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
-		return get(clazz, registry, null);
-	}
-
-	@Override
-	public boolean contains(Class<?> clazz) {
-		return codecs.containsKey(clazz);
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Codec<T> get(Class<T> type, CodecRegistry registry, SmofField field) {
-		return (Codec<T>) codecs.get(type);
+	public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
+		return (Codec<T>) codecs.get(clazz);
 	}
 
 }

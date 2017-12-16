@@ -35,8 +35,9 @@ import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.types.ObjectId;
 import org.smof.annnotations.SmofObject;
-import org.smof.bson.codecs.object.BsonBuilder;
-import org.smof.bson.codecs.object.ObjectCodecContext;
+import org.smof.bson.codecs.SmofCodecProvider;
+import org.smof.bson.codecs.number.SmofNumberCodecProvider;
+import org.smof.bson.codecs.object.SmofObjectCodecProvider;
 import org.smof.collection.SmofDispatcher;
 import org.smof.collection.SmofOpOptions;
 import org.smof.collection.SmofOpOptionsImpl;
@@ -59,9 +60,9 @@ class ObjectParser extends AbstractBsonParser {
 
 	private static final Class<?>[] VALID_TYPES = {};
 	private static final String ENUM_NAME = "_enumValue";
-	
+
 	ObjectParser(SmofParser parser, SmofDispatcher dispatcher) {
-		super(dispatcher, parser, null, VALID_TYPES);
+		super(dispatcher, parser, new SmofObjectCodecProvider(parser), VALID_TYPES);
 	}
 
 	@Override
@@ -95,7 +96,7 @@ class ObjectParser extends AbstractBsonParser {
 		return serValue;
 	}
 
-	private boolean contextContains(Object value, SmofField fieldOpts, ObjectCodecContext serContext) {
+	private boolean contextContains(Object value, SmofField fieldOpts, ParserCache serContext) {
 		return !(fieldOpts instanceof MasterField) && serContext.contains(value, fieldOpts.getType());
 	}
 
@@ -126,7 +127,7 @@ class ObjectParser extends AbstractBsonParser {
 		return bsonRef;
 	}
 
-	private BsonDocument fromMasterField(Element value, SmofField fieldOpts, ObjectCodecContext serContext) {
+	private BsonDocument fromMasterField(Element value, SmofField fieldOpts, ParserCache serContext) {
 		serContext.put(value, fieldOpts.getType(), BsonUtils.toBsonObjectId(value));
 		return fromObject(value);
 	}
@@ -140,7 +141,7 @@ class ObjectParser extends AbstractBsonParser {
 		return new BsonLazyObjectId(fieldOpts.getName(), value);
 	}
 	
-	private BsonValue fromElement(Element value, ObjectCodecContext serContext) {
+	private BsonValue fromElement(Element value, ParserCache serContext) {
 		final SmofOpOptions options = new SmofOpOptionsImpl();
 		options.bypassCache(true);
 		dispatcher.insert(value, options);
@@ -192,7 +193,7 @@ class ObjectParser extends AbstractBsonParser {
 		}
 	}
 
-	private BsonDocument fromEnum(Enum<?> value, ObjectCodecContext serContext) {
+	private BsonDocument fromEnum(Enum<?> value, ParserCache serContext) {
 		final BsonDocument document = fromObject(value);
 		final BsonString name = new BsonString(value.name());
 		document.append(ENUM_NAME, name);
@@ -200,7 +201,7 @@ class ObjectParser extends AbstractBsonParser {
 		return document;
 	}
 
-	private BsonDocument fromMap(Map<?, ?> value, PrimaryField mapField, ObjectCodecContext serContext) {
+	private BsonDocument fromMap(Map<?, ?> value, PrimaryField mapField, ParserCache serContext) {
 		final Pair<SecondaryField, SecondaryField> fields = getMapFields(mapField);
 		final BsonDocument document = new BsonDocument();
 		for(Object key : value.keySet()) {

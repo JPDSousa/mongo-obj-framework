@@ -22,7 +22,7 @@
 package org.smof.parsers;
 
 import org.bson.BsonValue;
-import org.smof.bson.codecs.SmofCodecProvider;
+import org.bson.codecs.configuration.CodecProvider;
 import org.smof.bson.codecs.string.SmofStringCodecProvider;
 import org.smof.collection.SmofDispatcher;
 
@@ -30,7 +30,7 @@ class StringParser extends AbstractBsonParser {
 
 	private static final Class<?>[] VALID_TYPES = {
 			String.class, Enum.class, Integer.class};
-	static final SmofCodecProvider PROVIDER = new SmofStringCodecProvider();
+	static final CodecProvider PROVIDER = new SmofStringCodecProvider();
 	
 	StringParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, PROVIDER, VALID_TYPES);

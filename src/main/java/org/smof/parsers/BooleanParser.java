@@ -22,7 +22,7 @@
 package org.smof.parsers;
 
 import org.bson.BsonValue;
-import org.smof.bson.codecs.SmofCodecProvider;
+import org.bson.codecs.configuration.CodecProvider;
 import org.smof.bson.codecs.bool.SmofBooleanCodecProvider;
 import org.smof.collection.SmofDispatcher;
 
@@ -31,7 +31,7 @@ import org.smof.collection.SmofDispatcher;
 @SuppressWarnings("javadoc")
 public class BooleanParser extends AbstractBsonParser {
 
-	private static final SmofCodecProvider PROVIDER = new SmofBooleanCodecProvider();
+	static final CodecProvider PROVIDER = new SmofBooleanCodecProvider();
 	private static final Class<?>[] VALID_TYPES = {Boolean.class, String.class, Integer.class};
 
 	protected BooleanParser(SmofParser bsonParser, SmofDispatcher dispatcher) {

@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.bson.BsonArray;
 import org.bson.BsonValue;
-import org.smof.bson.codecs.object.ObjectCodecContext;
+import org.smof.bson.codecs.object.ParserCache;
 import org.smof.collection.SmofDispatcher;
 import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
@@ -40,17 +40,17 @@ class ArrayParser extends AbstractBsonParser {
 
 	private static final Class<?>[] VALID_TYPES = {};
 	
-	private final ObjectCodecContext serializationContext;
+	private final ParserCache serializationContext;
 	
 	ArrayParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, null, VALID_TYPES);
-		serializationContext = parser != null ? parser.getSerializationContext() : null;
+		serializationContext = parser != null ? parser.getCache() : null;
 	}
 
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
-		if(serializationContext.contains(value, fieldOpts.getType())) {
-			return serializationContext.get(value, fieldOpts.getType());
+		if(serializationContext.containsObject(value)) {
+			return serializationContext.getBsonValue(value);
 		}
 		final Class<?> type = value.getClass();
 		if(isPrimaryField(fieldOpts) && isCollection(type)) {

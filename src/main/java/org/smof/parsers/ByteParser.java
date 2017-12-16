@@ -27,7 +27,7 @@ import org.smof.collection.SmofDispatcher;
 
 class ByteParser extends AbstractBsonParser {
 
-	private static final SmofBytesCodecProvider PROVIDER = new SmofBytesCodecProvider();
+	static final SmofBytesCodecProvider PROVIDER = new SmofBytesCodecProvider();
 	private static final Class<?>[] VALID_TYPES = {Byte[].class, byte[].class};
 
 	protected ByteParser(SmofDispatcher dispatcher, SmofParser bsonParser) {
