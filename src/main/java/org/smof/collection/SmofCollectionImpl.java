@@ -24,13 +24,11 @@ package org.smof.collection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -38,7 +36,6 @@ import org.smof.element.Element;
 import org.smof.exception.SmofException;
 import org.smof.index.InternalIndex;
 import org.smof.parsers.SmofParser;
-import org.smof.utils.BsonUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -118,13 +115,10 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 	private SmofInsertResult insert(T element) {
 		final BsonDocument document;
 		final SmofInsertResult result = new SmofInsertResultImpl();
-		final Stack<Pair<String, Element>> posInsertions;
 		document = parser.toBson(element);
-		posInsertions = BsonUtils.extrackPosInsertions(document);
 		collection.insertOne(document);
 		cache.put(element.getId(), element);
 		result.setSuccess(true);
-		result.setPostInserts(posInsertions);
 		return result;
 	}
 
@@ -163,7 +157,6 @@ class SmofCollectionImpl<T extends Element> implements SmofCollection<T> {
 		if(options.isBypassCache() || !cache.asMap().containsValue(element)) {
 			final BsonDocument document = parser.toBson(element);
 			final Bson query = createUniquenessQuery(document);
-			result.setPostInserts(BsonUtils.extrackPosInsertions(document));
 			options.setReturnDocument(ReturnDocument.AFTER);
 			document.remove(Element.ID);
 			final BsonDocument resDoc = collection.findOneAndReplace(query, document, options.toFindOneAndReplace());

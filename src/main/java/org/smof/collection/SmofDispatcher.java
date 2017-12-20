@@ -52,6 +52,8 @@ public interface SmofDispatcher {
     <T extends Element> boolean insert(T element, SmofOpOptions options);
 
     <T extends Element> T findById(ObjectId id, Class<T> elementClass);
+    
+    <T extends Element> SmofUpdate<T> update(Class<T> elementClass);
 
     GridFSFile loadMetadata(SmofGridRef ref);
     

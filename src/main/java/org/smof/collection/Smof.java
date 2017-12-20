@@ -330,11 +330,9 @@ public final class Smof implements Closeable {
 			success = dispatcher.insert(element);
 		} catch(MongoWriteException e) {
 			if(options.isThrowOnInsertDuplicate()) {
-				parser.reset();
 				throw e;
 			}
 		}
-		parser.reset();
 		return success;
 	}
 	
@@ -357,8 +355,7 @@ public final class Smof implements Closeable {
 	 * @return a new {@link SmofUpdate} object
 	 */
 	public <T extends Element> SmofUpdate<T> update(Class<T> elementClass) {
-		final SmofCollection<T> collection = dispatcher.getCollection(elementClass);
-		return collection.update();
+		return dispatcher.update(elementClass);
 	}
 	
 	public <T extends Element> void replace(Class<T> type, T element) {

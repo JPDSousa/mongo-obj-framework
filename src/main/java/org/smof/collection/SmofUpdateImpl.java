@@ -269,7 +269,6 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 		final PrimaryField field = fields.get(fieldName);
 		Preconditions.checkArgument(field != null, fieldName + " is not a valid field name for type " + type.getName());
 		Preconditions.checkArgument(expectedType == null || expectedType == field.getType(), fieldName + " is not of type: " + expectedType);
-		field.setForcePreInsert(true);
 		return field;
 	}
 

@@ -88,7 +88,6 @@ public class SmofUpdateQuery<T extends Element> {
 	
 	public void execute() {
 		collection.execUpdate(filter, update, options);
-		parser.reset();
 	}
 	
 }

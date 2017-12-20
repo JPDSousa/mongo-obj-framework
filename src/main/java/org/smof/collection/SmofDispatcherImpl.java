@@ -44,9 +44,7 @@
 package org.smof.collection;
 
 import java.io.IOException;
-import java.util.Stack;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.bson.types.ObjectId;
 
 import org.smof.element.Element;
@@ -133,23 +131,9 @@ public class SmofDispatcherImpl implements SmofDispatcher {
         final SmofCollection<T> collection = (SmofCollection<T>) collections.getCollection(element.getClass());
         final SmofInsertResult result = collection.insert(element, options);
 
-        return result.isSuccess() && onInsertSuccess(element, collection, result);
+        return result.isSuccess();
 
     }
-
-	private <T extends Element> boolean onInsertSuccess(T element, SmofCollection<T> collection, SmofInsertResult result) {
-		final Stack<Pair<String, Element>> stack = result.getPostInserts();
-		if(!stack.isEmpty()) {
-			final SmofUpdate<T> update = new SmofUpdateImpl<>(collection);
-			while(!stack.isEmpty()) {
-				final Pair<String, Element> current = stack.pop();
-				final Element currentElement = current.getRight();
-				update.set(current.getLeft(), currentElement);
-			}
-			update.where().idEq(element.getId());
-		}
-		return true;
-	}
 
 	@Override
     public <T extends Element> T findById(ObjectId id, Class<T> elementClass) {
@@ -184,6 +168,11 @@ public class SmofDispatcherImpl implements SmofDispatcher {
 	@Override
 	public boolean contains(String name) {
 		return collections.contains(name);
+	}
+
+	@Override
+	public <T extends Element> SmofUpdate<T> update(Class<T> elementClass) {
+		return getCollection(elementClass).update();
 	}
 	
 }
