@@ -26,29 +26,20 @@ import org.smof.utils.BsonUtils;
 
 class ObjectCodec<T> implements SmofCodec<T> {
 
-	private final ParserCache parserCache;
 	private final SmofParser topParser;
 	private final Class<T> type;
-	
+
 	ObjectCodec(Class<T> type, SmofParser topParser) {
-		this.parserCache = topParser.getCache();
 		this.topParser = topParser;
 		this.type = type;
 	}
 
 	@Override
 	public void encode(BsonWriter writer, T value, EncoderContext encoderContext) {
-		final BsonValue cachedValue = this.parserCache.getBsonValue(value);
-		if(cachedValue != null) {
-			writeBsonValue(writer, cachedValue);
-		}
-		else {
-			final BsonDocument encodeObject = encodeObject(value);
-			this.parserCache.put(value, encodeObject);
-			writer.pipe(new BsonDocumentReader(encodeObject));
-		}
+		final BsonDocument encodeObject = encodeObject(value);
+		writer.pipe(new BsonDocumentReader(encodeObject));
 	}
-	
+
 	@Override
 	public void encode(BsonWriter writer, T value, SmofEncoderContext context) {
 		encode(writer, value, (EncoderContext) null);
@@ -57,7 +48,7 @@ class ObjectCodec<T> implements SmofCodec<T> {
 	private <E> TypeStructure<E> getTypeStructure(Class<E> type) {
 		return topParser.getContext().getTypeStructure(type, topParser.getParsers());
 	}
-	
+
 	private <E> TypeParser<E> getTypeParser(Class<E> type) {
 		return getTypeStructure(type).getParser(type);
 	}
@@ -83,15 +74,6 @@ class ObjectCodec<T> implements SmofCodec<T> {
 		document.append(SmofParser.ON_INSERT, lazyStack);
 		return document;
 	}
-	
-	private void writeBsonValue(BsonWriter writer, BsonValue value) {
-		if(value.isObjectId()) {
-			writer.writeObjectId(value.asObjectId().getValue());
-		}
-		else if(value.isDocument()) {
-			writer.pipe(new BsonDocumentReader(value.asDocument()));
-		}
-	}
 
 	@Override
 	public Class<T> getEncoderClass() {
@@ -106,8 +88,13 @@ class ObjectCodec<T> implements SmofCodec<T> {
 		fillObject(document, builder, obj);
 		return obj;
 	}
-	
-	private void fillObject(BsonDocument document, final BsonBuilder<T> builder, final T obj) {
+
+	@Override
+	public T decode(BsonReader reader, SmofEncoderContext context) {
+		return decode(reader, DecoderContext.builder().build());
+	}
+
+	private void fillObject(BsonDocument document, BsonBuilder<T> builder, T obj) {
 		final TypeParser<?> typeParser = getTypeParser(obj.getClass());
 		for(PrimaryField field : typeParser.getNonBuilderFields()) {
 			handleField(document, builder, field);
@@ -115,7 +102,7 @@ class ObjectCodec<T> implements SmofCodec<T> {
 		builder.fillElement(obj);
 		setElementMetadata(document, obj);
 	}
-	
+
 	private void handleField(BsonDocument document, BsonBuilder<T> builder, PrimaryField field) {
 		final BsonValue fieldValue = document.get(field.getName());
 		final Object parsedObj;
