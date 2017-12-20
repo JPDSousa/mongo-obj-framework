@@ -144,17 +144,17 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 	}
 	
 	public SecondaryField getSecondaryField() {
+		final Class<?> componentClass = getParameterizedType(getRawField());
 		final SmofType type;
 		if(this.type == SmofType.ARRAY) {
 			final SmofArray note = getSmofAnnotationAs(SmofArray.class);
 			type = note.type();
+			return new SecondaryField(getName(), type, componentClass, note);
 		}
-		else {
-			final SmofObject note = getSmofAnnotationAs(SmofObject.class);
-			type = note.mapValueType();
-		}
-		final Class<?> componentClass = getParameterizedType(getRawField());
-		return new SecondaryField(getName(), type, componentClass);
+		final SmofObject note = getSmofAnnotationAs(SmofObject.class);
+		type = note.mapValueType();
+		return new SecondaryField(getName(), type, componentClass, note);
+		
 	}
 
 	private Class<?> getParameterizedType(Field collType) {

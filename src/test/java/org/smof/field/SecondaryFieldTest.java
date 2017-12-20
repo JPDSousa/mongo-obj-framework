@@ -22,9 +22,13 @@
 package org.smof.field;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import java.lang.annotation.Annotation;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.smof.annnotations.SmofObject;
 import org.smof.field.SecondaryField;
 import org.smof.parsers.SmofType;
 
@@ -45,7 +49,8 @@ public class SecondaryFieldTest {
 	 */
 	@Before
 	public void setUp() {
-		guineaPig = new SecondaryField(NAME, TYPE, CLASS);
+		final Annotation annotation = mock(SmofObject.class);
+		guineaPig = new SecondaryField(NAME, TYPE, CLASS, annotation);
 	}
 
 	/**

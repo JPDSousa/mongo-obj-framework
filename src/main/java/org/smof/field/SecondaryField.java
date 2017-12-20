@@ -21,6 +21,10 @@
  ******************************************************************************/
 package org.smof.field;
 
+import java.lang.annotation.Annotation;
+
+import org.smof.annnotations.SmofArray;
+import org.smof.annnotations.SmofObject;
 import org.smof.parsers.SmofType;
 
 @SuppressWarnings("javadoc")
@@ -29,12 +33,17 @@ public class SecondaryField implements SmofField {
 	private final SmofType type;
 	private final String name;
 	private final Class<?> fieldClass;
+	private final Annotation parentAnnotation;
 	
-	public SecondaryField(String name, SmofType type, Class<?> fieldClass) {
+	public SecondaryField(String name, SmofType type, Class<?> fieldClass, Annotation parentAnnotation) {
 		super();
+		if(!(parentAnnotation instanceof SmofObject || parentAnnotation instanceof SmofArray)) {
+			throw new RuntimeException("Invalid parent annotation: " + parentAnnotation);
+		}
 		this.type = type;
 		this.name = name;
 		this.fieldClass = fieldClass;
+		this.parentAnnotation = parentAnnotation;
 	}
 
 	@Override
@@ -52,4 +61,9 @@ public class SecondaryField implements SmofField {
 		return name;
 	}
 
+	@SuppressWarnings({ "unchecked", "unused" })
+	public <A extends Annotation> A getParentAnnotationAs(Class<A> annotationClass) {
+		return (A) parentAnnotation;
+	}
+	
 }
