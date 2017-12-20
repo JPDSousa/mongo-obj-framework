@@ -37,8 +37,8 @@ public class SmofParserTest {
 	}
 
 	@Test
-	public final void testGetSerializationContext() {
-		assertNotNull(parser.getSerializationContext());
+	public final void testGetCache() {
+		assertNotNull(parser.getCache());
 	}
 
 	@Test

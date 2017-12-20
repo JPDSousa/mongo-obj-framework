@@ -21,7 +21,9 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
@@ -39,6 +41,7 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.smof.bson.codecs.SmofCodec;
 import org.smof.bson.codecs.SmofEncoderContext;
 import org.smof.collection.SmofDispatcher;
+import org.smof.collection.SmofUpdate;
 import org.smof.element.Element;
 import org.smof.exception.SmofException;
 import org.smof.field.MasterField;
@@ -49,8 +52,6 @@ import org.smof.gridfs.SmofGridRef;
 import org.smof.parsers.metadata.TypeBuilder;
 import org.smof.parsers.metadata.TypeParser;
 import org.smof.parsers.metadata.TypeStructure;
-
-import com.google.common.collect.Lists;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -105,25 +106,11 @@ abstract class AbstractBsonParser implements BsonParser {
 		writer.writeStartDocument();
 		writer.writeName(name);
 		if(codec instanceof SmofCodec) {
-			final SmofEncoderContext context = new SmofEncoderContext(Lists.newArrayList(), field);
+			final SmofEncoderContext context = SmofEncoderContext.create(field);
 			((SmofCodec<T>) codec).encode(writer, (T) value, context);
-			// TODO handle post hooks!!!
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
-			// TODO
+			if(value instanceof Element) {
+				handlePosHooks((Element) value, context.getPosInsertionHooks());
+			}
 		}
 		else {
 			codec.encode(writer, (T) value, EncoderContext.builder().build());
@@ -132,25 +119,40 @@ abstract class AbstractBsonParser implements BsonParser {
 		return document.get(name);
 	}
 	
+	@SuppressWarnings("unchecked")
+	private void handlePosHooks(Element element, List<Consumer<SmofUpdate<Element>>> posInsertionHooks) {
+		if(!posInsertionHooks.isEmpty()) {
+			final SmofUpdate<Element> update = (SmofUpdate<Element>) dispatcher.update(element.getClass());
+			for(Consumer<SmofUpdate<Element>> consumer : posInsertionHooks) {
+				consumer.accept(update);
+			}
+			update.where().idEq(element.getId());
+		}
+	}
+
 	@Override
 	public <T> T fromBson(BsonValue value, Class<T> type, SmofField field) {
 		checkArgument(value != null, "A value must be specified.");
 		checkArgument(type != null, "A type must be specified.");
-		final Codec<T> codec = getCodec(type, field);
+		final Codec<T> codec = getCodec(type);
 		try {
-			return deserializeWithCodec(codec, value);
+			return deserializeWithCodec(codec, value, field);
 		} catch (BsonInvalidOperationException e) {
 			handleError(new RuntimeException("Cannot parse value for type: " + field.getName(), e));
 			return null;
 		}
 	}
 	
-	protected final <T> T deserializeWithCodec(Codec<T> codec, BsonValue value) {
+	protected final <T> T deserializeWithCodec(Codec<T> codec, BsonValue value, SmofField field) {
 		checkArgument(codec != null, "Cannot find a valid codec to deserialize: " + value);
 		final BsonDocument document = new BsonDocument("result", value);
 		final BsonReader reader = new BsonDocumentReader(document);
 		reader.readStartDocument();
 		reader.readName();
+		if(codec instanceof SmofCodec) {
+			final SmofEncoderContext context = SmofEncoderContext.create(field);
+			return ((SmofCodec<T>) codec).decode(reader, context);
+		}
 		return codec.decode(reader, DecoderContext.builder().build());
 	}
 
