@@ -1,10 +1,7 @@
 package org.smof.bson.codecs.object;
 
-import static org.smof.collection.UpdateOperators.SET;
 import static org.smof.utils.BsonUtils.*;
 
-import org.bson.BsonDocument;
-import org.bson.BsonElement;
 import org.bson.BsonObjectId;
 import org.bson.BsonReader;
 import org.bson.BsonValue;
@@ -23,6 +20,7 @@ import org.smof.collection.SmofOpOptionsImpl;
 import org.smof.element.Element;
 import org.smof.field.MasterField;
 import org.smof.field.PrimaryField;
+import org.smof.field.SecondaryField;
 import org.smof.field.SmofField;
 import org.smof.parsers.SmofParser;
 
@@ -46,8 +44,7 @@ class ReferenceElementCodec<T extends Element> implements SmofCollectibleCodec<T
 
 	@Override
 	public void encode(BsonWriter writer, T value, EncoderContext encoderContext) {
-		// TODO consider a master field scenario here too
-		final ObjectId id = insert(value);
+		final ObjectId id = getDocumentId(value).asObjectId().getValue();
 		getCodecOrThrow(ObjectId.class, registry).encode(writer, id, encoderContext);
 	}
 
@@ -71,9 +68,8 @@ class ReferenceElementCodec<T extends Element> implements SmofCollectibleCodec<T
 			writer.writeObjectId(insert(value));
 		}
 		else {
-			context.addPosInsertionHook(() -> {
-				final BsonDocument doc = new BsonDocument(field.getName(), new BsonObjectId(insert(value)));
-				return new BsonElement(SET.getOperator(), doc);
+			context.addPosInsertionHook(update -> {
+				update.set(field.getName(), new BsonObjectId(insert(value)));
 			});
 		}
 	}
@@ -84,13 +80,14 @@ class ReferenceElementCodec<T extends Element> implements SmofCollectibleCodec<T
 				.build();
 		parserCache.put(value, getDocumentId(value));
 		objectCodec.encode(writer, value, encoderContext);
+		parserCache.remove(value);
 	}
 	
 	private ObjectId insert(T element) {
 		final SmofOpOptions options = new SmofOpOptionsImpl();
 		options.bypassCache(true);
 		dispatcher.insert(element, options);
-		final BsonObjectId id = toBsonObjectId(element);
+		final BsonObjectId id = getDocumentId(element).asObjectId();
 		parserCache.put(element, id);
 		return id.getValue();
 	}
@@ -102,13 +99,37 @@ class ReferenceElementCodec<T extends Element> implements SmofCollectibleCodec<T
 
 	@Override
 	public T decode(BsonReader reader, DecoderContext decoderContext) {
-		final ObjectId id = registry.get(ObjectId.class).decode(reader, decoderContext);
+		return fetch(reader);
+	}
+
+	@Override
+	public T decode(BsonReader reader, SmofEncoderContext context) {
+		final SmofField field = context.getField();
+		if(field instanceof MasterField) {
+			return objectCodec.decode(reader, DecoderContext.builder().build());
+		}
+		else if(field instanceof SecondaryField) {
+			return fetch(reader);
+		}
+		else if(field instanceof PrimaryField) {
+			return lazyLoad(reader);
+		}
+		throw new UnsupportedOperationException("Cannot handle field: " + field);
+	}
+
+	private T lazyLoad(BsonReader reader) {
+		final ObjectId id = getCodecOrThrow(ObjectId.class, registry)
+				.decode(reader, DecoderContext.builder().build());
 		return lazyLoader.createLazyInstance(type, id);
+	}
+
+	private T fetch(BsonReader reader) {
+		return dispatcher.findById(reader.readObjectId(), getEncoderClass());
 	}
 
 	@Override
 	public T generateIdIfAbsentFromDocument(T document) {
-		if(documentHasId(document)) {
+		if(!documentHasId(document)) {
 			document.setId(new ObjectId());
 		}
 		return document;
@@ -116,7 +137,7 @@ class ReferenceElementCodec<T extends Element> implements SmofCollectibleCodec<T
 
 	@Override
 	public boolean documentHasId(T document) {
-		return document.getId() == null;
+		return document.getId() != null;
 	}
 
 	@Override
