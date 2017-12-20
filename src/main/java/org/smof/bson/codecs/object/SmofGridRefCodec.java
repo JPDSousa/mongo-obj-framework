@@ -1,11 +1,9 @@
 package org.smof.bson.codecs.object;
 
-import static org.smof.collection.UpdateOperators.SET;
 import static com.google.common.base.Preconditions.*;
 
 import org.bson.BsonDocument;
 import org.bson.BsonDocumentReader;
-import org.bson.BsonElement;
 import org.bson.BsonObjectId;
 import org.bson.BsonReader;
 import org.bson.BsonString;
@@ -64,9 +62,8 @@ public class SmofGridRefCodec implements SmofCodec<SmofGridRef> {
 			value.setBucketName(annotation.bucketName());
 		}
 		if(!annotation.preInsert()) {
-			context.addPosInsertionHook(() -> {
-				final BsonDocument doc = new BsonDocument(field.getName(), insert(value));
-				return new BsonElement(SET.getOperator(), doc);
+			context.addPosInsertionHook(update -> {
+				update.set(field.getName(), insert(value));
 			});
 		}
 		else {
@@ -103,6 +100,11 @@ public class SmofGridRefCodec implements SmofCodec<SmofGridRef> {
 		final GridFSFile file = dispatcher.loadMetadata(ref);
 		ref.putMetadata(file.getMetadata());
 		return ref;
+	}
+
+	@Override
+	public SmofGridRef decode(BsonReader reader, SmofEncoderContext context) {
+		return decode(reader, DecoderContext.builder().build());
 	}
 
 }
