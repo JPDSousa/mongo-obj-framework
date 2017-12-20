@@ -37,6 +37,7 @@ public @interface SmofObject {
 	String name();
 	boolean required() default false;
 	SmofType mapValueType() default SmofType.OBJECT;
+	boolean encodeMapAsArray() default true;
 	String bucketName() default Smof.DEFAULT_BUCKET;
 	boolean preInsert() default true;
 }
