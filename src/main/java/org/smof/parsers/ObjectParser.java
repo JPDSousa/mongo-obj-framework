@@ -23,307 +23,22 @@ package org.smof.parsers;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonNull;
-import org.bson.BsonObjectId;
-import org.bson.BsonString;
 import org.bson.BsonValue;
-import org.bson.types.ObjectId;
 import org.smof.annnotations.SmofObject;
-import org.smof.bson.codecs.SmofCodecProvider;
-import org.smof.bson.codecs.number.SmofNumberCodecProvider;
 import org.smof.bson.codecs.object.SmofObjectCodecProvider;
 import org.smof.collection.SmofDispatcher;
-import org.smof.collection.SmofOpOptions;
-import org.smof.collection.SmofOpOptionsImpl;
-import org.smof.element.Element;
-import org.smof.exception.MissingRequiredFieldException;
-import org.smof.field.MasterField;
-import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 import org.smof.field.SecondaryField;
 import org.smof.field.SmofField;
-import org.smof.gridfs.SmofGridRef;
-import org.smof.gridfs.SmofGridRefFactory;
-import org.smof.parsers.metadata.TypeBuilder;
-import org.smof.parsers.metadata.TypeParser;
-import org.smof.utils.BsonUtils;
-
-import com.mongodb.client.gridfs.model.GridFSFile;
 
 class ObjectParser extends AbstractBsonParser {
 
 	private static final Class<?>[] VALID_TYPES = {};
-	private static final String ENUM_NAME = "_enumValue";
 
 	ObjectParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, new SmofObjectCodecProvider(parser), VALID_TYPES);
-	}
-
-	@Override
-	public BsonValue toBson(Object value, SmofField fieldOpts) {
-		final Class<?> type = value.getClass();
-		final BsonDocument serValue;
-
-		if(value instanceof ObjectId) {
-			return new BsonObjectId((ObjectId) value);
-		}
-		else if(isMaster(fieldOpts)) {
-			return fromMasterField((Element) value, fieldOpts, serializationContext);
-		}
-		else if(isSmofGridRef(type)) {
-			return fromGridRef((SmofGridRef) value, (PrimaryField) fieldOpts);
-		}
-		else if(isElement(type)) {
-			if(fieldOpts instanceof PrimaryField) {
-				return fromElement((Element) value, (PrimaryField) fieldOpts, serializationContext);				
-			}
-			return fromElement((Element) value, serializationContext);
-		}
-		else if(isMap(type) && isPrimaryField(fieldOpts)) {
-			return fromMap((Map<?, ?>) value, (PrimaryField) fieldOpts, serializationContext);
-		}
-		else if(isEnum(type)) {
-			return fromEnum((Enum<?>) value, serializationContext);
-		}
-		serValue = fromObject(value);
-		serializationContext.put(value, SmofType.OBJECT, serValue);
-		return serValue;
-	}
-
-	private boolean contextContains(Object value, SmofField fieldOpts, ParserCache serContext) {
-		return !(fieldOpts instanceof MasterField) && serContext.contains(value, fieldOpts.getType());
-	}
-
-	@Override
-	protected BsonValue serializeToBson(Object value, SmofField fieldOpts) {
-		// unused
-		return null;
-	}
-
-	private BsonValue fromGridRef(SmofGridRef fileRef, PrimaryField fieldOpts) {
-		if(fileRef.isEmpty()) {
-			return new BsonNull();
-		}
-		if(fileRef.getId() == null) {
-			final SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
-			if(fileRef.getBucketName() == null) {
-				fileRef.setBucketName(annotation.bucketName());
-			}
-			//TODO test if upload file adds id to fileRef
-			if(!annotation.preInsert() && !fieldOpts.isForcePreInsert()) {
-				return new BsonLazyObjectId(fieldOpts.getName(), fileRef);
-			}
-			fieldOpts.setForcePreInsert(false);
-			dispatcher.insert(fileRef);
-		}
-		final BsonDocument bsonRef = new BsonDocument("id", new BsonObjectId(fileRef.getId()))
-				.append("bucket", new BsonString(fileRef.getBucketName()));
-		return bsonRef;
-	}
-
-	private BsonDocument fromMasterField(Element value, SmofField fieldOpts, ParserCache serContext) {
-		serContext.put(value, fieldOpts.getType(), BsonUtils.toBsonObjectId(value));
-		return fromObject(value);
-	}
-
-	private BsonValue fromElement(Element value, PrimaryField fieldOpts, SerializationContext serContext) {
-		final SmofObject annotation = fieldOpts.getSmofAnnotationAs(SmofObject.class);
-		if(annotation.preInsert() || fieldOpts.isForcePreInsert()) {
-			fieldOpts.setForcePreInsert(false);
-			return fromElement(value, serContext);
-		}
-		return new BsonLazyObjectId(fieldOpts.getName(), value);
-	}
-	
-	private BsonValue fromElement(Element value, ParserCache serContext) {
-		final SmofOpOptions options = new SmofOpOptionsImpl();
-		options.bypassCache(true);
-		dispatcher.insert(value, options);
-		final BsonObjectId id = BsonUtils.toBsonObjectId(value);
-		serContext.put(value, SmofType.OBJECT, id);
-		return id;
-	}
-
-	private BsonDocument fromObject(Object value) {
-		final BsonDocument document = new BsonDocument();
-		final TypeParser<?> metadata = getTypeParser(value.getClass());
-		final BsonArray lazyStack = new BsonArray();
-
-		for(PrimaryField field : metadata.getAllFields()) {
-			final Object fieldValue = extractValue(value, field);
-			final BsonValue parsedValue;
-
-			checkRequired(field, fieldValue);
-			parsedValue = topParser.toBson(fieldValue, field);
-			if(parsedValue instanceof BsonLazyObjectId) {
-				lazyStack.add(parsedValue);
-			}
-			else {
-				document.put(field.getName(), parsedValue);
-			}
-		}
-		document.append(SmofParser.ON_INSERT, lazyStack);
-		return document;
-	}
-
-	private Object extractValue(Object element, PrimaryField field) {
-		try {
-			final Field rawField = field.getRawField();
-			final Object value;
-			rawField.setAccessible(true);
-			value = rawField.get(element);
-			rawField.setAccessible(false);
-			return value;
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			handleError(e);
-			return null;
-		}
-	}
-
-	private void checkRequired(PrimaryField field, Object value) {
-		if(field.isRequired() && value == null) {
-			final String name = field.getName();
-			handleError(new MissingRequiredFieldException(name));
-		}
-	}
-
-	private BsonDocument fromEnum(Enum<?> value, ParserCache serContext) {
-		final BsonDocument document = fromObject(value);
-		final BsonString name = new BsonString(value.name());
-		document.append(ENUM_NAME, name);
-		serContext.put(value, SmofType.OBJECT, document);
-		return document;
-	}
-
-	private BsonDocument fromMap(Map<?, ?> value, PrimaryField mapField, ParserCache serContext) {
-		final Pair<SecondaryField, SecondaryField> fields = getMapFields(mapField);
-		final BsonDocument document = new BsonDocument();
-		for(Object key : value.keySet()) {
-			final Object mapValue = value.get(key);
-			final BsonValue parsedValue = topParser.toBson(mapValue, fields.getValue());
-			document.append(key.toString(), parsedValue);
-		}
-		serContext.put(value, SmofType.OBJECT, document);
-		return document;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T fromBson(BsonValue value, Class<T> type, SmofField fieldOpts) {
-		if(isMaster(fieldOpts) && isElement(type)) {
-			return toObject(value.asDocument(), type);
-		}
-		else if(isSmofGridRef(type)) {
-			return (T) toSmofGridRef(value.asDocument());
-		}
-		else if(isElement(type)) {
-			if(fieldOpts instanceof SecondaryField) {
-				return (T) dispatcher.findById(value.asObjectId().getValue(), (Class<Element>)type);
-			}
-			return (T) toElement(value, (Class<Element>) type);
-		}
-		else if(isPrimaryField(fieldOpts) && isMap(type)) {
-			return (T) toMap(value.asDocument(), (PrimaryField) fieldOpts);
-		}
-		else {
-			return toObject(value.asDocument(), type);
-		}
-	}
-
-	private SmofGridRef toSmofGridRef(BsonDocument refBson) {
-		final String bucketName = refBson.getString("bucket").getValue();
-		final ObjectId id = refBson.getObjectId("id").getValue();
-		final SmofGridRef ref = SmofGridRefFactory.newFromDB(id, bucketName);
-		final GridFSFile file = dispatcher.loadMetadata(ref);
-		ref.putMetadata(file.getMetadata());
-		return ref;
-	}
-
-	private <T extends Element> T toElement(BsonValue value, Class<T> type) {
-		final ObjectId id = value.asObjectId().getValue();
-		//all types are lazy loaded
-		return topParser.createLazyInstance(type, id);
-	}
-
-	private Map<?, ?> toMap(BsonDocument document, PrimaryField fieldOpts) {
-		final Map<Object, Object> map = new LinkedHashMap<>();
-		final Pair<SecondaryField, SecondaryField> mapClass = getMapFields(fieldOpts);
-
-		for(String bsonKey : document.keySet()) {
-			final BsonValue bsonValue = document.get(bsonKey);
-			final Object key = toMapKey(bsonKey, mapClass.getKey());
-			final Object value = toMapValue(bsonValue, mapClass.getValue());
-			map.put(key, value);
-		}
-
-		return map;
-	}
-
-	private Object toMapValue(BsonValue value, SecondaryField field) {
-		return topParser.fromBson(value, field);
-	}
-
-	private Object toMapKey(String key, SecondaryField field) {
-		final BsonString bsonKey = new BsonString(key);
-		return topParser.fromBson(bsonKey, field);
-	}
-
-	private <T> T toObject(BsonDocument document, Class<T> type) {
-		final BsonBuilder<T> builder = new BsonBuilder<>();
-		final T obj = buildObject(document, builder, type);
-		fillObject(document, builder, obj);
-		return obj;
-	}
-
-	private <T> void fillObject(BsonDocument document, final BsonBuilder<T> builder, final T obj) {
-		final TypeParser<?> typeParser = getTypeParser(obj.getClass());
-		for(PrimaryField field : typeParser.getNonBuilderFields()) {
-			handleField(document, builder, field);
-		}
-		builder.fillElement(obj);
-		setElementMetadata(document, obj);
-	}
-
-	private <T> void handleField(BsonDocument document, BsonBuilder<T> builder, PrimaryField field) {
-		final BsonValue fieldValue = document.get(field.getName());
-		final Object parsedObj;
-		if(fieldValue != null) {
-			if(fieldValue.isObjectId()) {
-				builder.append2LazyElements(field, fieldValue.asObjectId().getValue());
-			}
-			else {
-				parsedObj = topParser.fromBson(fieldValue, field);
-				builder.append2AdditionalFields(field.getRawField(), parsedObj);
-			}
-		}
-	}
-
-	private void setElementMetadata(BsonDocument document, Object obj) {
-		if(obj instanceof Element) {
-			((Element) obj).setId(document.getObjectId(Element.ID).getValue());
-		}
-	}
-
-	private <T> T buildObject(BsonDocument document, BsonBuilder<T> builder, Class<T> type) {
-		final TypeBuilder<T> typeBuilder = getTypeBuilder(type);
-		for(ParameterField field : typeBuilder.getParams()) {
-			final BsonValue fieldValue = getFromDocument(document, field.getName());
-			final Object parsedObj;
-			parsedObj = topParser.fromBson(fieldValue, field);
-			builder.append(field.getName(), parsedObj);
-		}
-		return builder.build(typeBuilder);
-	}
-
-	private BsonValue getFromDocument(BsonDocument document, String field) {
-		final BsonValue value = document.get(field);
-		return value == null ? new BsonNull() : value;
 	}
 
 	@Override
@@ -341,11 +56,10 @@ class ObjectParser extends AbstractBsonParser {
 	private boolean isValidMap(Class<?> type, PrimaryField fieldOpts) {
 		final Pair<SecondaryField, SecondaryField> mapTypes;
 
-		checkValidMapOpts(fieldOpts);
 		if(isMap(type)) {
 			mapTypes = getMapFields(fieldOpts);
 
-			return topParser.isValidType(mapTypes.getKey())
+			return String.class.equals(mapTypes.getKey().getFieldClass())
 					&& topParser.isValidType(mapTypes.getValue());
 		}
 		return true;
@@ -357,26 +71,25 @@ class ObjectParser extends AbstractBsonParser {
 	}
 
 	private Pair<SecondaryField, SecondaryField> getMapFields(PrimaryField mapMetadata) {
+		final SmofObject annotation = mapMetadata.getSmofAnnotationAs(SmofObject.class);
 		final String name = mapMetadata.getName();
 		final Field mapField = mapMetadata.getRawField();
 		final SmofType valueType = getMapValueType(mapMetadata);
 		final ParameterizedType mapParamType = (ParameterizedType) mapField.getGenericType();
 		final Class<?> keyClass = (Class<?>) mapParamType.getActualTypeArguments()[0];
 		final Class<?> valueClass = (Class<?>) mapParamType.getActualTypeArguments()[1];
-		final SecondaryField keyMetadata = new SecondaryField(name, SmofType.STRING, keyClass);
-		final SecondaryField valueMetadata = new SecondaryField(name, valueType, valueClass);
+		final SecondaryField keyMetadata = new SecondaryField(name, SmofType.STRING, keyClass, annotation);
+		final SecondaryField valueMetadata = new SecondaryField(name, valueType, valueClass, annotation);
+		
 		return Pair.of(keyMetadata, valueMetadata);
-	}
-
-	private void checkValidMapOpts(PrimaryField fieldOpts) {
-		if(fieldOpts == null) {
-			handleError(new UnsupportedOperationException("Nested maps are not supported"));
-		}
 	}
 
 	@Override
 	public boolean isValidBson(BsonValue value) {
-		return super.isValidBson(value) || value.isDocument() || value.isObjectId();
+		return super.isValidBson(value) 
+				|| value.isDocument() 
+				|| value.isArray() 
+				|| value.isObjectId();
 	}
 
 }
