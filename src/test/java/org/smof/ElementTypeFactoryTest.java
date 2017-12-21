@@ -26,6 +26,7 @@ import static org.junit.Assert.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -100,7 +101,9 @@ public class ElementTypeFactoryTest {
 	
 	@Test
 	public void testDate() throws SmofException {
-		final ElDateTest test = new ElDateTest(Instant.now(), LocalDate.now(), LocalDateTime.now());
+		final Instant instant = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		final LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+		final ElDateTest test = new ElDateTest(instant, LocalDate.now(), localDateTime);
 		final BsonDocument doc = parser.toBson(test);
 		System.out.println(doc.toJson());
 		assertEquals(test, parser.fromBson(doc, ElDateTest.class));
@@ -112,7 +115,8 @@ public class ElementTypeFactoryTest {
 		final ElObjTest test = new ElObjTest(a);
 		test.map1 = new LinkedHashMap<>();
 		for(int i=0;i<20;i++) {
-			test.map1.put(i+"", Instant.now());
+			final Instant instant = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+			test.map1.put(Integer.toString(i), instant);
 		}
 		
 		final BsonDocument doc = parser.toBson(test);
