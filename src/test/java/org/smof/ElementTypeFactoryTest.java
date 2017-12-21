@@ -175,11 +175,21 @@ public class ElementTypeFactoryTest {
 		}
 
 		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + ((en1 == null) ? 0 : en1.hashCode());
+			result = prime * result + ((str1 == null) ? 0 : str1.hashCode());
+			result = prime * result + ((str2 == null) ? 0 : str2.hashCode());
+			return result;
+		}
+
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {
 				return true;
 			}
-			if (obj == null) {
+			if (!super.equals(obj)) {
 				return false;
 			}
 			if (getClass() != obj.getClass()) {
@@ -205,6 +215,12 @@ public class ElementTypeFactoryTest {
 			}
 			return true;
 		}
+
+		@Override
+		public String toString() {
+			return "ElStrTest [str1=" + str1 + ", en1=" + en1 + ", str2=" + str2 + "]";
+		}
+		
 	}
 	
 	private static class ElObjIdTest extends AbstractElement{
@@ -218,11 +234,19 @@ public class ElementTypeFactoryTest {
 		}
 
 		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + ((objId == null) ? 0 : objId.hashCode());
+			return result;
+		}
+
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {
 				return true;
 			}
-			if (obj == null) {
+			if (!super.equals(obj)) {
 				return false;
 			}
 			if (getClass() != obj.getClass()) {
@@ -237,6 +261,11 @@ public class ElementTypeFactoryTest {
 				return false;
 			}
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "ElObjIdTest [objId=" + objId + "]";
 		}
 	}
 	
@@ -264,11 +293,22 @@ public class ElementTypeFactoryTest {
 		}
 
 		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + int1;
+			result = prime * result + ((int2 == null) ? 0 : int2.hashCode());
+			result = prime * result + (int) (long1 ^ (long1 >>> 32));
+			result = prime * result + short1;
+			return result;
+		}
+
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {
 				return true;
 			}
-			if (obj == null) {
+			if (!super.equals(obj)) {
 				return false;
 			}
 			if (getClass() != obj.getClass()) {
@@ -278,6 +318,13 @@ public class ElementTypeFactoryTest {
 			if (int1 != other.int1) {
 				return false;
 			}
+			if (int2 == null) {
+				if (other.int2 != null) {
+					return false;
+				}
+			} else if (!int2.equals(other.int2)) {
+				return false;
+			}
 			if (long1 != other.long1) {
 				return false;
 			}
@@ -285,6 +332,11 @@ public class ElementTypeFactoryTest {
 				return false;
 			}
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "ElNumTest [int1=" + int1 + ", int2=" + int2 + ", long1=" + long1 + ", short1=" + short1 + "]";
 		}
 	}
 	
@@ -357,6 +409,12 @@ public class ElementTypeFactoryTest {
 			}
 			return true;
 		}
+
+		@Override
+		public String toString() {
+			return "ElDateTest [javaInstant=" + javaInstant + ", javaLocaldate=" + javaLocaldate
+					+ ", javaLocaldateTime=" + javaLocaldateTime + "]";
+		}
 	}
 	
 	private static class ElObjTest extends AbstractElement {
@@ -393,6 +451,11 @@ public class ElementTypeFactoryTest {
 				result = prime * result + int1;
 				result = prime * result + ((str1 == null) ? 0 : str1.hashCode());
 				return result;
+			}
+
+			@Override
+			public String toString() {
+				return "ElObjTestA [int1=" + int1 + ", str1=" + str1 + "]";
 			}
 
 			@Override
@@ -439,10 +502,15 @@ public class ElementTypeFactoryTest {
 		@Override
 		public int hashCode() {
 			final int prime = 31;
-			int result = 1;
+			int result = super.hashCode();
 			result = prime * result + ((el1 == null) ? 0 : el1.hashCode());
 			result = prime * result + ((map1 == null) ? 0 : map1.hashCode());
 			return result;
+		}
+
+		@Override
+		public String toString() {
+			return "ElObjTest [el1=" + el1 + ", map1=" + map1 + "]";
 		}
 
 		@Override
@@ -450,7 +518,7 @@ public class ElementTypeFactoryTest {
 			if (this == obj) {
 				return true;
 			}
-			if (obj == null) {
+			if (!super.equals(obj)) {
 				return false;
 			}
 			if (getClass() != obj.getClass()) {
@@ -492,10 +560,15 @@ public class ElementTypeFactoryTest {
 		@Override
 		public int hashCode() {
 			final int prime = 31;
-			int result = 1;
+			int result = super.hashCode();
 			result = prime * result + ((arr1 == null) ? 0 : arr1.hashCode());
 			result = prime * result + ((arr2 == null) ? 0 : arr2.hashCode());
 			return result;
+		}
+
+		@Override
+		public String toString() {
+			return "ElArrTest [arr1=" + arr1 + ", arr2=" + arr2 + "]";
 		}
 
 		@Override
@@ -503,7 +576,7 @@ public class ElementTypeFactoryTest {
 			if (this == obj) {
 				return true;
 			}
-			if (obj == null) {
+			if (!super.equals(obj)) {
 				return false;
 			}
 			if (getClass() != obj.getClass()) {
@@ -550,10 +623,15 @@ public class ElementTypeFactoryTest {
 		@Override
 		public int hashCode() {
 			final int prime = 31;
-			int result = 1;
+			int result = super.hashCode();
 			result = prime * result + Arrays.hashCode(bytes1);
 			result = prime * result + Arrays.hashCode(bytes2);
 			return result;
+		}
+
+		@Override
+		public String toString() {
+			return "ElByteTest [bytes1=" + Arrays.toString(bytes1) + ", bytes2=" + Arrays.toString(bytes2) + "]";
 		}
 
 		@Override
@@ -561,7 +639,7 @@ public class ElementTypeFactoryTest {
 			if (this == obj) {
 				return true;
 			}
-			if (obj == null) {
+			if (!super.equals(obj)) {
 				return false;
 			}
 			if (getClass() != obj.getClass()) {
@@ -630,6 +708,11 @@ public class ElementTypeFactoryTest {
 				return false;
 			}
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "ElBoolTest [bool1=" + bool1 + ", bool2=" + bool2 + "]";
 		}
 		
 		
