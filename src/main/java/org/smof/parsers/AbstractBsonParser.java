@@ -59,18 +59,23 @@ abstract class AbstractBsonParser implements BsonParser {
 	
 	protected final CodecProvider provider;
 	protected final SmofParser topParser;
-	protected final CodecRegistry registry;
 	protected final SmofDispatcher dispatcher;
 	private final Class<?>[] types;
 	
 	protected AbstractBsonParser(SmofDispatcher dispatcher, SmofParser topParser, CodecProvider provider, Class<?>[] types) {
 		this.provider = provider;
 		this.topParser = topParser;
-		this.registry = topParser != null ? topParser.getRegistry() : null;
 		this.dispatcher = dispatcher;
 		this.types = types;
 	}
 	
+	@Override
+	public CodecProvider getProvider() {
+		return provider;
+	}
+
+
+
 	protected void handleError(Throwable cause) {
 		throw new SmofException(cause);
 	}
@@ -78,6 +83,7 @@ abstract class AbstractBsonParser implements BsonParser {
 	@SuppressWarnings("unchecked")
 	private <T> Codec<T> getCodec(Class<T> clazz) {
 		final Class<T> wrapperClass = (Class<T>) ClassUtils.primitiveToWrapper(clazz);
+		final CodecRegistry registry = topParser.getRegistry();
 		final Codec<T> codec = provider != null ? provider.get(wrapperClass, registry) : null;
 		if(codec == null && registry != null) {
 			return registry.get(wrapperClass);			
@@ -147,13 +153,16 @@ abstract class AbstractBsonParser implements BsonParser {
 		checkArgument(codec != null, "Cannot find a valid codec to deserialize: " + value);
 		final BsonDocument document = new BsonDocument("result", value);
 		final BsonReader reader = new BsonDocumentReader(document);
+		final T decodedValue;
 		reader.readStartDocument();
 		reader.readName();
 		if(codec instanceof SmofCodec) {
 			final SmofEncoderContext context = SmofEncoderContext.create(field);
 			return ((SmofCodec<T>) codec).decode(reader, context);
 		}
-		return codec.decode(reader, DecoderContext.builder().build());
+		decodedValue = codec.decode(reader, DecoderContext.builder().build());
+		reader.readEndDocument();
+		return decodedValue;
 	}
 
 	protected final <T> TypeStructure<T> getTypeStructure(Class<T> type) {

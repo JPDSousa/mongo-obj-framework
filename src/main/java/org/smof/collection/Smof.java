@@ -23,10 +23,8 @@ package org.smof.collection;
 
 import java.io.Closeable;
 import java.io.Serializable;
-import java.util.Arrays;
 
 import org.bson.BsonDocument;
-import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofObject;
@@ -62,18 +60,6 @@ public final class Smof implements Closeable {
 	public static final String DEFAULT_BUCKET = "fs";
 	
 	/**
-	 * Creates a new smof connection.
-	 * 
-	 * @param database mongo database
-	 * @return a new smof connection
-	 * @deprecated use {@link Smof#create(String, int, String)} instead
-	 */
-	@Deprecated
-	public static Smof create(MongoDatabase database) {
-		return new Smof(null, database);
-	}
-	
-	/**
 	 * Creates a new smof connection. Use this method to initialize the api.
 	 * 
 	 * @param host mongoDB host
@@ -82,18 +68,18 @@ public final class Smof implements Closeable {
 	 * @return a new smof connection
 	 */
 	public static Smof create(String host, int port, String databaseName) {
-		final MongoClientOptions clientOptions = buildOptions();
+		final SmofDispatcher dispatcher = new SmofDispatcherImpl();
+		final SmofParser parser = new SmofParser(dispatcher);
+		final MongoClientOptions clientOptions = buildOptions(parser.getRegistry());
 		final MongoClient client = new MongoClient(new ServerAddress(host, port), clientOptions);
 		final MongoDatabase database = client.getDatabase(databaseName);
-		return new Smof(client, database);
+		return new Smof(client, database, parser);
 	}
 	
-	private static MongoClientOptions buildOptions() {
-		final CodecRegistry mongoRegistry = MongoClient.getDefaultCodecRegistry();
-		final CodecRegistry smofRegistry = SmofParser.getDefaultCodecRegistry();
+	private static MongoClientOptions buildOptions(CodecRegistry registry) {
 		
 		return MongoClientOptions.builder()
-				.codecRegistry(CodecRegistries.fromRegistries(Arrays.asList(mongoRegistry, smofRegistry)))
+				.codecRegistry(registry)
 				.build();
 	}
 
@@ -109,13 +95,18 @@ public final class Smof implements Closeable {
 	 * 
 	 * @param client mongo client
 	 * @param database mongo database
+	 * @param parser parser to be used
 	 */
-	private Smof(MongoClient client, MongoDatabase database) {
+	private Smof(MongoClient client, MongoDatabase database, SmofParser parser) {
 		this.client = client;
 		this.database = database;
-		this.dispatcher = new SmofDispatcherImpl();
-		this.parser = new SmofParser(dispatcher, database.getCodecRegistry());
+		this.parser = parser;
+		this.dispatcher = parser.getDispatcher();
 		loadBucket(DEFAULT_BUCKET);
+	}
+	
+	MongoClient getClient() {
+		return client;
 	}
 
 	public void loadBucket(String bucketName) {

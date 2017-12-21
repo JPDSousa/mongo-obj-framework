@@ -3,7 +3,6 @@ package org.smof.bson.codecs.object;
 import static org.smof.bson.codecs.object.ObjectUtils.*;
 import static org.smof.utils.BsonUtils.*;
 
-import org.bson.BsonArray;
 import org.bson.BsonDocument;
 import org.bson.BsonDocumentReader;
 import org.bson.BsonNull;
@@ -17,7 +16,6 @@ import org.smof.bson.codecs.SmofEncoderContext;
 import org.smof.field.ParameterField;
 import org.smof.field.PrimaryField;
 import org.smof.gridfs.SmofGridRef;
-import org.smof.parsers.BsonLazyObjectId;
 import org.smof.parsers.SmofParser;
 import org.smof.parsers.metadata.TypeBuilder;
 import org.smof.parsers.metadata.TypeParser;
@@ -56,7 +54,6 @@ class ObjectCodec<T> implements SmofCodec<T> {
 	private BsonDocument encodeObject(Object value) {
 		final BsonDocument document = new BsonDocument();
 		final TypeParser<?> metadata = getTypeParser(value.getClass());
-		final BsonArray lazyStack = new BsonArray();
 
 		for(PrimaryField field : metadata.getAllFields()) {
 			final Object fieldValue = extractValue(value, field);
@@ -64,14 +61,8 @@ class ObjectCodec<T> implements SmofCodec<T> {
 
 			checkRequired(field, fieldValue);
 			parsedValue = topParser.toBson(fieldValue, field);
-			if(parsedValue instanceof BsonLazyObjectId) {
-				lazyStack.add(parsedValue);
-			}
-			else {
-				document.put(field.getName(), parsedValue);
-			}
+			document.put(field.getName(), parsedValue);
 		}
-		document.append(SmofParser.ON_INSERT, lazyStack);
 		return document;
 	}
 

@@ -33,7 +33,7 @@ import com.google.common.collect.Sets;
 @SuppressWarnings("javadoc")
 public final class CollectionUtils {
 
-	public static <E> Collection<E> create(Class<Collection<E>> clazz) throws InstantiationException, IllegalAccessException {
+	public static <E> Collection<E> create(Class<Collection<E>> clazz) {
 		if(clazz.isInterface()) {
 			if(List.class.isAssignableFrom(clazz)) {
 				return Lists.newArrayList();
@@ -46,7 +46,11 @@ public final class CollectionUtils {
 			}
 			return null;
 		}
-		return clazz.newInstance();
+		try {
+			return clazz.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 }

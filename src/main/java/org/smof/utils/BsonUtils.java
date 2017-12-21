@@ -84,7 +84,7 @@ public class BsonUtils {
 	public static BsonDocument readDocument(BsonReader reader) {
 		final BsonDocument document = new BsonDocument();
 		reader.readStartDocument();
-		while(reader.getCurrentBsonType() != BsonType.END_OF_DOCUMENT) {
+		while(reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
 			document.append(reader.readName(), readValue(reader));
 		}
 		reader.readEndDocument();
@@ -108,6 +108,7 @@ public class BsonUtils {
 		case DOUBLE:
 			return new BsonDouble(reader.readDouble());
 		case END_OF_DOCUMENT:
+			reader.readEndDocument();
 			return null;
 		case INT32:
 			return new BsonInt32(reader.readInt32());
@@ -116,6 +117,7 @@ public class BsonUtils {
 		case JAVASCRIPT:
 			return new BsonJavaScript(reader.readJavaScript());
 		case JAVASCRIPT_WITH_SCOPE:
+			reader.skipValue();
 			return null;
 		case MAX_KEY:
 			reader.readMaxKey();
@@ -124,7 +126,7 @@ public class BsonUtils {
 			reader.readMinKey();
 			return new BsonMinKey();
 		case NULL:
-			reader.readNull();
+			reader.skipValue();
 			return new BsonNull();
 		case OBJECT_ID:
 			return new BsonObjectId(reader.readObjectId());
@@ -137,11 +139,12 @@ public class BsonUtils {
 		case TIMESTAMP:
 			return reader.readTimestamp();
 		case UNDEFINED:
-			reader.readUndefined();
+			reader.skipValue();
 			return new BsonUndefined();
 		case DECIMAL128:
 			return new BsonDecimal128(reader.readDecimal128());
 		default:
+			reader.skipValue();
 			return null;
 		}
 	}
@@ -149,7 +152,7 @@ public class BsonUtils {
 	public static BsonArray readArray(BsonReader reader) {
 		final BsonArray array = new BsonArray();
 		reader.readStartArray();
-		while(reader.getCurrentBsonType() != BsonType.END_OF_DOCUMENT) {
+		while(reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
 			array.add(readValue(reader));
 		}
 		reader.readEndArray();

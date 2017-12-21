@@ -22,9 +22,15 @@
 package org.smof.parsers;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.bson.codecs.configuration.CodecProvider;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.smof.collection.SmofDispatcher;
+
+import com.google.common.collect.Lists;
 
 import static org.smof.parsers.SmofType.*;
 
@@ -36,12 +42,22 @@ public class SmofParserPool {
 	}
 	
 	private final Map<SmofType, BsonParser> parsers;
+	private final CodecRegistry registry;
 
 	private SmofParserPool(SmofParser parserContext, SmofDispatcher dispatcher) {
 		parsers = new LinkedHashMap<>();
 		createParsers(parserContext, dispatcher);
+		final List<CodecProvider> providers = Lists.newArrayListWithCapacity(parsers.size());
+		for(BsonParser parser : parsers.values()) {
+			providers.add(parser.getProvider());
+		}
+		this.registry = CodecRegistries.fromProviders(providers);
 	}
 	
+	public CodecRegistry getRegistry() {
+		return registry;
+	}
+
 	public BsonParser get(SmofType type) {
 		return parsers.get(type);
 	}

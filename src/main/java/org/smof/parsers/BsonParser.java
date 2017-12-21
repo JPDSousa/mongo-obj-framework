@@ -22,6 +22,7 @@
 package org.smof.parsers;
 
 import org.bson.BsonValue;
+import org.bson.codecs.configuration.CodecProvider;
 import org.smof.field.SmofField;
 
 @SuppressWarnings("javadoc")
@@ -36,4 +37,6 @@ public interface BsonParser {
 	boolean isValidType(Class<?> type);
 	
 	boolean isValidBson(BsonValue value);
+
+	CodecProvider getProvider();
 }

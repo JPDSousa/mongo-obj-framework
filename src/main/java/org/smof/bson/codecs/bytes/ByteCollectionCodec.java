@@ -65,8 +65,7 @@ class ByteCollectionCodec extends AbstractBytesCodec<Collection<Byte>> {
 	private Collection<Byte> getInstance() {
 		try {
 			return CollectionUtils.create(encoderClass);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException 
-				| SecurityException e) {
+		} catch (IllegalArgumentException | SecurityException e) {
 			throw new BsonInvalidOperationException(e.getMessage());
 		}
 	}

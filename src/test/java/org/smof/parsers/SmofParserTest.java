@@ -27,11 +27,6 @@ public class SmofParserTest {
 	}
 
 	@Test
-	public final void testGetDefaultCodecRegistry() {
-		assertNotNull(SmofParser.getDefaultCodecRegistry());
-	}
-
-	@Test
 	public final void testGetRegistry() {
 		assertNotNull(parser.getRegistry());
 	}

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  ******************************************************************************/
-package org.smof;
+package org.smof.collection;
 
 import static org.junit.Assert.*;
 
@@ -35,6 +35,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.smof.TestUtils;
 import org.smof.annnotations.SmofBuilder;
 import org.smof.annnotations.SmofIndex;
 import org.smof.annnotations.SmofIndexes;
@@ -64,12 +65,11 @@ public class BasicSmofTest {
 	private static MongoClient client;
 	private static MongoDatabase database;
 	
-	@SuppressWarnings("deprecation")
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		client = new MongoClient(TEST_HOST, TEST_PORT);
+		smof = TestUtils.createTestConnection();
+		client = smof.getClient();
 		database = client.getDatabase(TEST_DB);
-		smof = Smof.create(database);
 	}
 
 	@AfterClass
