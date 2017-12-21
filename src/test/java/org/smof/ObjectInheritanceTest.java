@@ -25,6 +25,7 @@ import static org.junit.Assert.*;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import org.bson.BsonDocument;
 import org.junit.BeforeClass;
@@ -65,7 +66,7 @@ public class ObjectInheritanceTest {
 	
 	@Test
 	public void testNonRegType() {
-		final B test = new B("work", Instant.now());
+		final B test = new B("work", Instant.now().truncatedTo(ChronoUnit.SECONDS));
 		final BsonDocument doc = parser.toBson(test);
 		assertEquals(test, parser.fromBson(doc, B.class));
 	}
@@ -161,6 +162,12 @@ public class ObjectInheritanceTest {
 			}
 			return true;
 		}
+
+		@Override
+		public String toString() {
+			return "A [num1=" + num1 + ", num2=" + num2 + ", str1=" + str1 + "]";
+		}
+		
 	}
 	
 	private static class A1 extends A {
@@ -221,5 +228,11 @@ public class ObjectInheritanceTest {
 			}
 			return true;
 		}
+
+		@Override
+		public String toString() {
+			return "B [str1=" + str1 + ", instant=" + instant + "]";
+		}
+		
 	}
 }
