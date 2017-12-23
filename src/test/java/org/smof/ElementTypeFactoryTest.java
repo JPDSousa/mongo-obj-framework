@@ -26,6 +26,7 @@ import static org.junit.Assert.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -111,8 +112,9 @@ public class ElementTypeFactoryTest {
 		final ElObjTest.ElObjTestA a = new ElObjTest.ElObjTestA(30, "gauss");
 		final ElObjTest test = new ElObjTest(a);
 		test.map1 = new LinkedHashMap<>();
-		for(int i=0;i<20;i++) {
-			test.map1.put(i+"", Instant.now());
+		for(int i=0;i<10;i++) {
+			final Instant instant = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+			test.map1.put(i+"", instant);
 		}
 		
 		final BsonDocument doc = parser.toBson(test);
