@@ -79,7 +79,7 @@ public class SmofParser {
 		parsers = SmofParserPool.create(this, dispatcher);
 		parserCache = ParserCache.create();
 		posInsertionHooks = Maps.newHashMap();
-		this.registry = CodecRegistries.fromRegistries(registry, parsers.getRegistry());
+		this.registry = CodecRegistries.fromRegistries(parsers.getRegistry(), registry);
 	}
 	
 	public ParserCache getCache() {
