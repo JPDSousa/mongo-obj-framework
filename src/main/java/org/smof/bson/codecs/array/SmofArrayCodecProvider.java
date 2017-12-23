@@ -15,21 +15,12 @@ public class SmofArrayCodecProvider implements CodecProvider {
 	@Override
 	public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
 		if(clazz.isArray()) {
-			final Codec<?> innerCodec = getInnerCodec(clazz, registry);
 			return new ArrayCodec(clazz, innerCodec);
 		}
 		else if(Collection.class.isAssignableFrom(clazz)) {
-			final Codec<?> innerCodec = getInnerCodec(clazz, registry);
 			return new CollectionCodec(innerCodec, clazz);
 		}
 		return null;
-	}
-
-	private <T> Codec<?> getInnerCodec(Class<T> clazz, CodecRegistry registry) {
-		final TypeToken<T> type = TypeToken.of(clazz);
-		final TypeToken<?> componentType = type.resolveType(Collection.class.getTypeParameters()[0]);
-		final Codec<?> innerCodec = registry.get(componentType.getRawType());
-		return innerCodec;
 	}
 
 }
