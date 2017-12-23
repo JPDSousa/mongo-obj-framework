@@ -21,6 +21,8 @@
  ******************************************************************************/
 package org.smof.parsers;
 
+import java.util.Collection;
+
 import org.bson.BsonValue;
 import org.smof.bson.codecs.bytes.SmofBytesCodecProvider;
 import org.smof.collection.SmofDispatcher;
@@ -28,7 +30,7 @@ import org.smof.collection.SmofDispatcher;
 class ByteParser extends AbstractBsonParser {
 
 	static final SmofBytesCodecProvider PROVIDER = new SmofBytesCodecProvider();
-	private static final Class<?>[] VALID_TYPES = {Byte[].class, byte[].class};
+	private static final Class<?>[] VALID_TYPES = {Byte[].class, byte[].class, Collection.class};
 
 	protected ByteParser(SmofDispatcher dispatcher, SmofParser bsonParser) {
 		super(dispatcher, bsonParser, PROVIDER, VALID_TYPES);

@@ -21,8 +21,11 @@
  ******************************************************************************/
 package org.smof.parsers;
 
-import org.bson.BsonObjectId;
+import static com.google.common.base.Preconditions.*;
+
 import org.bson.BsonValue;
+import org.bson.codecs.Codec;
+import org.bson.codecs.ObjectIdCodec;
 import org.bson.types.ObjectId;
 import org.smof.collection.SmofDispatcher;
 import org.smof.field.SmofField;
@@ -31,13 +34,17 @@ class ObjectIdParser extends AbstractBsonParser {
 	
 	private static final Class<?>[] VALID_TYPES = {ObjectId.class};
 	
+	private final Codec<ObjectId> codec;
+	
 	ObjectIdParser(SmofParser parser, SmofDispatcher dispatcher) {
 		super(dispatcher, parser, null, VALID_TYPES);
+		this.codec = new ObjectIdCodec();
 	}
-
+	
 	@Override
-	public BsonValue serializeToBson(Object value, SmofField fieldOpts) {
-		return new BsonObjectId((ObjectId) value);
+	public BsonValue toBson(Object value, SmofField fieldOpts) {
+		checkArgument(value != null, "The value cannot be null");
+		return serializeWithCodec(codec, value, fieldOpts);
 	}
 
 	@SuppressWarnings("unchecked")

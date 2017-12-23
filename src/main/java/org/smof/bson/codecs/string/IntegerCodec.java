@@ -31,7 +31,7 @@ class IntegerCodec extends org.bson.codecs.IntegerCodec {
 
 	@Override
 	public void encode(BsonWriter writer, Integer value, EncoderContext encoderContext) {
-		writer.writeString(String.valueOf(value));
+		writer.writeString(value.toString());
 	}
 
 	@Override
