@@ -22,6 +22,7 @@
 package org.smof.parsers;
 
 import org.bson.*;
+import org.bson.types.Decimal128;
 import org.junit.Test;
 import org.junit.Before;
 import org.smof.dataModel.TypeGuitar;
@@ -34,89 +35,99 @@ import static org.junit.Assert.*;
  * Created by thales on 06/10/17.
  */
 @SuppressWarnings("javadoc")
-public class StringParserTest {
-	
-	private enum DummyEnum {
-		VALUE1,
-		VALUE2
-	}
-	
+public class StringParserTest implements ParserTest {
+
 	private StringParser parser;
-	
+
 	@Before
-	public void setUp() {
+	public final void setUp() {
 		parser = new StringParser(null, null);
 	}
 
-    @Test
-    public void serializeToBson_ShouldSerialize_ObjectStringValueCorrectly() {
-		final String testString = "some string";
-        BsonValue bsonValue = parser.serializeToBson(testString, null);
-        assertEquals(new BsonString(testString), bsonValue);
-    }
+	@Test
+	public final void testString() {
+		final String str = "some string";
+		final BsonValue bsonValue = new BsonString(str);
+		assertParserResult(parser, bsonValue, str);
+	}
 
-    @Test
-    public void serializeToBson_ShouldSerialize_ObjectEnumValueCorrectly() {
-        AbstractBsonParser abstractBsonParser = new StringParser(null, null);
-        BsonValue bsonValue = abstractBsonParser.serializeToBson(TypeGuitar.ACOUSTIC, null);
-        assertEquals("BsonString{value='ACOUSTIC'}", bsonValue.toString());
-    }
+	@Test
+	public final void testEnum() {
+		final TypeGuitar type = TypeGuitar.ACOUSTIC;
+		final BsonValue bsonValue = new BsonString(type.name());
+		assertParserResult(parser, bsonValue, type);
+	}
 
-    @Test
-    public void serializeToBson_ShouldSerialize_ObjectIntegerValueCorrectly() {
-        AbstractBsonParser abstractBsonParser = new StringParser(null, null);
-        BsonValue bsonValue = abstractBsonParser.serializeToBson(1, null);
-        assertEquals("BsonString{value='1'}", bsonValue.toString());
-    }
+	@Test
+	public final void testShort() {
+		final short primitive = 123;
+		final Short wrapper = new Short(primitive);
+		final BsonInt32 bsonValue = new BsonInt32(primitive);
+		assertParserResult(parser, bsonValue, primitive);
+		assertParserResult(parser, bsonValue, wrapper);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void serializeToBson_ShouldSerialize_ToNullAnd_RaiseException() {
-        AbstractBsonParser abstractBsonParser = new StringParser(null, null);
-        abstractBsonParser.serializeToBson(BigDecimal.ONE, null);
-    }
+	@Test
+	public final void testInteger() {
+		final int testInt = 123;
+		final Integer testInteger = new Integer(testInt);
+		final BsonInt32 bsonValue = new BsonInt32(testInt);
+		assertParserResult(parser, bsonValue, testInt);
+		assertParserResult(parser, bsonValue, testInteger);
+	}
 
-    @Test
-    public void fromBson_ShouldReturn_StringRawValue() {
-        AbstractBsonParser abstractBsonParser = new StringParser(null, null);
-        BsonString bsonString = new BsonString("bsonString");
-        String string = abstractBsonParser.fromBson(bsonString, String.class, null);
-        assertEquals("bsonString", string);
-    }
+	@Test
+	public final void testLong() {
+		final long testPrimitive = 123L;
+		final Long testWrapper = new Long(testPrimitive);
+		final BsonInt64 bsonValue = new BsonInt64(testPrimitive);
+		assertParserResult(parser, bsonValue, testPrimitive);
+		assertParserResult(parser, bsonValue, testWrapper);
+	}
 
-    @Test
-    public void fromBson_ShouldReturn_IntegerRawValue() {
-        AbstractBsonParser abstractBsonParser = new StringParser(null, null);
-        BsonString bsonString = new BsonString("1");
-        Integer integer = abstractBsonParser.fromBson(bsonString, Integer.class, null);
-        assertEquals(1, integer.intValue());
-    }
-    
-    @Test
-    public void fromBson_ShouldReturn_EnumRawValue() {
-    	final DummyEnum expected = DummyEnum.VALUE1;
-		final BsonString bsonValue = new BsonString(expected.name());
-		final DummyEnum actual = parser.fromBson(bsonValue, DummyEnum.class, null);
-    	assertEquals(expected, actual);
-    }
+	@Test
+	public final void testBigDecimal() {
+		final double primDouble = Math.PI;
+		final BigDecimal bigDecimal = new BigDecimal(primDouble);
+		final Decimal128 decimal = new Decimal128(bigDecimal);
+		final BsonDecimal128 bsonValue = new BsonDecimal128(decimal);
+		assertParserResult(parser, bsonValue, decimal);
+		assertParserResult(parser, bsonValue, bigDecimal);
+	}
 
-    @Test(expected = RuntimeException.class)
-    public void fromBson_ShouldRaise_RuntimeException_IfValueIsNull() {
-        AbstractBsonParser abstractBsonParser = new StringParser(null, null);
-        abstractBsonParser.fromBson(null, Boolean.class, null);
-    }
+	@Test
+	public final void testFloat() {
+		final float primitive = 0.87f;
+		final Float wrapper = new Float(primitive);
+		final BsonDouble bsonValue = new BsonDouble(primitive);
+		assertParserResult(parser, bsonValue, primitive);
+		assertParserResult(parser, bsonValue, wrapper);
+	}
 
-    @Test
-    public void isValidBson_ShouldReturn_True() {
-        AbstractBsonParser abstractBsonParser = new StringParser(null, null);
-        boolean validBson = abstractBsonParser.isValidBson(new BsonString("a string"));
-        assertTrue(validBson);
-    }
+	@Test
+	public final void testBigDouble() {
+		final double primitive = 12.12;
+		final Double wrapper = new Double(primitive);
+		final BsonValue bsonValue = new BsonDouble(primitive);
+		assertParserResult(parser, bsonValue, primitive);
+		assertParserResult(parser, bsonValue, wrapper);
+	}
 
-    @Test
-    public void isValidBson_ShouldReturn_False() {
-        AbstractBsonParser abstractBsonParser = new StringParser(null, null);
-        boolean validBson = abstractBsonParser.isValidBson(new BsonArray());
-        assertFalse(validBson);
-    }
+	@Test(expected = RuntimeException.class)
+	public void fromBson_ShouldRaise_RuntimeException_IfValueIsNull() {
+		parser.fromBson(null, String.class, null);
+	}
+
+	@Test
+	public void isValidBson_ShouldReturn_True() {
+		final boolean validBson = parser.isValidBson(new BsonString("a string"));
+		assertTrue(validBson);
+	}
+
+	@Test
+	public void isValidBson_ShouldReturn_False() {
+		final boolean validBson = parser.isValidBson(new BsonArray());
+		assertFalse(validBson);
+	}
 
 }
