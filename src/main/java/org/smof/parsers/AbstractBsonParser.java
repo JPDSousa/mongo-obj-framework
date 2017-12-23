@@ -94,13 +94,9 @@ abstract class AbstractBsonParser implements BsonParser {
 	@Override
 	public BsonValue toBson(Object value, SmofField fieldOpts) {
 		checkArgument(value != null, "You must specify a value in order to be serialized");
-		return serializeToBson(value, fieldOpts);
-	}
-	
-	protected BsonValue serializeToBson(Object value, SmofField field) {
 		final Class<?> clazz = value.getClass();
 		final Codec<?> codec = getCodec(clazz);
-		return serializeWithCodec(codec, value, field);
+		return serializeWithCodec(codec, value, fieldOpts);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -144,10 +140,12 @@ abstract class AbstractBsonParser implements BsonParser {
 		try {
 			return deserializeWithCodec(codec, value, field);
 		} catch (BsonInvalidOperationException e) {
-			handleError(new RuntimeException("Cannot parse value for type: " + field.getName(), e));
+			handleError(new RuntimeException("Cannot parse value for object: " + field.getName(), e));
 			return null;
 		}
 	}
+	
+	
 	
 	protected final <T> T deserializeWithCodec(Codec<T> codec, BsonValue value, SmofField field) {
 		checkArgument(codec != null, "Cannot find a valid codec to deserialize: " + value);
