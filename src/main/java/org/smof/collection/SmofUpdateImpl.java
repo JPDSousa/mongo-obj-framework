@@ -72,7 +72,7 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 	@Override
 	public SmofUpdate<T> addToSet(String fieldName, Object value) {
 		final PrimaryField field = validateFieldName(fieldName, ARRAY);
-		final BsonValue bsonValue = parser.toBson(value, field.getSecondaryField());
+		final BsonValue bsonValue = parser.toBson(value, field.getSecondaryField(0));
 		putOrAppend(ADD_TO_SET, fieldName, bsonValue);
 		return this;
 	}
@@ -181,7 +181,7 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 	@Override
 	public SmofUpdate<T> pull(String fieldName, Object value) {
 		final PrimaryField field = validateFieldName(fieldName, ARRAY);
-		final BsonValue bsonValue = parser.toBson(value, field.getSecondaryField());
+		final BsonValue bsonValue = parser.toBson(value, field.getSecondaryField(0));
 		putOrAppend(PULL, fieldName, bsonValue);
 		return this;
 	}
@@ -202,7 +202,7 @@ class SmofUpdateImpl<T extends Element> implements SmofUpdate<T>{
 	@Override
 	public SmofUpdate<T> push(String fieldName, Object value) {
 		final PrimaryField field = validateFieldName(fieldName, ARRAY);
-		final BsonValue bsonValue = parser.toBson(value, field.getSecondaryField());
+		final BsonValue bsonValue = parser.toBson(value, field.getSecondaryField(0));
 		putOrAppend(PUSH, fieldName, bsonValue);
 		return this;
 	}

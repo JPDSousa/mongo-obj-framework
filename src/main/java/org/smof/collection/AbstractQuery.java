@@ -72,9 +72,11 @@ abstract class AbstractQuery<T extends Element, Query extends SmofQuery<T, ?>> i
 	}
 	
 	private BsonValue toBsonQueryValue(PrimaryField field, Object value) {
-		if((field.getType() == SmofType.OBJECT && value instanceof Map)
-				|| field.getType() == SmofType.ARRAY) {
-			return parser.toBson(value, field.getSecondaryField());
+		if(field.getType() == SmofType.OBJECT && value instanceof Map) {
+			return parser.toBson(value, field.getSecondaryField(1));
+		}
+		if(field.getType() == SmofType.ARRAY) {
+			return parser.toBson(value, field.getSecondaryField(0));
 		}
 		return parser.toBson(value, field);
 	}

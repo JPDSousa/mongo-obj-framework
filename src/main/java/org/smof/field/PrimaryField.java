@@ -37,7 +37,7 @@ import org.smof.element.Element;
 import org.smof.parsers.SmofType;
 
 @SuppressWarnings("javadoc")
-public class PrimaryField implements Comparable<PrimaryField>, SmofField{
+public class PrimaryField implements Comparable<PrimaryField>, SmofField {
 
 	private final SmofType type;
 	private String name;
@@ -143,8 +143,8 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		return field;
 	}
 	
-	public SecondaryField getSecondaryField() {
-		final Class<?> componentClass = getParameterizedType(getRawField());
+	public SecondaryField getSecondaryField(int paramIndex) {
+		final Class<?> componentClass = getParameterizedType(getRawField(), paramIndex);
 		final SmofType type;
 		if(this.type == SmofType.ARRAY) {
 			final SmofArray note = getSmofAnnotationAs(SmofArray.class);
@@ -157,9 +157,9 @@ public class PrimaryField implements Comparable<PrimaryField>, SmofField{
 		
 	}
 
-	private Class<?> getParameterizedType(Field collType) {
+	private Class<?> getParameterizedType(Field collType, int paramIndex) {
 		final ParameterizedType mapParamType = (ParameterizedType) collType.getGenericType();
-		return (Class<?>) mapParamType.getActualTypeArguments()[0];
+		return (Class<?>) mapParamType.getActualTypeArguments()[paramIndex];
 	}
 	
 	@Override

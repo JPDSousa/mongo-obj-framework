@@ -33,7 +33,7 @@ import org.smof.field.SmofField;
 
 class ArrayParser extends AbstractBsonParser {
 
-	public static final CodecProvider PROVIDER = new SmofArrayCodecProvider(); 
+	static final CodecProvider PROVIDER = new SmofArrayCodecProvider(); 
 	private static final Class<?>[] VALID_TYPES = {};
 	
 	ArrayParser(SmofParser parser, SmofDispatcher dispatcher) {
@@ -49,7 +49,7 @@ class ArrayParser extends AbstractBsonParser {
 	}
 
 	private boolean isValidComponentType(PrimaryField fieldOpts) {
-		final SecondaryField componentField = fieldOpts.getSecondaryField();
+		final SecondaryField componentField = fieldOpts.getSecondaryField(0);
 		return topParser.isValidType(componentField);
 	}
 

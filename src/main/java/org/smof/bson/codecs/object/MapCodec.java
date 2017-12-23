@@ -42,7 +42,7 @@ class MapCodec implements SmofCodec<Map<String, Object>> {
 		final SmofField field = context.getField();
 		if(field instanceof PrimaryField) {
 			final PrimaryField primaryField = (PrimaryField) field;
-			final SecondaryField secondaryField = primaryField.getSecondaryField();
+			final SecondaryField secondaryField = primaryField.getSecondaryField(1);
 			final SmofObject annotation = primaryField.getSmofAnnotationAs(SmofObject.class);
 			encodeMap(writer, value, secondaryField, annotation);
 		}
@@ -101,7 +101,7 @@ class MapCodec implements SmofCodec<Map<String, Object>> {
 		final SmofField field = context.getField();
 		if(field instanceof PrimaryField) {
 			final PrimaryField primaryField = (PrimaryField) field;
-			return decodeMap(reader, primaryField.getSecondaryField(), primaryField.getSmofAnnotationAs(SmofObject.class));
+			return decodeMap(reader, primaryField.getSecondaryField(1), primaryField.getSmofAnnotationAs(SmofObject.class));
 		}
 		else if(field instanceof SecondaryField) {
 			final SecondaryField secondaryField = (SecondaryField) field;
@@ -120,7 +120,7 @@ class MapCodec implements SmofCodec<Map<String, Object>> {
 	private Map<String, Object> decodeAsDocument(BsonReader reader, SmofField field) {
 		final Map<String, Object> map = Maps.newHashMap();
 		reader.readStartDocument();
-		while(reader.getCurrentBsonType() != BsonType.END_OF_DOCUMENT) {
+		while(reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
 			final String key = reader.readName();
 			final Object value = topParser.fromBson(readValue(reader), field);
 			map.put(key, value);
@@ -132,7 +132,7 @@ class MapCodec implements SmofCodec<Map<String, Object>> {
 	private Map<String, Object> decodeAsArray(BsonReader reader, SmofField field) {
 		final Map<String, Object> map = Maps.newHashMap();
 		reader.readStartArray();
-		while(reader.getCurrentBsonType() != BsonType.END_OF_DOCUMENT) {
+		while(reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
 			final String key;
 			final Object value;
 			reader.readStartDocument();
