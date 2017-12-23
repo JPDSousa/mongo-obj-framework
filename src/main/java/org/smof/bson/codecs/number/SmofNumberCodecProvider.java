@@ -37,6 +37,7 @@ public class SmofNumberCodecProvider implements CodecProvider {
 	
 	public SmofNumberCodecProvider() {
 		codecs = Maps.newHashMapWithExpectedSize(3);
+		put(new ShortCodec());
 		put(new IntegerCodec());
 		put(new BigDecimalCodec());
 		put(new DoubleCodec());
